@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { ClerkProvider } from "@clerk/nextjs";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale } from "next-intl/server";
 import "./globals.css";
 
 // Runs before hydration so the correct theme applies on first paint —
@@ -30,15 +32,17 @@ export const metadata: Metadata = {
   description: "Manage appointments across hospitals, clinics, and labs.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
     <ClerkProvider>
       <html
-        lang="en"
+        lang={locale}
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
         suppressHydrationWarning
       >
@@ -48,7 +52,7 @@ export default function RootLayout({
           </Script>
         </head>
         <body className="min-h-full flex flex-col" suppressHydrationWarning>
-          {children}
+          <NextIntlClientProvider>{children}</NextIntlClientProvider>
         </body>
       </html>
     </ClerkProvider>
