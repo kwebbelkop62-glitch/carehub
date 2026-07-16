@@ -27,6 +27,7 @@ export async function addUnitAction(formData: FormData) {
       hospital_or_facility_name: facility,
       location_area: location || null,
       added_by_user_id: appUser.id,
+      created_at: new Date().toISOString(),
     })
     .select("id")
     .single();

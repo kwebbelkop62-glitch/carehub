@@ -39,7 +39,12 @@ export const getOrCreateAppUser = cache(async (): Promise<User | null> => {
 
   const { data: created, error: insertError } = await supabase
     .from("users")
-    .insert({ clerk_user_id: clerkUser.id, full_name: fullName, email })
+    .insert({
+      clerk_user_id: clerkUser.id,
+      full_name: fullName,
+      email,
+      created_at: new Date().toISOString(),
+    })
     .select("*")
     .single();
 

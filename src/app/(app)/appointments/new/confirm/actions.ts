@@ -27,6 +27,7 @@ export async function confirmAppointmentAction(formData: FormData) {
       appointment_date: date,
       appointment_time: time,
       status: "pending",
+      created_at: new Date().toISOString(),
     })
     .select("id")
     .single();
@@ -46,6 +47,7 @@ export async function confirmAppointmentAction(formData: FormData) {
     remind_at: remindAt,
     channel: "email",
     status: "pending",
+    created_at: new Date().toISOString(),
   });
 
   if (reminderError) throw reminderError;
