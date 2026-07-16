@@ -1,26 +1,50 @@
 @import "tailwindcss";
 
+/* Switches the `dark:` variant from prefers-color-scheme to a `.dark`
+   class on <html>, so the toggle can override system preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f7f5fc;
+  --foreground: #26215c; /* text primary */
+  --surface: #ffffff;
+  --border: #e4e1f7;
+  --accent: #7f77dd;
+  --accent-hover: #534ab7;
+  --muted: #5f5aa0; /* text secondary */
+  --tint: #eeedfe; /* badge / light-fill background */
+}
+
+.dark {
+  --background: #14111f;
+  --foreground: #efeefc;
+  --surface: #1e1a33;
+  --border: #332c57;
+  --accent: #9690e8;
+  /* Not specified for dark mode — reusing light mode's primary accent as
+     the hover step reads as a deliberate darken-on-hover in both themes. */
+  --accent-hover: #7f77dd;
+  --muted: #a9a4d6;
+  /* Not specified for dark mode — a subtle purple wash between --surface
+     and --border, same role as light mode's --tint. */
+  --tint: #28234a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-muted: var(--muted);
+  --color-tint: var(--tint);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
