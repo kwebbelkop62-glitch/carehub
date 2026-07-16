@@ -5,13 +5,13 @@ type Variant = "primary" | "secondary" | "ghost" | "danger";
 
 const variantClasses: Record<Variant, string> = {
   primary:
-    "bg-emerald-600 text-white hover:bg-emerald-700 active:scale-[0.98] disabled:bg-zinc-300 disabled:text-zinc-500",
+    "bg-accent text-white hover:bg-accent-hover active:scale-[0.98] disabled:bg-border disabled:text-muted",
   secondary:
-    "bg-white text-zinc-900 border border-zinc-300 hover:bg-zinc-50 active:scale-[0.98] disabled:text-zinc-400 dark:bg-zinc-900 dark:text-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800",
+    "bg-surface text-foreground border border-border hover:bg-tint active:scale-[0.98] disabled:text-muted",
   ghost:
-    "text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 active:scale-[0.98] dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800",
+    "text-muted hover:text-foreground hover:bg-tint active:scale-[0.98]",
   danger:
-    "bg-white text-red-600 border border-red-200 hover:bg-red-50 active:scale-[0.98] dark:bg-zinc-900 dark:border-red-900 dark:hover:bg-red-950",
+    "bg-surface text-red-600 border border-red-200 hover:bg-red-50 active:scale-[0.98] dark:border-red-900 dark:hover:bg-red-950",
 };
 
 const base =

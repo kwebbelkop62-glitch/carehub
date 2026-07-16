@@ -39,30 +39,30 @@ export default async function ConfirmAppointmentPage({
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Confirm appointment
         </h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           Review the details before booking.
         </p>
       </div>
 
       <Card className="flex flex-col gap-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
             Patient
           </p>
           <p className="text-sm text-foreground">{typedPatient.full_name}</p>
         </div>
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
             Unit
           </p>
           <p className="text-sm text-foreground">{typedUnit.name}</p>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-muted">
             {typedUnit.hospital_or_facility_name}
             {typedUnit.location_area ? ` · ${typedUnit.location_area}` : ""}
           </p>
         </div>
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
             Date &amp; time
           </p>
           <p className="text-sm text-foreground">

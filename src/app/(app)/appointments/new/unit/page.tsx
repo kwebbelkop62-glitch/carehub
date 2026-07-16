@@ -75,7 +75,7 @@ export default async function SelectUnitPage({
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Select a unit
         </h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           Search specialist clinics, labs, scan centers, and more.
         </p>
       </div>
@@ -123,7 +123,7 @@ export default async function SelectUnitPage({
       )}
 
       {!error && results.length === 0 && (
-        <Card className="text-sm text-zinc-600 dark:text-zinc-400">
+        <Card className="text-sm text-muted">
           No units matched &quot;{q}&quot;. Try a different search, or add it below.
         </Card>
       )}
@@ -134,29 +134,29 @@ export default async function SelectUnitPage({
             key={unit.id}
             href={`/appointments/new/time?patient=${selectedPatientId}&unit=${unit.id}`}
           >
-            <Card className="transition-colors hover:border-emerald-600">
+            <Card className="transition-colors hover:border-accent">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="font-medium text-foreground">{unit.name}</p>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  <p className="text-sm text-muted">
                     {unit.hospital_or_facility_name}
                     {unit.location_area ? ` · ${unit.location_area}` : ""}
                   </p>
                 </div>
-                <span className="shrink-0 rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium capitalize text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                <span className="shrink-0 rounded-full bg-tint px-2.5 py-1 text-xs font-medium capitalize text-accent-hover">
                   {unitTypeLabel(unit.type)}
                 </span>
               </div>
               {unit.added_by_user_id === appUser.id && (
-                <p className="mt-2 text-xs text-zinc-400">Added by you</p>
+                <p className="mt-2 text-xs text-muted">Added by you</p>
               )}
             </Card>
           </Link>
         ))}
       </div>
 
-      <details className="rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
-        <summary className="cursor-pointer text-sm font-medium text-zinc-700 dark:text-zinc-300">
+      <details className="rounded-xl border border-border p-4">
+        <summary className="cursor-pointer text-sm font-medium text-foreground">
           Can&apos;t find it? Add a clinic
         </summary>
         <form action={addUnitAction} className="mt-4 flex flex-col gap-4">

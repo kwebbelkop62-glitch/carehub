@@ -8,7 +8,7 @@ export default function SignUpPage() {
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             CareHub
           </h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1 text-sm text-muted">
             Create an account to get started
           </p>
         </div>
@@ -18,10 +18,10 @@ export default function SignUpPage() {
           signInUrl="/sign-in"
           appearance={{
             variables: {
-              colorPrimary: "#059669",
+              colorPrimary: "#7F77DD",
             },
             elements: {
-              card: "shadow-none border border-zinc-200 rounded-xl",
+              card: "shadow-none border border-border rounded-xl",
               headerTitle: "hidden",
               headerSubtitle: "hidden",
             },

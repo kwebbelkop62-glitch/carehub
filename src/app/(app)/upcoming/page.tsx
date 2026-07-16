@@ -1,10 +1,9 @@
-import Link from "next/link";
 import { getOrCreateAppUser } from "@/lib/current-app-user";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { LinkButton } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { formatDate, formatTime, greeting, todayIso } from "@/lib/format";
+import { AppointmentCard } from "@/components/appointment-card";
+import { greeting, todayIso } from "@/lib/format";
 import type { AppointmentWithUnitAndPatient, Patient } from "@/lib/types";
 
 export default async function UpcomingPage() {
@@ -38,9 +37,7 @@ export default async function UpcomingPage() {
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           {greeting()}, {firstName}
         </h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Here&apos;s what&apos;s coming up.
-        </p>
+        <p className="mt-1 text-sm text-muted">Here&apos;s what&apos;s coming up.</p>
       </div>
 
       {patientsError ? (
@@ -49,7 +46,7 @@ export default async function UpcomingPage() {
         </Card>
       ) : !hasPatients ? (
         <Card className="flex flex-col items-start gap-3">
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-sm text-muted">
             Add yourself or a dependant to start booking appointments.
           </p>
           <LinkButton href="/profile">Add a patient</LinkButton>
@@ -67,39 +64,19 @@ export default async function UpcomingPage() {
           )}
 
           {!error && upcoming.length === 0 && (
-            <Card className="text-sm text-zinc-600 dark:text-zinc-400">
-              No upcoming appointments.
-            </Card>
+            <Card className="text-sm text-muted">No upcoming appointments.</Card>
           )}
 
-          <div className="flex flex-col gap-3">
-            {upcoming.map((appointment) => (
-              <Link key={appointment.id} href={`/appointments/${appointment.id}`}>
-                <Card className="transition-colors hover:border-emerald-600">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-medium text-foreground">
-                        {appointment.units.name}
-                      </p>
-                      <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                        {appointment.units.hospital_or_facility_name}
-                      </p>
-                      {patientList.length > 1 && (
-                        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                          For {appointment.patients.full_name}
-                        </p>
-                      )}
-                    </div>
-                    <Badge status={appointment.status} />
-                  </div>
-                  <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-300">
-                    {formatDate(appointment.appointment_date)} &middot;{" "}
-                    {formatTime(appointment.appointment_time)}
-                  </p>
-                </Card>
-              </Link>
-            ))}
-          </div>
+          {!error && upcoming.length > 0 && (
+            <>
+              <p className="text-xs text-muted">Hover or tap a card for more</p>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {upcoming.map((appointment) => (
+                  <AppointmentCard key={appointment.id} appointment={appointment} />
+                ))}
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

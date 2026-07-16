@@ -24,25 +24,25 @@ export default async function ProfilePage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">Profile</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           Account details and the people you manage appointments for.
         </p>
       </div>
 
       <Card className="flex flex-col gap-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
             Name
           </p>
           <p className="text-sm text-foreground">{appUser.full_name}</p>
         </div>
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
             Email
           </p>
           <p className="text-sm text-foreground">{appUser.email}</p>
         </div>
-        <p className="text-xs text-zinc-400">
+        <p className="text-xs text-muted">
           Manage sign-in details from the account menu in the top-right corner.
         </p>
       </Card>
@@ -51,7 +51,7 @@ export default async function ProfilePage() {
         <h2 className="text-lg font-medium text-foreground">
           Patients you manage
         </h2>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           Add yourself and any dependants whose appointments you book.
         </p>
       </div>
@@ -63,7 +63,7 @@ export default async function ProfilePage() {
       )}
 
       {!error && patientList.length === 0 && (
-        <Card className="text-sm text-zinc-600 dark:text-zinc-400">
+        <Card className="text-sm text-muted">
           No patients yet. Add yourself below to start booking.
         </Card>
       )}
@@ -73,7 +73,7 @@ export default async function ProfilePage() {
           <Card key={patient.id} className="flex items-center justify-between gap-3">
             <div>
               <p className="font-medium text-foreground">{patient.full_name}</p>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              <p className="text-sm text-muted">
                 {patient.relationship_to_owner} &middot; born{" "}
                 {formatDate(patient.date_of_birth)}
               </p>

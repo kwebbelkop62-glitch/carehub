@@ -62,7 +62,7 @@ export default async function SelectTimePage({
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Select a date and time
         </h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           For {typedPatient.full_name} at {typedUnit.name},{" "}
           {typedUnit.hospital_or_facility_name}
         </p>
@@ -91,24 +91,24 @@ export default async function SelectTimePage({
       </form>
 
       {date && time && !dateIsPast && (
-        <Card className={conflicts.length > 0 ? "border-amber-300" : "border-emerald-300"}>
+        <Card className={conflicts.length > 0 ? "border-amber-300" : "border-green-300"}>
           {conflicts.length > 0 ? (
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
                 You already have an appointment at this time
               </p>
               {conflicts.map((c) => (
-                <p key={c.id} className="text-sm text-zinc-600 dark:text-zinc-400">
+                <p key={c.id} className="text-sm text-muted">
                   {c.patients.full_name} at {c.units.name} — {formatDate(c.appointment_date)}{" "}
                   {formatTime(c.appointment_time)}
                 </p>
               ))}
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="text-xs text-muted">
                 You can still continue if this is intentional.
               </p>
             </div>
           ) : (
-            <p className="text-sm text-emerald-700 dark:text-emerald-400">
+            <p className="text-sm text-green-700 dark:text-green-400">
               No conflicts with your other appointments.
             </p>
           )}

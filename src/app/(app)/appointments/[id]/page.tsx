@@ -56,7 +56,7 @@ export default async function AppointmentDetailPage({
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             {typedAppointment.units.name}
           </h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="mt-1 text-sm text-muted">
             For {typedAppointment.patients.full_name}
           </p>
         </div>
@@ -65,7 +65,7 @@ export default async function AppointmentDetailPage({
 
       <Card className="flex flex-col gap-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
             Unit
           </p>
           <p className="text-sm text-foreground">
@@ -76,7 +76,7 @@ export default async function AppointmentDetailPage({
           </p>
         </div>
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
             Date &amp; time
           </p>
           <p className="text-sm text-foreground">
@@ -86,7 +86,7 @@ export default async function AppointmentDetailPage({
         </div>
         {typedAppointment.notes && (
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted">
               Notes
             </p>
             <p className="text-sm text-foreground">{typedAppointment.notes}</p>
@@ -96,16 +96,16 @@ export default async function AppointmentDetailPage({
 
       <Card className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
             Reminder
           </p>
           {typedReminder ? (
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="mt-1 text-sm text-muted">
               {formatDate(typedReminder.remind_at.slice(0, 10))} at{" "}
               {formatTime(typedReminder.remind_at.slice(11, 16))} via email
             </p>
           ) : (
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="mt-1 text-sm text-muted">
               No reminder scheduled.
             </p>
           )}
@@ -115,7 +115,7 @@ export default async function AppointmentDetailPage({
 
       {canMarkOutcome && (
         <Card className="flex flex-col gap-3">
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-sm text-muted">
             This appointment&apos;s date has passed. Update its status:
           </p>
           <div className="flex gap-3">
@@ -171,7 +171,7 @@ export default async function AppointmentDetailPage({
             </Button>
           </form>
 
-          <form action={cancelAppointmentAction} className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
+          <form action={cancelAppointmentAction} className="border-t border-border pt-4">
             <input type="hidden" name="id" value={typedAppointment.id} />
             <Button type="submit" variant="danger">
               Cancel appointment

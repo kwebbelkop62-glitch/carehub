@@ -4,8 +4,8 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Field, Select, Input } from "@/components/ui/field";
-import { Badge } from "@/components/ui/badge";
-import { formatDate, formatTime, todayIso } from "@/lib/format";
+import { AppointmentCard } from "@/components/appointment-card";
+import { todayIso } from "@/lib/format";
 import { unitTypeLabel } from "@/lib/types";
 import type { AppointmentWithUnitAndPatient, Patient } from "@/lib/types";
 
@@ -53,9 +53,7 @@ export default async function HistoryPage({
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">History</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Past appointments across units.
-        </p>
+        <p className="mt-1 text-sm text-muted">Past appointments across units.</p>
       </div>
 
       {allHistory.length > 0 && (
@@ -94,7 +92,7 @@ export default async function HistoryPage({
             </Button>
             <Link
               href="/history"
-              className="inline-flex items-center text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+              className="inline-flex items-center text-sm text-muted hover:text-foreground"
             >
               Clear
             </Link>
@@ -109,43 +107,20 @@ export default async function HistoryPage({
       )}
 
       {!error && allHistory.length === 0 && (
-        <Card className="text-sm text-zinc-600 dark:text-zinc-400">
-          No past appointments yet.
-        </Card>
+        <Card className="text-sm text-muted">No past appointments yet.</Card>
       )}
 
       {!error && allHistory.length > 0 && filtered.length === 0 && (
-        <Card className="text-sm text-zinc-600 dark:text-zinc-400">
-          No appointments match these filters.
-        </Card>
+        <Card className="text-sm text-muted">No appointments match these filters.</Card>
       )}
 
-      <div className="flex flex-col gap-3">
-        {filtered.map((appointment) => (
-          <Link key={appointment.id} href={`/appointments/${appointment.id}`}>
-            <Card className="transition-colors hover:border-emerald-600">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-medium text-foreground">{appointment.units.name}</p>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                    {appointment.units.hospital_or_facility_name}
-                  </p>
-                  {patientList.length > 1 && (
-                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                      For {appointment.patients.full_name}
-                    </p>
-                  )}
-                </div>
-                <Badge status={appointment.status} />
-              </div>
-              <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-300">
-                {formatDate(appointment.appointment_date)} &middot;{" "}
-                {formatTime(appointment.appointment_time)}
-              </p>
-            </Card>
-          </Link>
-        ))}
-      </div>
+      {!error && filtered.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((appointment) => (
+            <AppointmentCard key={appointment.id} appointment={appointment} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

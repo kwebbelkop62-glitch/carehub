@@ -52,7 +52,7 @@ export default async function DocumentsPage({
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Documents
         </h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-1 text-sm text-muted">
           Files attached to your appointments.
         </p>
       </div>
@@ -62,7 +62,7 @@ export default async function DocumentsPage({
           Couldn&apos;t load your appointments right now. Try refreshing.
         </Card>
       ) : appointmentList.length === 0 ? (
-        <Card className="text-sm text-zinc-600 dark:text-zinc-400">
+        <Card className="text-sm text-muted">
           Book an appointment first — documents are attached to a specific
           appointment.
         </Card>
@@ -91,7 +91,7 @@ export default async function DocumentsPage({
                 name="file"
                 type="file"
                 required
-                className="block w-full text-sm text-zinc-600 file:mr-4 file:rounded-lg file:border-0 file:bg-emerald-600 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-emerald-700 dark:text-zinc-400"
+                className="block w-full text-sm text-muted file:mr-4 file:rounded-lg file:border-0 file:bg-accent file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-accent-hover"
               />
             </Field>
             <Button type="submit" className="self-start">
@@ -108,7 +108,7 @@ export default async function DocumentsPage({
       )}
 
       {!documentsError && documentList.length === 0 && (
-        <Card className="text-sm text-zinc-600 dark:text-zinc-400">
+        <Card className="text-sm text-muted">
           No documents uploaded yet.
         </Card>
       )}
@@ -118,13 +118,13 @@ export default async function DocumentsPage({
           <Card key={doc.id} className="flex items-center justify-between gap-3">
             <div>
               <p className="font-medium text-foreground">{doc.file_name}</p>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              <p className="text-sm text-muted">
                 {doc.appointments.patients.full_name} — {doc.appointments.units.name}
                 {" · "}
                 {formatDate(doc.appointments.appointment_date)}{" "}
                 {formatTime(doc.appointments.appointment_time)}
               </p>
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-muted">
                 Uploaded {formatDate(doc.uploaded_at.slice(0, 10))}
               </p>
             </div>
@@ -133,12 +133,12 @@ export default async function DocumentsPage({
                 href={signedUrls.get(doc.id)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="shrink-0 text-sm font-medium text-emerald-700 hover:underline dark:text-emerald-400"
+                className="shrink-0 text-sm font-medium text-accent-hover hover:underline"
               >
                 Download
               </a>
             ) : (
-              <span className="shrink-0 text-xs text-zinc-400">Unavailable</span>
+              <span className="shrink-0 text-xs text-muted">Unavailable</span>
             )}
           </Card>
         ))}
