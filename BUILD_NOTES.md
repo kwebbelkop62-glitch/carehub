@@ -4,15 +4,44 @@ Written at the end of the build. Read the top section first — it's the one
 caveat that applies to every screen below and matters more than any of the
 individual guesses.
 
-**Post-build update:** the first real sign-in (before Clerk↔Supabase
+**Post-build update 1:** the first real sign-in (before Clerk↔Supabase
 pairing was done) hit exactly the `PGRST301` JWT error anticipated below,
 and surfaced a real bug: the `patients` query on Upcoming, History,
 Documents, and Select Unit only destructured `data`, not `error` — so a
 failed query looked identical to a genuinely empty account. Select Unit
 was worse: it silently *redirected* to `/profile` on a failed query.
 Fixed on all four (commit `8171532`) to capture and surface the error the
-same way the appointments queries already did. Worth knowing this class of
-bug existed and is now fixed, not still lurking.
+same way the appointments queries already did.
+
+**Post-build update 2:** Clerk↔Supabase pairing is now done, and TJ
+checked the real CHECK constraints directly against the live database
+(not read-only introspection, the actual constraint definitions). Result:
+- `appointments.status`: real set is `pending | attended | completed |
+  cancelled | missed`, default `pending`. My guess (`pending | attended |
+  completed | cancelled`) was a subset — every value I used was valid, I
+  was just missing `missed`. Nothing was actually broken; `missed` is now
+  in the type but no screen sets it.
+- `units.type`: real set is `specialist_clinic | laboratory | scan_center
+  | physiotherapy | rehabilitation_clinic | general_clinic |
+  private_clinic`. My guess (`hospital | clinic | lab | scan_center`) was
+  **wrong on 3 of 4 values** — only `scan_center` happened to match. The
+  add-a-clinic form was defaulting to `"clinic"`, which isn't a valid
+  value at all and would have failed on every submission. Fixed
+  everywhere (see below), default is now `private_clinic`, per the
+  brief's own "local or private clinics a user may add themselves"
+  wording.
+- `reminders.status`: real set is `pending | sent | cancelled | failed`
+  — matches what was already built exactly.
+
+Fixed in `src/lib/types.ts` (now the single source of truth — added a
+`UNIT_TYPE_LABELS` export and a `unitTypeLabel()` lookup helper, and
+removed the duplicate label map that had been copy-pasted into both
+Select Unit and History) plus the two pages that referenced the old
+values. `npm run lint` and `npx tsc --noEmit` both clean afterward.
+
+**Post-build update 3:** the `documents` Storage bucket now exists
+(private, matching the code's assumption) — Screen 8 should actually work
+now. Only the reminders send job remains intentionally unbuilt.
 
 ## The one thing to know before trusting any of this
 
@@ -35,21 +64,17 @@ It does **not** confirm a single Supabase query, insert, or RLS policy
 actually behaves as written. Please do a real click-through once the Clerk
 pairing is done, on every screen, before assuming this works.
 
-## Two things intentionally not built
+## One thing intentionally not built
 
 - **Reminders send job.** Screen 6 and the Confirm action insert a
   `reminders` row (channel `email`, status `pending`) when an appointment
   is booked, and update it on cancel. Nothing sends the email or runs on a
   schedule — no Supabase Edge Function, no cron. That's a deliberate stop,
   per your instruction, for you and me to do together.
-- **Documents storage bucket.** Screen 8's upload code targets a Storage
-  bucket named `documents`. I checked (read-only, via the Storage API) and
-  **no bucket exists yet** — Storage hasn't been set up at all. I didn't
-  create one, since that felt like the same category of "infrastructure
-  decision" as a schema change even though you didn't mention Storage by
-  name. The bucket needs to be created with policies that keep documents
-  private to the owning patient's account (mirroring the Postgres RLS
-  model) before this screen can do anything but fail on upload.
+
+(The Documents storage bucket was the other item here — it didn't exist
+during the build, but it's since been created. See "Post-build update 3"
+above.)
 
 No Postgres schema, table, or RLS policy was touched anywhere in this
 build. Nothing else came up that needed one.
@@ -70,10 +95,8 @@ curated units (`added_by_user_id is null`) plus the signed-in user's own
 added units — other users' added clinics don't leak into your results. Add
 a clinic flow inserts a new `units` row and drops straight into Select
 Date and Time with it pre-selected.
-Guessed: `units.type` values (`hospital`, `clinic`, `lab`, `scan_center`)
-— the column is free text with no CHECK constraint visible from read-only
-introspection, so this is inferred from the brief's own wording, not
-verified against the live data.
+`units.type` values are confirmed against the live CHECK constraint (see
+"Post-build update 2") — no longer a guess.
 Judgment call: the brief's 9 screens don't include a "pick which patient"
 step, but a caregiver with multiple dependants needs one somewhere. I put
 a "For: [patient]" selector at the top of this screen rather than
@@ -116,9 +139,10 @@ Without this, nothing in the app ever sets an appointment to `attended` or
 completed, or pending") would be unreachable. Flagging this clearly since
 it goes beyond "edit and cancel actions" as written — cut it if it's not
 what you wanted.
-Guessed: `appointments.status` vocabulary is `pending` / `attended` /
-`completed` / `cancelled`. Same caveat as units.type — free text column,
-no CHECK constraint visible, inferred from History's screen description.
+`appointments.status` vocabulary is confirmed against the live CHECK
+constraint (see "Post-build update 2") — the real set also includes
+`missed`, which no screen currently sets; everything else built here used
+valid values already.
 Edit/cancel/mark-outcome actions are only shown when they make sense
 (pending + not yet past for edit/cancel; pending + already past for
 mark-outcome) — appointments that are cancelled/attended/completed render
@@ -138,9 +162,8 @@ precision.
 Done: list of documents across all the user's appointments (or filtered to
 one via `?appointment=`, linked from Appointment Detail), upload form tied
 to an appointment picker.
-**Will not work yet** — see "Documents storage bucket" above. The code
-path is complete and typechecks; it just has nowhere to actually put
-files until the bucket exists.
+The `documents` Storage bucket now exists (see "Post-build update 3") —
+this screen should be functional.
 Design decision worth a second look: `documents.file_url` is a free-text
 column with no documented convention, so I chose to store the raw Storage
 *path* there (not a public URL), and generate a short-lived signed URL
