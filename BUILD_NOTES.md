@@ -4,6 +4,16 @@ Written at the end of the build. Read the top section first — it's the one
 caveat that applies to every screen below and matters more than any of the
 individual guesses.
 
+**Post-build update:** the first real sign-in (before Clerk↔Supabase
+pairing was done) hit exactly the `PGRST301` JWT error anticipated below,
+and surfaced a real bug: the `patients` query on Upcoming, History,
+Documents, and Select Unit only destructured `data`, not `error` — so a
+failed query looked identical to a genuinely empty account. Select Unit
+was worse: it silently *redirected* to `/profile` on a failed query.
+Fixed on all four (commit `8171532`) to capture and surface the error the
+same way the appointments queries already did. Worth knowing this class of
+bug existed and is now fixed, not still lurking.
+
 ## The one thing to know before trusting any of this
 
 **No screen has been tested against a real signed-in session.** Two things
