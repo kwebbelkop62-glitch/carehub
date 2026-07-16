@@ -36,7 +36,7 @@ export default async function RootPage() {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 px-6 py-10 text-center sm:max-w-lg sm:py-14 lg:max-w-xl">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-6 px-6 py-16 text-center sm:max-w-lg sm:py-20 lg:max-w-xl lg:py-16">
         <div>
           <h1 className="text-2xl font-medium leading-tight text-foreground sm:text-3xl lg:text-4xl">
             {t("title")}
