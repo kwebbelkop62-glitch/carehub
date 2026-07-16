@@ -4,6 +4,79 @@ Written at the end of the build. Read the top section first — it's the one
 caveat that applies to every screen below and matters more than any of the
 individual guesses.
 
+**Post-build update 5 — purple/white redesign, Ballpit landing page, flip
+cards, i18n structure:**
+
+- **Design tokens** (`src/app/globals.css`): background/surface/border/
+  accent/accent-hover/muted/tint, light + dark, per spec. Dark mode now
+  driven by a `.dark` class (`@custom-variant dark`) instead of
+  `prefers-color-scheme`, so the toggle can override system preference.
+  Also fixed a real pre-existing bug while in this file: `body`'s
+  `font-family` was hardcoded to Arial and never actually used the loaded
+  Geist font.
+- **Dark mode toggle**: system preference on first load, localStorage
+  after that, applied via a `beforeInteractive` script in the root layout
+  (avoids a flash of the wrong theme). The toggle component itself uses
+  `useSyncExternalStore`, not `useState`+`useEffect` — the latter trips
+  `react-hooks/set-state-in-effect` as a hard lint error in this project's
+  config; `useSyncExternalStore` is the correct fix, not a workaround.
+- **Landing page** (`/`): found `design-reference/mockup.html` mid-build —
+  a real reference file you'd left in the project root (not something I
+  created), explicitly labeled "not production code," giving exact colors
+  (matched chat, no discrepancies), the flip-card CSS mechanism, and
+  structural details not in chat (a "Create an account" link under Sign
+  In, a "Hover or tap a card for more" hint). Read it in full and used it
+  as authoritative for structure/spacing beyond the chat text. Did not
+  commit it — it says itself it's a reference, not app code.
+- **Ballpit**: vendored byte-for-byte from `DavidHDev/react-bits` (it
+  ships minified/mangled upstream — that's the actual canonical source,
+  not something I introduced). Only addition: a `'use client'` directive,
+  required for Next.js App Router. Confirmed by reading the source
+  (`size: 'parent'` hardcoded in `createBallpit`) that it already handles
+  parent-relative resizing via `ResizeObserver` — no custom resize handler
+  needed.
+- **AppointmentCard flip component**: own implementation of the same
+  mechanism as the mockup (perspective/transform-3d/rotate-y-180/
+  backface-hidden via Tailwind v4's native 3D utilities), not copied.
+  Verified the utilities aren't just literal class names with no effect by
+  pulling Next's actual compiled CSS and confirming the real properties
+  (`backface-visibility: hidden`, `perspective: 1000px`, etc.) are
+  generated. One open item: the back face's "View details" link stays in
+  tab order even when the card isn't visually flipped — `backface-hidden`
+  only affects rendering, not focusability. Matches the reference
+  mechanism exactly; fixing it properly would go beyond that.
+- **i18n**: next-intl, cookie-based (no `[locale]` URL routing) — avoids
+  restructuring every existing route under a locale segment for an app
+  whose URLs don't need it. `messages/en.json` and `messages/ms.json` are
+  byte-identical English placeholders, per your explicit instruction — no
+  translation was attempted. Only the landing page's copy is wired through
+  `getTranslations()` so far (the one page with a visible toggle); the
+  toggle itself calls a real `setLocale()` server action (cookie +
+  `revalidatePath`), not just local state. Found and fixed a real bug
+  while verifying: the language toggle (a Client Component) imported
+  constants from `src/i18n/request.ts`, which also imports `next/headers`
+  — that drags a server-only module into the client bundle and Next.js
+  correctly refused to compile it. Split the plain constants into
+  `src/i18n/locales.ts` so client and server code can share them safely.
+- **Badge colors** (judgment call): most statuses now share the purple
+  tint treatment (matches the mockup's own badge styling, and the token
+  spec explicitly calls `tint` a badge background) — but `missed`/`failed`
+  keep a real red, since those are genuine problem states worth not
+  blending into the calm palette. Same reasoning for the Confirm-flow
+  success/conflict states, which now use plain Tailwind `green-*` instead
+  of `emerald-*` — `emerald` was literally the old brand color being
+  replaced, so keeping it around for an unrelated "success" meaning would
+  read as leftover brand color, not a deliberate semantic choice.
+- **Responsiveness**: no fixed pixel widths — hero height and content
+  width both use breakpoint-scaled Tailwind classes
+  (`h-[400px] sm:h-[450px] lg:h-[500px]`, etc.), and appointment cards
+  reflow `grid-cols-1 → sm:grid-cols-2 → lg:grid-cols-3`. Verified via
+  rendered markup that the breakpoint classes are present and via
+  compiled CSS that they generate real rules — **not** verified by
+  actually resizing a browser viewport, since there's no browser in this
+  environment. Please check real reflow behavior yourself before trusting
+  it fully.
+
 **Post-build update 4:** real testing (post-pairing) hit a
 `ClerkAPIResponseError: Too Many Requests` from `getOrCreateAppUser()`.
 Root cause: it called `currentUser()` unconditionally on every call, and
