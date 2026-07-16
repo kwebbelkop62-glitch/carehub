@@ -56,8 +56,9 @@ export type Appointment = {
 export type ReminderChannel = "email";
 
 // Guessed lifecycle for a Resend-backed reminder row. Free text column.
-// See BUILD_NOTES.md.
-export type ReminderStatus = "pending" | "sent" | "failed";
+// "cancelled" is set by app code when the parent appointment is cancelled,
+// so a not-yet-built send job would know to skip it. See BUILD_NOTES.md.
+export type ReminderStatus = "pending" | "sent" | "failed" | "cancelled";
 
 export type Reminder = {
   id: string;
