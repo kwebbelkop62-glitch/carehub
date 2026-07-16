@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import Ballpit from "@/components/vendor/Ballpit";
+import { BallpitBoundary } from "@/components/ballpit-boundary";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
 
@@ -16,12 +17,14 @@ export default async function RootPage() {
 
   return (
     <div className="flex min-h-full flex-1 flex-col bg-background">
-      <div className="relative h-[400px] w-full overflow-hidden sm:h-[450px] lg:h-[500px]">
-        <Ballpit
-          className="absolute inset-0"
-          colors={[0x7f77dd, 0xafa9ec, 0x534ab7, 0xcecbf6]}
-          followCursor
-        />
+      <div className="relative h-[400px] w-full overflow-hidden bg-tint sm:h-[450px] lg:h-[500px]">
+        <BallpitBoundary fallback={<div className="absolute inset-0" />}>
+          <Ballpit
+            className="absolute inset-0"
+            colors={[0x7f77dd, 0xafa9ec, 0x534ab7, 0xcecbf6]}
+            followCursor
+          />
+        </BallpitBoundary>
         <div className="absolute inset-x-0 top-0 flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <span className="text-base font-medium text-foreground sm:text-lg">
             {t("brand")}
