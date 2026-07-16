@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const navLinks = [
   { href: "/upcoming", label: "Upcoming" },
@@ -27,6 +28,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </Link>
             ))}
             <div className="ml-2">
+              <ThemeToggle />
+            </div>
+            <div className="ml-1">
               <UserButton />
             </div>
           </nav>
