@@ -11,7 +11,7 @@ export default async function UpcomingPage() {
   const appUser = await getOrCreateAppUser();
   const supabase = createServerSupabaseClient();
 
-  const { data: patients } = await supabase
+  const { data: patients, error: patientsError } = await supabase
     .from("patients")
     .select("*")
     .order("created_at", { ascending: true });
@@ -43,7 +43,11 @@ export default async function UpcomingPage() {
         </p>
       </div>
 
-      {!hasPatients ? (
+      {patientsError ? (
+        <Card className="border-red-200 text-sm text-red-600 dark:border-red-900">
+          Couldn&apos;t load your account right now. Try refreshing.
+        </Card>
+      ) : !hasPatients ? (
         <Card className="flex flex-col items-start gap-3">
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
             Add yourself or a dependant to start booking appointments.

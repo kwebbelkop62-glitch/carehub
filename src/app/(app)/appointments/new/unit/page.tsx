@@ -25,13 +25,30 @@ export default async function SelectUnitPage({
   const appUser = await getOrCreateAppUser();
   const supabase = createServerSupabaseClient();
 
-  const { data: patients } = await supabase
+  const { data: patients, error: patientsError } = await supabase
     .from("patients")
     .select("*")
     .order("created_at", { ascending: true });
   const patientList = (patients ?? []) as Patient[];
 
-  if (patientList.length === 0 || !appUser) {
+  if (!appUser) {
+    redirect("/sign-in");
+  }
+
+  if (patientsError) {
+    return (
+      <div className="flex flex-col gap-6">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          Select a unit
+        </h1>
+        <Card className="border-red-200 text-sm text-red-600 dark:border-red-900">
+          Couldn&apos;t load your patients right now. Try refreshing.
+        </Card>
+      </div>
+    );
+  }
+
+  if (patientList.length === 0) {
     redirect("/profile");
   }
 

@@ -24,10 +24,12 @@ export default async function HistoryPage({
   await getOrCreateAppUser();
   const supabase = createServerSupabaseClient();
 
-  const { data: patients } = await supabase.from("patients").select("*");
+  const { data: patients, error: patientsError } = await supabase
+    .from("patients")
+    .select("*");
   const patientList = (patients ?? []) as Patient[];
 
-  const { data: appointments, error } =
+  const { data: appointments, error: appointmentsError } =
     patientList.length > 0
       ? await supabase
           .from("appointments")
@@ -37,6 +39,7 @@ export default async function HistoryPage({
           .order("appointment_time", { ascending: false })
       : { data: [], error: null };
 
+  const error = patientsError || appointmentsError;
   const allHistory = (appointments ?? []) as AppointmentWithUnitAndPatient[];
 
   const availableUnits = Array.from(

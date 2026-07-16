@@ -20,7 +20,7 @@ export default async function DocumentsPage({
   await getOrCreateAppUser();
   const supabase = createServerSupabaseClient();
 
-  const { data: appointments } = await supabase
+  const { data: appointments, error: appointmentsError } = await supabase
     .from("appointments")
     .select("*, units(*), patients(*)")
     .order("appointment_date", { ascending: false });
@@ -35,7 +35,7 @@ export default async function DocumentsPage({
     documentsQuery = documentsQuery.eq("appointment_id", params.appointment);
   }
 
-  const { data: documents, error } = await documentsQuery;
+  const { data: documents, error: documentsError } = await documentsQuery;
   const documentList = (documents ?? []) as DocumentWithAppointment[];
 
   const signedUrls = new Map<string, string>();
@@ -57,7 +57,11 @@ export default async function DocumentsPage({
         </p>
       </div>
 
-      {appointmentList.length === 0 ? (
+      {appointmentsError ? (
+        <Card className="border-red-200 text-sm text-red-600 dark:border-red-900">
+          Couldn&apos;t load your appointments right now. Try refreshing.
+        </Card>
+      ) : appointmentList.length === 0 ? (
         <Card className="text-sm text-zinc-600 dark:text-zinc-400">
           Book an appointment first — documents are attached to a specific
           appointment.
@@ -97,13 +101,13 @@ export default async function DocumentsPage({
         </Card>
       )}
 
-      {error && (
+      {documentsError && (
         <Card className="border-red-200 text-sm text-red-600 dark:border-red-900">
           Couldn&apos;t load documents right now. Try refreshing.
         </Card>
       )}
 
-      {!error && documentList.length === 0 && (
+      {!documentsError && documentList.length === 0 && (
         <Card className="text-sm text-zinc-600 dark:text-zinc-400">
           No documents uploaded yet.
         </Card>
