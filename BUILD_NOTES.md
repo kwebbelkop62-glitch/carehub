@@ -4,6 +4,21 @@ Written at the end of the build. Read the top section first — it's the one
 caveat that applies to every screen below and matters more than any of the
 individual guesses.
 
+**Post-build update 6:** two more patches to `src/components/vendor/
+Ballpit.jsx`, on top of your own `maxX`/`maxY` timing fix. First, wrapped
+`<Ballpit>` in `BallpitBoundary` (`src/components/ballpit-boundary.tsx`)
+after a real `WebGLCapabilities`/context-loss crash — a decorative hero
+shouldn't be able to take down the whole page regardless of cause.
+Second, and more important: a real GLSL compile error causing the "green
+line" bug — the vendored custom material's shader treats `vColor` as
+`vec3`, but the installed three@0.185.1 declares it `varying vec4 vColor`
+(confirmed by reading Three.js's own shader chunk source, not just the
+error message). Fixed by swizzling to `vColor.rgb`. Found via
+`.next/dev/logs/next-development.log`, which turns out to forward actual
+browser console output (including WebGL shader compiler errors) into a
+file I can read — useful for exactly this kind of bug when there's no
+browser tool available directly.
+
 **Post-build update 5 — purple/white redesign, Ballpit landing page, flip
 cards, i18n structure:**
 
