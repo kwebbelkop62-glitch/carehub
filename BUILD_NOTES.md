@@ -4,6 +4,19 @@ Written at the end of the build. Read the top section first — it's the one
 caveat that applies to every screen below and matters more than any of the
 individual guesses.
 
+**Post-build update 4:** real testing (post-pairing) hit a
+`ClerkAPIResponseError: Too Many Requests` from `getOrCreateAppUser()`.
+Root cause: it called `currentUser()` unconditionally on every call, and
+`currentUser()` hits Clerk's rate-limited Backend API rather than reading
+the local session JWT — `cache()` only dedupes within one request, and
+Next.js prefetches nav links in the background, so this fired on nearly
+every render. Fixed (commit `83df1db`): now uses `auth()` (local JWT read,
+free) for the `clerk_user_id` lookup on every call, and only calls
+`currentUser()` the one time a brand-new user's `users` row doesn't exist
+yet. If you were actively rate-limited when this hit, you may need to wait
+briefly for Clerk's window to reset before retrying — the fix stops future
+over-calling, it doesn't clear an already-tripped limit.
+
 **Post-build update 1:** the first real sign-in (before Clerk↔Supabase
 pairing was done) hit exactly the `PGRST301` JWT error anticipated below,
 and surfaced a real bug: the `patients` query on Upcoming, History,
