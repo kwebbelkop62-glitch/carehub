@@ -20,11 +20,33 @@ export type Patient = {
   created_at: string;
 };
 
-export type UnitType = "hospital" | "clinic" | "lab" | "scan_center";
+// Confirmed against the live CHECK constraint (not a guess) — 2026-07-16.
+export type UnitType =
+  | "specialist_clinic"
+  | "laboratory"
+  | "scan_center"
+  | "physiotherapy"
+  | "rehabilitation_clinic"
+  | "general_clinic"
+  | "private_clinic";
 
-// UnitType values above are a guess inferred from the brief's wording
-// ("hospital units, clinics, labs, and scan centers") — the `type` column
-// itself is free text with no visible CHECK constraint. See BUILD_NOTES.md.
+export const UNIT_TYPE_LABELS: Record<UnitType, string> = {
+  specialist_clinic: "Specialist Clinic",
+  laboratory: "Laboratory",
+  scan_center: "Scan Center",
+  physiotherapy: "Physiotherapy",
+  rehabilitation_clinic: "Rehabilitation Clinic",
+  general_clinic: "General Clinic",
+  private_clinic: "Private Clinic",
+};
+
+// `units.type` comes back from the DB as a plain string, not narrowed to
+// UnitType, so callers look it up through this instead of indexing
+// UNIT_TYPE_LABELS directly.
+export function unitTypeLabel(type: string): string {
+  return (UNIT_TYPE_LABELS as Record<string, string>)[type] ?? type;
+}
+
 export type Unit = {
   id: string;
   name: string;
@@ -35,10 +57,15 @@ export type Unit = {
   created_at: string;
 };
 
-// Guessed from the brief's History screen wording ("attended, completed, or
-// pending") plus the need for a cancel action on Appointment Detail. Free
-// text column, no visible CHECK constraint. See BUILD_NOTES.md.
-export type AppointmentStatus = "pending" | "attended" | "completed" | "cancelled";
+// Confirmed against the live CHECK constraint (not a guess) — 2026-07-16.
+// Default is "pending". "missed" exists in the DB but no screen currently
+// sets it — see BUILD_NOTES.md.
+export type AppointmentStatus =
+  | "pending"
+  | "attended"
+  | "completed"
+  | "cancelled"
+  | "missed";
 
 export type Appointment = {
   id: string;
@@ -55,10 +82,10 @@ export type Appointment = {
 // channel currently produced by app code. Free text column. See BUILD_NOTES.md.
 export type ReminderChannel = "email";
 
-// Guessed lifecycle for a Resend-backed reminder row. Free text column.
+// Confirmed against the live CHECK constraint (not a guess) — 2026-07-16.
 // "cancelled" is set by app code when the parent appointment is cancelled,
-// so a not-yet-built send job would know to skip it. See BUILD_NOTES.md.
-export type ReminderStatus = "pending" | "sent" | "failed" | "cancelled";
+// so a not-yet-built send job would know to skip it.
+export type ReminderStatus = "pending" | "sent" | "cancelled" | "failed";
 
 export type Reminder = {
   id: string;

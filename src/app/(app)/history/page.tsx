@@ -6,14 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Field, Select, Input } from "@/components/ui/field";
 import { Badge } from "@/components/ui/badge";
 import { formatDate, formatTime, todayIso } from "@/lib/format";
+import { unitTypeLabel } from "@/lib/types";
 import type { AppointmentWithUnitAndPatient, Patient } from "@/lib/types";
-
-const UNIT_TYPE_LABELS: Record<string, string> = {
-  hospital: "Hospital",
-  clinic: "Clinic",
-  lab: "Lab",
-  scan_center: "Scan Center",
-};
 
 export default async function HistoryPage({
   searchParams,
@@ -82,7 +76,7 @@ export default async function HistoryPage({
                 <option value="">All types</option>
                 {availableTypes.map((type) => (
                   <option key={type} value={type}>
-                    {UNIT_TYPE_LABELS[type] ?? type}
+                    {unitTypeLabel(type)}
                   </option>
                 ))}
               </Select>

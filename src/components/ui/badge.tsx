@@ -3,6 +3,7 @@ const statusClasses: Record<string, string> = {
   attended: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400",
   completed: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400",
   cancelled: "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400",
+  missed: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400",
   sent: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400",
   failed: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400",
 };

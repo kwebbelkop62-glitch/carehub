@@ -5,16 +5,9 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
+import { UNIT_TYPE_LABELS, unitTypeLabel } from "@/lib/types";
 import type { Patient, Unit } from "@/lib/types";
 import { addUnitAction } from "./actions";
-
-// Guessed labels for the free-text `type` column — see BUILD_NOTES.md.
-const UNIT_TYPE_LABELS: Record<string, string> = {
-  hospital: "Hospital",
-  clinic: "Clinic",
-  lab: "Lab",
-  scan_center: "Scan Center",
-};
 
 export default async function SelectUnitPage({
   searchParams,
@@ -83,7 +76,7 @@ export default async function SelectUnitPage({
           Select a unit
         </h1>
         <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Search hospital units, clinics, labs, and scan centers.
+          Search specialist clinics, labs, scan centers, and more.
         </p>
       </div>
 
@@ -151,7 +144,7 @@ export default async function SelectUnitPage({
                   </p>
                 </div>
                 <span className="shrink-0 rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium capitalize text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
-                  {UNIT_TYPE_LABELS[unit.type] ?? unit.type}
+                  {unitTypeLabel(unit.type)}
                 </span>
               </div>
               {unit.added_by_user_id === appUser.id && (
@@ -172,7 +165,7 @@ export default async function SelectUnitPage({
             <Input id="name" name="name" type="text" required />
           </Field>
           <Field label="Type" htmlFor="type">
-            <Select id="type" name="type" defaultValue="clinic" required>
+            <Select id="type" name="type" defaultValue="private_clinic" required>
               {Object.entries(UNIT_TYPE_LABELS).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
