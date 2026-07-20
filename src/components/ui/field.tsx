@@ -23,7 +23,7 @@ export function Field({
       </label>
       {children}
       {helper && !error && <p className="text-xs text-muted">{helper}</p>}
-      {error && <p className="text-xs text-red-600">{error}</p>}
+      {error && <p className="text-xs text-error">{error}</p>}
     </div>
   );
 }

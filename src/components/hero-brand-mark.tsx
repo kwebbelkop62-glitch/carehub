@@ -8,7 +8,7 @@ type HeroBrandMarkProps = {
 // the JS/IntersectionObserver-driven reactbits BlurText component. Verified
 // via Playwright that a JS-animated version stays permanently stuck at
 // near-zero opacity whenever Ballpit's WebGL init fails and gets caught by
-// BallpitBoundary (a real, documented failure mode — see BUILD_NOTES.md) —
+// WebglBoundary (a real, documented failure mode — see BUILD_NOTES.md) —
 // something on that recovery path stalls the sibling's effect/animation
 // state. A CSS keyframe animation runs independent of React's effect
 // scheduling, so brand-critical text can never be left invisible by an

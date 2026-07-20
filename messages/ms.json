@@ -14,8 +14,18 @@
       "ctaSecondary": "See how it works",
       "disclaimer": "CareHub tracks the appointments you tell it about. It doesn't book appointments or check real-time availability at any hospital or clinic."
     },
+    "highlights": {
+      "stat1Label": "One list",
+      "stat1Body": "Every provider, every visit, in a single running log.",
+      "stat2Label": "Smart reminders",
+      "stat2Body": "From an hour before to two days out, so nothing slips.",
+      "stat3Label": "Full history",
+      "stat3Body": "A timeline per person, ready whenever a new doctor asks."
+    },
     "how": {
       "heading": "Four steps. No clinic account, no hospital login.",
+      "back": "Back",
+      "next": "Next",
       "step1Title": "Add a unit",
       "step1Body": "Search for the clinic, hospital, or doctor you're seeing, or add your own if it's not listed. This is a personal log, not a booking system, so anything goes in.",
       "step2Title": "Pick a time",

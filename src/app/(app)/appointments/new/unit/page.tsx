@@ -34,7 +34,7 @@ export default async function SelectUnitPage({
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Select a unit
         </h1>
-        <Card className="border-red-200 text-sm text-red-600 dark:border-red-900">
+        <Card className="border-error-border text-sm text-error">
           Couldn&apos;t load your patients right now. Try refreshing.
         </Card>
       </div>
@@ -117,7 +117,7 @@ export default async function SelectUnitPage({
       </form>
 
       {error && (
-        <Card className="border-red-200 text-sm text-red-600 dark:border-red-900">
+        <Card className="border-error-border text-sm text-error">
           Couldn&apos;t load units right now. Try refreshing.
         </Card>
       )}

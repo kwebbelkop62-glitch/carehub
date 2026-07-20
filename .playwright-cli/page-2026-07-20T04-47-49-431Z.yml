@@ -1,0 +1,51 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - heading "CareHub" [level=1] [ref=e5]
+      - paragraph [ref=e6]: Sign in to manage your appointments
+    - generic [ref=e18]:
+      - generic [ref=e20]:
+        - button "Sign in with Google Continue with Google" [ref=e23] [cursor=pointer]:
+          - generic [ref=e24]:
+            - generic "Sign in with Google" [ref=e26]
+            - generic [ref=e27]: Continue with Google
+        - paragraph [ref=e30]: or
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - generic [ref=e35]:
+              - generic [ref=e36]:
+                - generic [ref=e38]: Email address
+                - textbox "Email address" [ref=e39]:
+                  - /placeholder: Enter your email address
+                  - text: carehub-qa+clerk_test@example.com
+              - generic [ref=e40]: Couldn't find your account.
+              - paragraph [ref=e63]:
+                - img [ref=e64]
+                - text: Couldn't find your account.
+            - generic:
+              - generic:
+                - generic: Password
+              - generic:
+                - textbox:
+                  - /placeholder: Enter your password
+                - button:
+                  - img
+          - button "Continue" [ref=e42] [cursor=pointer]:
+            - generic [ref=e66]:
+              - text: Continue
+              - img [ref=e67]
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - generic [ref=e48]: Don’t have an account?
+          - link "Sign up" [ref=e49] [cursor=pointer]:
+            - /url: http://localhost:3000/sign-up
+        - generic [ref=e51]:
+          - generic [ref=e53]:
+            - paragraph [ref=e54]: Secured by
+            - link "Clerk logo" [ref=e55] [cursor=pointer]:
+              - /url: https://go.clerk.com/components
+              - img [ref=e56]
+          - paragraph [ref=e61]: Development mode
+  - button "Open Next.js Dev Tools" [ref=e12] [cursor=pointer]:
+    - img [ref=e13]
+  - alert [ref=e16]

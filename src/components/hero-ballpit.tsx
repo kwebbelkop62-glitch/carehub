@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import Ballpit from "@/components/vendor/Ballpit";
-import { BallpitBoundary } from "@/components/ballpit-boundary";
+import { WebglBoundary } from "@/components/webgl-boundary";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 const TABLET_UP_QUERY = "(min-width: 640px)";
@@ -83,11 +83,11 @@ export function HeroBallpit({ className = "", count = 200, ...props }: HeroBallp
   const scaledCount = Math.round(count * TIER_COUNT_MULTIPLIER[tier]);
 
   return (
-    <BallpitBoundary fallback={<div className={className} />}>
+    <WebglBoundary fallback={<div className={className} />}>
       {/* key remounts (disposes + re-initializes) the Three.js instance when
           crossing a breakpoint, since Ballpit's own effect only reads count
           once on mount rather than reacting to prop changes. */}
       <Ballpit key={tier} className={className} count={scaledCount} {...props} />
-    </BallpitBoundary>
+    </WebglBoundary>
   );
 }

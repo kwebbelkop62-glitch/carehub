@@ -59,7 +59,7 @@ export default async function DocumentsPage({
       </div>
 
       {appointmentsError ? (
-        <Card className="border-red-200 text-sm text-red-600 dark:border-red-900">
+        <Card className="border-error-border text-sm text-error">
           Couldn&apos;t load your appointments right now. Try refreshing.
         </Card>
       ) : appointmentList.length === 0 ? (
@@ -105,7 +105,7 @@ export default async function DocumentsPage({
       )}
 
       {documentsError && (
-        <Card className="border-red-200 text-sm text-red-600 dark:border-red-900">
+        <Card className="border-error-border text-sm text-error">
           Couldn&apos;t load documents right now. Try refreshing.
         </Card>
       )}

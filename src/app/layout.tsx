@@ -43,7 +43,7 @@ export default async function RootLayout({
     <ClerkProvider>
       <html
         lang={locale}
-        className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
         suppressHydrationWarning
       >
         <head>

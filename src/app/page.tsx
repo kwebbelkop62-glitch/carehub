@@ -12,61 +12,27 @@ import {
   HandHeartIcon,
 } from "@phosphor-icons/react/ssr";
 import { NavLogo } from "@/components/logo";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { LanguageToggle } from "@/components/language-toggle";
-import { Badge } from "@/components/ui/badge";
+import { HeroLightfall } from "@/components/hero-lightfall";
+import { CtaAurora } from "@/components/cta-aurora";
+import Stepper, { Step } from "@/components/vendor/Stepper";
+import { WobbleCard } from "@/components/ui/wobble-card";
+import { Reveal } from "@/components/reveal";
 
 const primaryButtonClass =
-  "inline-flex items-center justify-center rounded-xl bg-accent-fill px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-accent-fill-hover active:scale-[0.98]";
-const secondaryButtonClass =
-  "inline-flex items-center justify-center rounded-xl border border-border px-5 py-3 text-sm font-medium text-foreground transition-colors hover:bg-tint active:scale-[0.98]";
+  "inline-flex items-center justify-center rounded-full bg-accent-fill px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-fill-hover active:scale-[0.98]";
 
-// Decorative only (aria-hidden on the container below) — illustrates the
-// real product UI (reusing the real Badge component/status vocabulary)
-// rather than an invented marketing graphic. Malaysian sample names per
-// CLAUDE.md's placeholder-data convention.
-const previewCards: {
-  name: string;
-  detail?: string;
-  meta?: string;
-  status: "pending" | "attended" | "missed";
-  position: string;
-  duration: string;
-  delay: string;
-}[] = [
-  {
-    name: "Dr. Tan Wei Ming",
-    detail: "Cardiology · Gleneagles Penang",
-    meta: "Wed, 14 Aug · 10:30 AM",
-    status: "pending",
-    position: "left-[6%] top-0 w-[76%] -rotate-2",
-    duration: "6s",
-    delay: "0s",
-  },
-  {
-    name: "Mum · Dr. Lakshmi",
-    detail: "Island Hospital",
-    status: "attended",
-    position: "left-0 top-[140px] w-[68%] rotate-1",
-    duration: "7s",
-    delay: "-1.5s",
-  },
-  {
-    name: "Physio · Sunway Medical",
-    detail: "Mon, 22 Jun",
-    status: "missed",
-    position: "left-[20%] top-[260px] w-[68%] -rotate-1",
-    duration: "6.5s",
-    delay: "-3s",
-  },
-  {
-    name: "Dentist · Dr. Farah",
-    status: "pending",
-    position: "left-[4%] top-[360px] w-[58%] rotate-2",
-    duration: "7.5s",
-    delay: "-4.5s",
-  },
-];
+function Eyebrow({ children, tone = "light" }: { children: ReactNode; tone?: "light" | "dark" }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide ${
+        tone === "dark" ? "text-background/70" : "text-accent-hover"
+      }`}
+    >
+      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+      {children}
+    </span>
+  );
+}
 
 export default async function RootPage() {
   const { userId } = await auth();
@@ -78,155 +44,187 @@ export default async function RootPage() {
 
   return (
     <div className="flex min-h-full flex-1 flex-col bg-background">
-      {/* NAV */}
-      <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-          <NavLogo className="h-7" />
-          <nav className="hidden items-center gap-8 text-sm font-medium text-muted md:flex">
-            <a href="#how" className="hover:text-foreground">
-              {t("nav.how")}
-            </a>
-            <a href="#who" className="hover:text-foreground">
-              {t("nav.who")}
-            </a>
-            <Link href="/sign-in" className="hover:text-foreground">
-              {t("nav.signIn")}
-            </Link>
-          </nav>
-          <div className="flex items-center gap-2">
-            <LanguageToggle />
-            <ThemeToggle />
+      {/* HERO — full-bleed dark section, Lightfall WebGL background */}
+      <section className="relative overflow-hidden bg-foreground">
+        <div className="absolute inset-0">
+          <HeroLightfall className="h-full w-full" />
+        </div>
+
+        {/* NAV — floating pill overlaid on the dark hero, stays visible on scroll */}
+        <header className="sticky top-4 z-30 px-4 sm:top-6 sm:px-6 lg:px-8">
+          <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 rounded-full border border-border/60 bg-surface/90 py-2 pl-4 pr-2 shadow-lg shadow-black/20 backdrop-blur-md">
+            <NavLogo className="h-6" />
+            <nav className="hidden items-center gap-6 text-sm font-medium text-muted md:flex">
+              <a href="#how" className="hover:text-foreground">
+                {t("nav.how")}
+              </a>
+              <a href="#who" className="hover:text-foreground">
+                {t("nav.who")}
+              </a>
+            </nav>
             <Link href="/sign-up" className={`${primaryButtonClass} hidden sm:inline-flex`}>
               {t("nav.cta")}
             </Link>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* HERO */}
-      <section className="mx-auto grid w-full max-w-6xl gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8 lg:py-28">
-        <div>
-          <span className="inline-block rounded-full bg-tint px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-accent-hover">
-            {t("hero.eyebrow")}
-          </span>
-          <h1 className="mt-5 text-[clamp(1.75rem,1.2rem+2vw,2.75rem)] font-medium leading-[1.15] tracking-tight text-foreground">
-            {t("hero.title")}
-          </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-muted">
-            {t("hero.subtitle")}
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href="/sign-up" className={primaryButtonClass}>
-              {t("hero.ctaPrimary")}
-            </Link>
-            <a href="#how" className={secondaryButtonClass}>
+        <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center px-4 pb-24 pt-16 text-center sm:px-6 sm:pb-32 sm:pt-20 lg:px-8 lg:pb-40 lg:pt-24">
+          <Reveal>
+            <Eyebrow tone="dark">{t("hero.eyebrow")}</Eyebrow>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <h1 className="mt-6 text-[clamp(2rem,1.3rem+3vw,3.5rem)] font-medium leading-[1.1] tracking-tight text-background">
+              {t("hero.title")}
+            </h1>
+          </Reveal>
+          <Reveal delay={0.2}>
+            <p className="mt-6 max-w-xl text-base leading-relaxed text-background/70">
+              {t("hero.subtitle")}
+            </p>
+          </Reveal>
+          <Reveal delay={0.3} className="mt-9">
+            <a
+              href="#how"
+              className="inline-flex items-center justify-center rounded-xl border border-background/25 px-6 py-3.5 text-sm font-medium text-background transition-colors hover:bg-background/10 active:scale-[0.98]"
+            >
               {t("hero.ctaSecondary")}
             </a>
-          </div>
-          <p className="mt-6 max-w-md text-xs leading-relaxed text-muted">
-            {t("hero.disclaimer")}
-          </p>
+          </Reveal>
+          <Reveal delay={0.4}>
+            <p className="mt-8 max-w-md text-xs leading-relaxed text-background/50">
+              {t("hero.disclaimer")}
+            </p>
+          </Reveal>
         </div>
+      </section>
 
-        <div className="relative hidden h-[420px] lg:block" aria-hidden="true">
-          {previewCards.map((card) => (
-            <div
-              key={card.name}
-              style={{ animationDuration: card.duration, animationDelay: card.delay }}
-              className={`hero-preview-card absolute rounded-2xl border border-border bg-surface p-4 ${card.position}`}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{card.name}</p>
-                  {card.detail && <p className="mt-0.5 text-xs text-muted">{card.detail}</p>}
-                </div>
-                <Badge status={card.status} />
+      {/* HIGHLIGHTS — light strip following the dark hero, bento wobble cards */}
+      <section className="w-full border-b border-border bg-surface">
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-3 lg:px-8">
+          <Reveal className="lg:col-span-2">
+            <WobbleCard containerClassName="relative h-full min-h-[280px] overflow-hidden bg-foreground">
+              <div className="max-w-xs">
+                <h3 className="text-lg font-semibold text-white">{t("highlights.stat1Label")}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/70">{t("highlights.stat1Body")}</p>
               </div>
-              {card.meta && <p className="mt-2 text-xs text-muted">{card.meta}</p>}
-            </div>
-          ))}
+              <AppointmentPreview className="absolute -right-8 -bottom-6 hidden w-60 rotate-2 sm:block" />
+            </WobbleCard>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <WobbleCard containerClassName="h-full min-h-[220px] bg-accent-fill">
+              <h3 className="text-lg font-semibold text-white">{t("highlights.stat2Label")}</h3>
+              <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/80">
+                {t("highlights.stat2Body")}
+              </p>
+            </WobbleCard>
+          </Reveal>
+          <Reveal delay={0.2} className="lg:col-span-3">
+            <WobbleCard containerClassName="relative h-full min-h-[220px] overflow-hidden bg-foreground">
+              <div className="max-w-sm">
+                <h3 className="text-lg font-semibold text-white">{t("highlights.stat3Label")}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/70">{t("highlights.stat3Body")}</p>
+              </div>
+              <AppointmentPreview className="absolute -right-6 -bottom-10 hidden w-64 -rotate-2 md:block" />
+            </WobbleCard>
+          </Reveal>
         </div>
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="how" className="w-full bg-tint">
-        <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-          <h2 className="max-w-xl text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem]">
-            {t("how.heading")}
-          </h2>
-          <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <StepCard
-              icon={<BuildingsIcon size={22} weight="duotone" />}
-              title={t("how.step1Title")}
-              body={t("how.step1Body")}
-            />
-            <StepCard
-              icon={<ClockIcon size={22} weight="duotone" />}
-              title={t("how.step2Title")}
-              body={t("how.step2Body")}
-            />
-            <StepCard
-              icon={<BellRingingIcon size={22} weight="duotone" />}
-              title={t("how.step3Title")}
-              body={t("how.step3Body")}
-            />
-            <StepCard
-              icon={<ClipboardTextIcon size={22} weight="duotone" />}
-              title={t("how.step4Title")}
-              body={t("how.step4Body")}
-            />
-          </div>
+      <section id="how" className="relative w-full scroll-mt-24 overflow-hidden bg-tint">
+        <div className="pointer-events-none absolute left-1/2 top-0 h-80 w-80 -translate-x-1/2 -translate-y-1/3 rounded-full bg-accent/25 blur-3xl" />
+        <div className="relative mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+          <Reveal>
+            <h2 className="mx-auto max-w-xl text-center text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem]">
+              {t("how.heading")}
+            </h2>
+          </Reveal>
+          <Reveal delay={0.1} className="mt-10">
+            <Stepper backButtonText={t("how.back")} nextButtonText={t("how.next")}>
+              <Step>
+                <StepIcon icon={<BuildingsIcon size={20} weight="duotone" />} />
+                <h3>{t("how.step1Title")}</h3>
+                <p>{t("how.step1Body")}</p>
+              </Step>
+              <Step>
+                <StepIcon icon={<ClockIcon size={20} weight="duotone" />} />
+                <h3>{t("how.step2Title")}</h3>
+                <p>{t("how.step2Body")}</p>
+              </Step>
+              <Step>
+                <StepIcon icon={<BellRingingIcon size={20} weight="duotone" />} />
+                <h3>{t("how.step3Title")}</h3>
+                <p>{t("how.step3Body")}</p>
+              </Step>
+              <Step>
+                <StepIcon icon={<ClipboardTextIcon size={20} weight="duotone" />} />
+                <h3>{t("how.step4Title")}</h3>
+                <p>{t("how.step4Body")}</p>
+              </Step>
+            </Stepper>
+          </Reveal>
         </div>
       </section>
 
       {/* WHO IT'S FOR */}
-      <section id="who" className="mx-auto w-full max-w-5xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-        <h2 className="max-w-xl text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem]">
-          {t("who.heading")}
-        </h2>
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <PersonaCard
-            icon={<HandHeartIcon size={22} weight="duotone" />}
-            eyebrow={t("who.caregiverEyebrow")}
-            title={t("who.caregiverTitle")}
-            body={t("who.caregiverBody")}
-            points={[t("who.caregiverPoint1"), t("who.caregiverPoint2"), t("who.caregiverPoint3")]}
-            tone="tint"
-          />
-          <PersonaCard
-            icon={<UserCircleIcon size={22} weight="duotone" />}
-            eyebrow={t("who.patientEyebrow")}
-            title={t("who.patientTitle")}
-            body={t("who.patientBody")}
-            points={[t("who.patientPoint1"), t("who.patientPoint2"), t("who.patientPoint3")]}
-            tone="plain"
-          />
+      <section id="who" className="relative w-full scroll-mt-24 overflow-hidden">
+        <div className="pointer-events-none absolute right-0 top-1/4 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
+        <div className="pointer-events-none absolute -left-10 bottom-0 h-64 w-64 rounded-full bg-accent-fill/20 blur-3xl" />
+        <div className="relative mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
+          <Reveal>
+            <h2 className="max-w-xl text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem]">
+              {t("who.heading")}
+            </h2>
+          </Reveal>
+          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 sm:items-stretch">
+            <Reveal className="h-full">
+              <PersonaCard
+                icon={<HandHeartIcon size={22} weight="duotone" />}
+                eyebrow={t("who.caregiverEyebrow")}
+                title={t("who.caregiverTitle")}
+                body={t("who.caregiverBody")}
+                points={[t("who.caregiverPoint1"), t("who.caregiverPoint2"), t("who.caregiverPoint3")]}
+                tone="dark"
+              />
+            </Reveal>
+            <Reveal delay={0.1} className="h-full">
+              <PersonaCard
+                icon={<UserCircleIcon size={22} weight="duotone" />}
+                eyebrow={t("who.patientEyebrow")}
+                title={t("who.patientTitle")}
+                body={t("who.patientBody")}
+                points={[t("who.patientPoint1"), t("who.patientPoint2"), t("who.patientPoint3")]}
+                tone="plain"
+              />
+            </Reveal>
+          </div>
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CTA — dark spotlight section, Aurora WebGL background, scale-in reveal */}
       <section className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8 lg:pb-24">
-        <div className="rounded-3xl bg-foreground px-8 py-14 sm:px-14 sm:py-16">
-          <div className="flex flex-col items-start gap-8 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <h2 className="max-w-md text-2xl font-semibold leading-snug text-background sm:text-[1.75rem]">
+        <Reveal variant="scale">
+          <div className="relative overflow-hidden rounded-3xl bg-foreground px-8 py-16 sm:px-14 sm:py-20">
+            <div className="absolute inset-0">
+              <CtaAurora className="h-full w-full" />
+            </div>
+            <div className="relative flex flex-col items-center gap-2 text-center">
+              <h2 className="max-w-lg text-2xl font-semibold leading-snug text-background sm:text-[2rem]">
                 {t("cta.heading")}
               </h2>
-              <p className="mt-3 max-w-sm text-sm leading-relaxed text-background/70">
+              <p className="mt-2 max-w-sm text-sm leading-relaxed text-background/70">
                 {t("cta.subtitle")}
               </p>
-            </div>
-            <div className="flex flex-col items-start gap-2">
               <Link
                 href="/sign-up"
-                className="inline-flex items-center justify-center rounded-xl bg-accent-fill px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-accent-fill-hover active:scale-[0.98]"
+                className="mt-7 inline-flex items-center justify-center rounded-full bg-background px-7 py-3.5 text-sm font-semibold text-foreground transition-colors hover:bg-background/90 active:scale-[0.98]"
               >
                 {t("cta.button")}
               </Link>
-              <span className="text-xs text-background/60">{t("cta.note")}</span>
+              <span className="mt-3 text-xs text-background/60">{t("cta.note")}</span>
             </div>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* FOOTER */}
@@ -259,17 +257,37 @@ export default async function RootPage() {
   );
 }
 
-function StepCard({ icon, title, body }: { icon: ReactNode; title: string; body: string }) {
+
+// Decorative mock-up for the bento highlight cards — built from the app's
+// own card/badge vocabulary rather than a hotlinked stock photo, so there's
+// no external asset to go stale or fail to load.
+function AppointmentPreview({ className = "" }: { className?: string }) {
   return (
-    <div className="flex gap-4 rounded-2xl border border-border bg-background p-6">
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent-fill text-white">
-        {icon}
-      </span>
-      <div>
-        <h3 className="text-base font-semibold text-foreground">{title}</h3>
-        <p className="mt-1.5 text-sm leading-relaxed text-muted">{body}</p>
+    <div className={`rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-md ${className}`}>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-semibold text-white">Dr. Tan Wei Ming</p>
+        <span className="shrink-0 rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
+          Pending
+        </span>
       </div>
+      <p className="mt-1 text-[10px] text-white/60">Cardiology · Gleneagles Penang</p>
+      <div className="mt-3 h-px w-full bg-white/15" />
+      <div className="mt-3 flex items-center justify-between gap-2">
+        <p className="text-xs font-semibold text-white">Mum · Dr. Lakshmi</p>
+        <span className="shrink-0 rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
+          Attended
+        </span>
+      </div>
+      <p className="mt-1 text-[10px] text-white/60">Island Hospital</p>
     </div>
+  );
+}
+
+function StepIcon({ icon }: { icon: ReactNode }) {
+  return (
+    <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent-fill text-white">
+      {icon}
+    </span>
   );
 }
 
@@ -286,25 +304,37 @@ function PersonaCard({
   title: string;
   body: string;
   points: string[];
-  tone: "tint" | "plain";
+  tone: "dark" | "plain";
 }) {
+  const dark = tone === "dark";
   return (
     <div
-      className={`rounded-2xl border border-border p-8 ${
-        tone === "tint" ? "bg-tint" : "bg-background"
+      className={`flex h-full flex-col rounded-2xl border p-8 shadow-xl backdrop-blur-xl ${
+        dark ? "border-white/10 bg-foreground/70 shadow-black/20" : "border-white/40 bg-surface/50 shadow-black/5"
       }`}
     >
-      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-fill text-white">
+      <span
+        className={`flex h-11 w-11 items-center justify-center rounded-xl ${
+          dark ? "bg-background/10 text-background" : "bg-accent-fill text-white"
+        }`}
+      >
         {icon}
       </span>
-      <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-accent-hover">
-        {eyebrow}
+      <div className="mt-5">
+        <Eyebrow tone={dark ? "dark" : "light"}>{eyebrow}</Eyebrow>
+      </div>
+      <h3 className={`mt-2 text-xl font-semibold ${dark ? "text-background" : "text-foreground"}`}>
+        {title}
+      </h3>
+      <p className={`mt-3 text-sm leading-relaxed ${dark ? "text-background/70" : "text-muted"}`}>
+        {body}
       </p>
-      <h3 className="mt-2 text-xl font-semibold text-foreground">{title}</h3>
-      <p className="mt-3 text-sm leading-relaxed text-muted">{body}</p>
       <ul className="mt-5 flex flex-col gap-2.5">
         {points.map((point) => (
-          <li key={point} className="flex items-start gap-2.5 text-sm text-foreground">
+          <li
+            key={point}
+            className={`flex items-start gap-2.5 text-sm ${dark ? "text-background" : "text-foreground"}`}
+          >
             <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
             {point}
           </li>

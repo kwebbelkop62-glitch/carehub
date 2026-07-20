@@ -5,12 +5,12 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #f7f5fc;
-  --foreground: #26215c; /* text primary */
+  --background: #f2f5f3; /* pale cool mint-gray */
+  --foreground: #14171a; /* text primary, near-black */
   --surface: #ffffff;
-  --border: #e4e1f7;
-  --accent: #7f77dd;
-  --accent-hover: #534ab7;
+  --border: #dfe5e1;
+  --accent: #1f9d55;
+  --accent-hover: #147a3f;
   /* Solid-fill variant for surfaces that carry white text (buttons, the
      appointment card's flipped back face, the active language pill).
      --accent itself is too light against white at normal text size
@@ -20,27 +20,33 @@
      pill), so this is a separate token, not a replacement.
      Verified: >=4.5:1 against white text and >=3:1 against the page
      background in both themes. */
-  --accent-fill: #534ab7;
-  --accent-fill-hover: #423a91;
-  --muted: #5f5aa0; /* text secondary */
-  --tint: #eeedfe; /* badge / light-fill background */
+  --accent-fill: #147a3f;
+  --accent-fill-hover: #0f6032;
+  --muted: #5b6660; /* text secondary */
+  --tint: #e6f2ea; /* badge / light-fill background */
+  --error: #dc2626;
+  --error-border: #fecaca;
+  --error-bg: #fef2f2;
 }
 
 .dark {
-  --background: #14111f;
-  --foreground: #efeefc;
-  --surface: #1e1a33;
-  --border: #332c57;
-  --accent: #9690e8;
+  --background: #0d0f0e;
+  --foreground: #eef2ef;
+  --surface: #161918;
+  --border: #2a2f2c;
+  --accent: #34c774;
   /* Not specified for dark mode — reusing light mode's primary accent as
      the hover step reads as a deliberate darken-on-hover in both themes. */
-  --accent-hover: #7f77dd;
-  --accent-fill: #66629e;
-  --accent-fill-hover: #5f5b92;
-  --muted: #a9a4d6;
-  /* Not specified for dark mode — a subtle purple wash between --surface
+  --accent-hover: #1f9d55;
+  --accent-fill: #1f9d55;
+  --accent-fill-hover: #17793f;
+  --muted: #93a39b;
+  /* Not specified for dark mode — a subtle green wash between --surface
      and --border, same role as light mode's --tint. */
-  --tint: #28234a;
+  --tint: #142620;
+  --error: #f87171;
+  --error-border: #7f1d1d;
+  --error-bg: #450a0a;
 }
 
 @theme inline {
@@ -54,6 +60,9 @@
   --color-accent-fill-hover: var(--accent-fill-hover);
   --color-muted: var(--muted);
   --color-tint: var(--tint);
+  --color-error: var(--error);
+  --color-error-border: var(--error-border);
+  --color-error-bg: var(--error-bg);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -84,30 +93,6 @@ body {
     opacity: 1;
     filter: none;
     transform: none;
-    animation: none;
-  }
-}
-
-/* Decorative floating appointment-card preview in the landing hero
-   (src/app/page.tsx) — pure CSS, no JS/Three.js, unlike the Ballpit
-   background it replaces. Per-card duration/delay offsets (set inline via
-   style, not here) desync the four cards so they don't bob in lockstep. */
-.hero-preview-card {
-  animation: hero-card-float 6s ease-in-out infinite;
-}
-
-@keyframes hero-card-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-preview-card {
     animation: none;
   }
 }

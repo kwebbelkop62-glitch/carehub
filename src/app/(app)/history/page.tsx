@@ -101,7 +101,7 @@ export default async function HistoryPage({
       )}
 
       {error && (
-        <Card className="border-red-200 text-sm text-red-600 dark:border-red-900">
+        <Card className="border-error-border text-sm text-error">
           Couldn&apos;t load history right now. Try refreshing.
         </Card>
       )}

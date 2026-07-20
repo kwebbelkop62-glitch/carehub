@@ -7,11 +7,11 @@ type State = { hasError: boolean };
 
 // WebGL can genuinely be unavailable (no GPU, hardware acceleration
 // disabled, browser policy, exhausted context limit) for real users, not
-// just during dev-mode hot reloads. Ballpit is a decorative hero, not
-// core functionality, so a failed mount should fall back to a static
-// background instead of crashing the page. Error boundaries must be
-// class components — no hook equivalent exists.
-export class BallpitBoundary extends Component<Props, State> {
+// just during dev-mode hot reloads. Decorative WebGL backgrounds (Ballpit,
+// Lightfall) aren't core functionality, so a failed mount should fall back
+// to a static background instead of crashing the page. Error boundaries
+// must be class components — no hook equivalent exists.
+export class WebglBoundary extends Component<Props, State> {
   state: State = { hasError: false };
 
   static getDerivedStateFromError() {
@@ -19,7 +19,7 @@ export class BallpitBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: unknown) {
-    console.warn("Ballpit failed to initialize, falling back to static background:", error);
+    console.warn("WebGL component failed to initialize, falling back to static background:", error);
   }
 
   render() {

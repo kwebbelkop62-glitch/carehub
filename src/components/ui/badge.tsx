@@ -10,8 +10,8 @@ const statusClasses: Record<string, string> = {
   completed: "bg-tint text-accent-hover",
   sent: "bg-tint text-accent-hover",
   cancelled: "bg-border text-muted",
-  missed: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400",
-  failed: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400",
+  missed: "bg-error-bg text-error",
+  failed: "bg-error-bg text-error",
 };
 
 export function Badge({ status }: { status: string }) {

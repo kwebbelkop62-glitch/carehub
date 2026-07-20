@@ -11,7 +11,7 @@ const variantClasses: Record<Variant, string> = {
   ghost:
     "text-muted hover:text-foreground hover:bg-tint active:scale-[0.98]",
   danger:
-    "bg-surface text-red-600 border border-red-200 hover:bg-red-50 active:scale-[0.98] dark:border-red-900 dark:hover:bg-red-950",
+    "bg-surface text-error border border-error-border hover:bg-error-bg active:scale-[0.98]",
 };
 
 const base =
