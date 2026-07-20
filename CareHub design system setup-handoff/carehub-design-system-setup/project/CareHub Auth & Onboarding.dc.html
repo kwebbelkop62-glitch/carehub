@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; }
+    a { color: oklch(0.55 0.12 260); text-decoration: none; }
+    a:hover { color: oklch(0.48 0.12 260); }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</helmet>
+
+<div style="font-family:'Figtree',sans-serif; background:oklch(0.975 0.008 70); color:oklch(0.22 0.02 60); min-height:100vh; display:flex; align-items:center; justify-content:center; padding:48px 24px; box-sizing:border-box;">
+
+  <div style="width:100%; max-width:{{ cardWidth }}px;">
+
+  <div style="font-size:12.5px; line-height:1.55; color:oklch(0.42 0.15 25); background:oklch(0.94 0.03 25); border-radius:10px; padding:10px 14px; margin-bottom:14px;">
+    <strong>Note:</strong> the real app authenticates via Clerk's prebuilt sign-in/sign-up components, not custom forms. Treat this sign-up and log-in screen as a visual/theming reference for styling Clerk's components (colors, type, spacing, card shape) — not as a literal screen to build.
+  </div>
+
+  <div style="background:oklch(0.99 0.006 70); border:1px solid oklch(0.9 0.015 60); border-radius:20px; padding:44px 44px 40px; box-sizing:border-box; transition:opacity 0.2s ease;">
+
+    <div style="display:flex; align-items:center; gap:8px; font-size:17px; font-weight:800; margin-bottom:{{ headerMarginBottom }}px;">
+      <div style="position:relative; width:20px; height:20px; flex-shrink:0;">
+        <div style="position:absolute; left:5px; top:-2px; width:2.2px; height:4.5px; border-radius:1px; background:oklch(0.55 0.09 130);"></div>
+        <div style="position:absolute; left:13px; top:-2px; width:2.2px; height:4.5px; border-radius:1px; background:oklch(0.55 0.09 130);"></div>
+        <div style="position:absolute; inset:0; border-radius:5px; background:oklch(0.99 0.006 70); border:1.5px solid oklch(0.6 0.14 45);"></div>
+        <div style="position:absolute; left:1.5px; right:1.5px; top:1.5px; height:6px; border-radius:4px 4px 0 0; background:oklch(0.6 0.14 45);"></div>
+        <div style="position:absolute; left:50%; top:11px; transform:translateX(-50%); width:6px; height:6px; border-radius:50%; background:oklch(0.55 0.09 130);"></div>
+      </div>
+      CareHub
+    </div>
+
+    <sc-if value="{{ showsProgress }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex; gap:6px; margin-bottom:28px;">
+        <sc-for list="{{ progressDots }}" as="dot" hint-placeholder-count="2">
+          <div style="height:4px; flex:1; border-radius:2px; background:{{ dot.color }};"></div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <!-- SIGN UP -->
+    <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex; gap:4px; background:oklch(0.95 0.01 70); border-radius:10px; padding:4px; margin-bottom:26px;">
+        <button onClick="{{ goToSignup }}" style="flex:1; font-family:'Figtree',sans-serif; font-size:14px; font-weight:700; padding:9px; border-radius:8px; border:none; cursor:pointer; background:oklch(0.99 0.006 70); color:oklch(0.22 0.02 60); box-shadow:0 1px 2px oklch(0.4 0.02 60 / 0.08);">Sign up</button>
+        <button onClick="{{ goToLogin }}" style="flex:1; font-family:'Figtree',sans-serif; font-size:14px; font-weight:600; padding:9px; border-radius:8px; border:none; cursor:pointer; background:transparent; color:oklch(0.48 0.02 60);">Log in</button>
+      </div>
+
+      <h1 style="font-size:23px; font-weight:700; margin:0 0 8px;">Create your account</h1>
+      <p style="font-size:14.5px; line-height:1.55; color:oklch(0.48 0.02 60); margin:0 0 26px;">Track appointments for yourself, or for someone you support.</p>
+
+      <label style="display:block; font-size:13px; font-weight:600; color:oklch(0.4 0.02 60); margin-bottom:6px;">Full name</label>
+      <input type="text" placeholder="Aisyah Rahman" style="width:100%; box-sizing:border-box; font-family:'Figtree',sans-serif; font-size:15px; padding:11px 14px; border-radius:9px; border:1px solid oklch(0.85 0.015 60); background:oklch(0.995 0.004 70); margin-bottom:14px;" style-focus="outline:2px solid oklch(0.6 0.14 45 / 0.35); border-color:oklch(0.6 0.14 45);"></input>
+
+      <label style="display:block; font-size:13px; font-weight:600; color:oklch(0.4 0.02 60); margin-bottom:6px;">Email</label>
+      <input type="email" placeholder="you@email.com" style="width:100%; box-sizing:border-box; font-family:'Figtree',sans-serif; font-size:15px; padding:11px 14px; border-radius:9px; border:1px solid oklch(0.85 0.015 60); background:oklch(0.995 0.004 70); margin-bottom:14px;" style-focus="outline:2px solid oklch(0.6 0.14 45 / 0.35); border-color:oklch(0.6 0.14 45);"></input>
+
+      <label style="display:block; font-size:13px; font-weight:600; color:oklch(0.4 0.02 60); margin-bottom:6px;">Password</label>
+      <input type="password" placeholder="••••••••" style="width:100%; box-sizing:border-box; font-family:'Figtree',sans-serif; font-size:15px; padding:11px 14px; border-radius:9px; border:1px solid oklch(0.85 0.015 60); background:oklch(0.995 0.004 70); margin-bottom:22px;" style-focus="outline:2px solid oklch(0.6 0.14 45 / 0.35); border-color:oklch(0.6 0.14 45);"></input>
+
+      <div style="font-size:13px; font-weight:600; color:oklch(0.4 0.02 60); margin-bottom:10px;">This account is for</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:26px;">
+        <div onClick="{{ selectSelf }}" style="cursor:pointer; border-radius:12px; padding:16px; border:1.5px solid {{ selfBorder }}; background:{{ selfBg }};">
+          <div style="font-size:14.5px; font-weight:700; margin-bottom:4px;">Just me</div>
+          <div style="font-size:12.5px; line-height:1.4; color:oklch(0.48 0.02 60);">I manage my own appointments</div>
+        </div>
+        <div onClick="{{ selectCaregiver }}" style="cursor:pointer; border-radius:12px; padding:16px; border:1.5px solid {{ caregiverBorder }}; background:{{ caregiverBg }};">
+          <div style="font-size:14.5px; font-weight:700; margin-bottom:4px;">Someone else too</div>
+          <div style="font-size:12.5px; line-height:1.4; color:oklch(0.48 0.02 60);">I'm a caregiver for someone else</div>
+        </div>
+      </div>
+
+      <button onClick="{{ submitSignup }}" disabled="{{ signupDisabled }}" style="width:100%; font-family:'Figtree',sans-serif; font-size:15px; font-weight:700; color:oklch(0.99 0.006 70); background:{{ signupButtonBg }}; border:none; border-radius:10px; padding:13px; cursor:pointer;">Create account</button>
+      <p style="text-align:center; font-size:13px; color:oklch(0.48 0.02 60); margin:18px 0 0;">Already have an account? <a href="javascript:void(0)" onClick="{{ goToLogin }}">Log in</a></p>
+    </sc-if>
+
+    <!-- LOG IN -->
+    <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex; gap:4px; background:oklch(0.95 0.01 70); border-radius:10px; padding:4px; margin-bottom:26px;">
+        <button onClick="{{ goToSignup }}" style="flex:1; font-family:'Figtree',sans-serif; font-size:14px; font-weight:600; padding:9px; border-radius:8px; border:none; cursor:pointer; background:transparent; color:oklch(0.48 0.02 60);">Sign up</button>
+        <button onClick="{{ goToLogin }}" style="flex:1; font-family:'Figtree',sans-serif; font-size:14px; font-weight:700; padding:9px; border-radius:8px; border:none; cursor:pointer; background:oklch(0.99 0.006 70); color:oklch(0.22 0.02 60); box-shadow:0 1px 2px oklch(0.4 0.02 60 / 0.08);">Log in</button>
+      </div>
+
+      <h1 style="font-size:23px; font-weight:700; margin:0 0 8px;">Welcome back</h1>
+      <p style="font-size:14.5px; line-height:1.55; color:oklch(0.48 0.02 60); margin:0 0 26px;">Log in to see what's next on your calendar.</p>
+
+      <label style="display:block; font-size:13px; font-weight:600; color:oklch(0.4 0.02 60); margin-bottom:6px;">Email</label>
+      <input type="email" placeholder="you@email.com" style="width:100%; box-sizing:border-box; font-family:'Figtree',sans-serif; font-size:15px; padding:11px 14px; border-radius:9px; border:1px solid oklch(0.85 0.015 60); background:oklch(0.995 0.004 70); margin-bottom:14px;" style-focus="outline:2px solid oklch(0.6 0.14 45 / 0.35); border-color:oklch(0.6 0.14 45);"></input>
+
+      <label style="display:block; font-size:13px; font-weight:600; color:oklch(0.4 0.02 60); margin-bottom:6px;">Password</label>
+      <input type="password" placeholder="••••••••" style="width:100%; box-sizing:border-box; font-family:'Figtree',sans-serif; font-size:15px; padding:11px 14px; border-radius:9px; border:1px solid oklch(0.85 0.015 60); background:oklch(0.995 0.004 70); margin-bottom:10px;" style-focus="outline:2px solid oklch(0.6 0.14 45 / 0.35); border-color:oklch(0.6 0.14 45);"></input>
+      <p style="text-align:right; font-size:13px; margin:0 0 22px;"><a href="javascript:void(0)">Forgot password?</a></p>
+
+      <button style="width:100%; font-family:'Figtree',sans-serif; font-size:15px; font-weight:700; color:oklch(0.99 0.006 70); background:oklch(0.6 0.14 45); border:none; border-radius:10px; padding:13px; cursor:pointer;" style-hover="background:oklch(0.54 0.14 45);">Log in</button>
+      <p style="text-align:center; font-size:13px; color:oklch(0.48 0.02 60); margin:18px 0 0;">New to CareHub? <a href="javascript:void(0)" onClick="{{ goToSignup }}">Create an account</a></p>
+    </sc-if>
+
+    <!-- ONBOARDING STEP 1: DEPENDANT (caregiver only) -->
+    <sc-if value="{{ isOnboard1 }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:12.5px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:oklch(0.55 0.09 130); margin-bottom:10px;">Step 1 of 2</div>
+      <h1 style="font-size:23px; font-weight:700; margin:0 0 8px;">Add your first dependant</h1>
+      <p style="font-size:14.5px; line-height:1.55; color:oklch(0.48 0.02 60); margin:0 0 26px;">You can add more people, or edit this later, from your account anytime.</p>
+
+      <label style="display:block; font-size:13px; font-weight:600; color:oklch(0.4 0.02 60); margin-bottom:6px;">Their name</label>
+      <input type="text" placeholder="e.g. Mum" style="width:100%; box-sizing:border-box; font-family:'Figtree',sans-serif; font-size:15px; padding:11px 14px; border-radius:9px; border:1px solid oklch(0.85 0.015 60); background:oklch(0.995 0.004 70); margin-bottom:14px;" style-focus="outline:2px solid oklch(0.6 0.14 45 / 0.35); border-color:oklch(0.6 0.14 45);"></input>
+
+      <label style="display:block; font-size:13px; font-weight:600; color:oklch(0.4 0.02 60); margin-bottom:6px;">Relationship</label>
+      <input type="text" placeholder="e.g. Parent, child, spouse" style="width:100%; box-sizing:border-box; font-family:'Figtree',sans-serif; font-size:15px; padding:11px 14px; border-radius:9px; border:1px solid oklch(0.85 0.015 60); background:oklch(0.995 0.004 70); margin-bottom:26px;" style-focus="outline:2px solid oklch(0.6 0.14 45 / 0.35); border-color:oklch(0.6 0.14 45);"></input>
+
+      <button onClick="{{ addDependant }}" style="width:100%; font-family:'Figtree',sans-serif; font-size:15px; font-weight:700; color:oklch(0.99 0.006 70); background:oklch(0.6 0.14 45); border:none; border-radius:10px; padding:13px; cursor:pointer; margin-bottom:12px;" style-hover="background:oklch(0.54 0.14 45);">Add dependant</button>
+      <button onClick="{{ skipDependant }}" style="width:100%; font-family:'Figtree',sans-serif; font-size:14px; font-weight:600; color:oklch(0.48 0.02 60); background:transparent; border:none; padding:8px; cursor:pointer;">Skip for now</button>
+    </sc-if>
+
+    <!-- ONBOARDING STEP 2: CARE UNIT -->
+    <sc-if value="{{ isOnboard2 }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:12.5px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:oklch(0.6 0.14 45); margin-bottom:10px;">{{ onboard2StepLabel }}</div>
+      <h1 style="font-size:23px; font-weight:700; margin:0 0 8px;">Add your first care unit</h1>
+      <p style="font-size:14.5px; line-height:1.55; color:oklch(0.48 0.02 60); margin:0 0 26px;">Search for a clinic, hospital, or doctor — or add your own if it's not listed. This is just for your own records.</p>
+
+      <label style="display:block; font-size:13px; font-weight:600; color:oklch(0.4 0.02 60); margin-bottom:6px;">Clinic, hospital, or doctor</label>
+      <input type="text" placeholder="e.g. Gleneagles Penang" style="width:100%; box-sizing:border-box; font-family:'Figtree',sans-serif; font-size:15px; padding:11px 14px; border-radius:9px; border:1px solid oklch(0.85 0.015 60); background:oklch(0.995 0.004 70); margin-bottom:26px;" style-focus="outline:2px solid oklch(0.6 0.14 45 / 0.35); border-color:oklch(0.6 0.14 45);"></input>
+
+      <button onClick="{{ addUnit }}" style="width:100%; font-family:'Figtree',sans-serif; font-size:15px; font-weight:700; color:oklch(0.99 0.006 70); background:oklch(0.6 0.14 45); border:none; border-radius:10px; padding:13px; cursor:pointer; margin-bottom:12px;" style-hover="background:oklch(0.54 0.14 45);">Add care unit</button>
+      <button onClick="{{ skipUnit }}" style="width:100%; font-family:'Figtree',sans-serif; font-size:14px; font-weight:600; color:oklch(0.48 0.02 60); background:transparent; border:none; padding:8px; cursor:pointer;">Skip for now</button>
+    </sc-if>
+
+    <!-- DONE -->
+    <sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center; padding:12px 0 4px;">
+        <div style="width:44px; height:44px; border-radius:50%; background:oklch(0.93 0.035 145); display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+          <div style="width:16px; height:16px; border-radius:50%; background:oklch(0.5 0.11 145);"></div>
+        </div>
+        <h1 style="font-size:22px; font-weight:700; margin:0 0 8px;">You're all set</h1>
+        <p style="font-size:14.5px; line-height:1.55; color:oklch(0.48 0.02 60); margin:0 0 26px;">Your account is ready. Add or edit anything anytime from your dashboard.</p>
+        <button onClick="{{ restart }}" style="width:100%; font-family:'Figtree',sans-serif; font-size:15px; font-weight:700; color:oklch(0.99 0.006 70); background:oklch(0.6 0.14 45); border:none; border-radius:10px; padding:13px; cursor:pointer;" style-hover="background:oklch(0.54 0.14 45);">Go to dashboard</button>
+      </div>
+    </sc-if>
+
+  </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { screen: 'signup', persona: null };
+
+  renderVals() {
+    const s = this.state.screen;
+    const persona = this.state.persona;
+    const isSignup = s === 'signup';
+    const isLogin = s === 'login';
+    const isOnboard1 = s === 'onboard1';
+    const isOnboard2 = s === 'onboard2';
+    const isDone = s === 'done';
+
+    const clay = 'oklch(0.6 0.14 45)';
+    const moss = 'oklch(0.55 0.09 130)';
+    const neutralBorder = 'oklch(0.85 0.015 60)';
+    const neutralBg = 'oklch(0.995 0.004 70)';
+
+    let progressDots = [];
+    if (isOnboard1) progressDots = [{ color: clay }, { color: neutralBorder }];
+    if (isOnboard2 && persona === 'caregiver') progressDots = [{ color: clay }, { color: moss }];
+    if (isOnboard2 && persona !== 'caregiver') progressDots = [{ color: clay }];
+
+    return {
+      cardWidth: (isSignup) ? 480 : 440,
+      headerMarginBottom: (isSignup || isLogin) ? 8 : 22,
+      showsProgress: isOnboard1 || isOnboard2,
+      progressDots,
+      isSignup, isLogin, isOnboard1, isOnboard2, isDone,
+      selfBorder: persona === 'self' ? clay : neutralBorder,
+      selfBg: persona === 'self' ? 'oklch(0.94 0.025 45)' : neutralBg,
+      caregiverBorder: persona === 'caregiver' ? moss : neutralBorder,
+      caregiverBg: persona === 'caregiver' ? 'oklch(0.94 0.025 130)' : neutralBg,
+      signupDisabled: !persona,
+      signupButtonBg: persona ? clay : 'oklch(0.85 0.01 60)',
+      onboard2StepLabel: persona === 'caregiver' ? 'Step 2 of 2' : 'Step 1 of 1',
+      goToSignup: () => this.setState({ screen: 'signup' }),
+      goToLogin: () => this.setState({ screen: 'login' }),
+      selectSelf: () => this.setState({ persona: 'self' }),
+      selectCaregiver: () => this.setState({ persona: 'caregiver' }),
+      submitSignup: () => {
+        if (!this.state.persona) return;
+        this.setState({ screen: this.state.persona === 'caregiver' ? 'onboard1' : 'onboard2' });
+      },
+      addDependant: () => this.setState({ screen: 'onboard2' }),
+      skipDependant: () => this.setState({ screen: 'onboard2' }),
+      addUnit: () => this.setState({ screen: 'done' }),
+      skipUnit: () => this.setState({ screen: 'done' }),
+      restart: () => this.setState({ screen: 'signup', persona: null }),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -10,7 +10,13 @@ import type { AppointmentWithUnitAndPatient, Patient, Unit } from "@/lib/types";
 export default async function SelectTimePage({
   searchParams,
 }: {
-  searchParams: Promise<{ patient?: string; unit?: string; date?: string; time?: string }>;
+  searchParams: Promise<{
+    patient?: string;
+    unit?: string;
+    date?: string;
+    time?: string;
+    reschedule?: string;
+  }>;
 }) {
   const params = await searchParams;
   const appUser = await getOrCreateAppUser();
@@ -19,6 +25,10 @@ export default async function SelectTimePage({
   if (!params.patient || !params.unit) {
     redirect("/appointments/new/unit");
   }
+
+  const rescheduleQuery = params.reschedule
+    ? `&reschedule=${params.reschedule}`
+    : "";
 
   const supabase = createServerSupabaseClient();
 
@@ -43,13 +53,19 @@ export default async function SelectTimePage({
     const { data: userPatients } = await supabase.from("patients").select("id");
     const patientIds = (userPatients ?? []).map((p) => p.id);
 
-    const { data: conflictRows } = await supabase
+    let conflictQuery = supabase
       .from("appointments")
       .select("*, units(*), patients(*)")
       .in("patient_id", patientIds.length > 0 ? patientIds : [params.patient])
       .eq("appointment_date", date)
       .eq("appointment_time", time)
       .neq("status", "cancelled");
+
+    if (params.reschedule) {
+      conflictQuery = conflictQuery.neq("id", params.reschedule);
+    }
+
+    const { data: conflictRows } = await conflictQuery;
 
     conflicts = (conflictRows ?? []) as AppointmentWithUnitAndPatient[];
   }
@@ -60,7 +76,7 @@ export default async function SelectTimePage({
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Select a date and time
+          {params.reschedule ? "Reschedule appointment" : "Select a date and time"}
         </h1>
         <p className="mt-1 text-sm text-muted">
           For {typedPatient.full_name} at {typedUnit.name},{" "}
@@ -77,6 +93,9 @@ export default async function SelectTimePage({
       <form method="GET" className="flex flex-col gap-4">
         <input type="hidden" name="patient" value={params.patient} />
         <input type="hidden" name="unit" value={params.unit} />
+        {params.reschedule && (
+          <input type="hidden" name="reschedule" value={params.reschedule} />
+        )}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Date" htmlFor="date" error={dateIsPast ? "Pick a date that isn't in the past." : undefined}>
             <Input id="date" name="date" type="date" min={todayIso()} defaultValue={date} required />
@@ -117,7 +136,7 @@ export default async function SelectTimePage({
 
       {canContinue && (
         <LinkButton
-          href={`/appointments/new/confirm?patient=${params.patient}&unit=${params.unit}&date=${date}&time=${time}`}
+          href={`/appointments/new/confirm?patient=${params.patient}&unit=${params.unit}&date=${date}&time=${time}${rescheduleQuery}`}
           className="self-start"
         >
           Continue

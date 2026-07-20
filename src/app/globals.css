@@ -11,6 +11,17 @@
   --border: #e4e1f7;
   --accent: #7f77dd;
   --accent-hover: #534ab7;
+  /* Solid-fill variant for surfaces that carry white text (buttons, the
+     appointment card's flipped back face, the active language pill).
+     --accent itself is too light against white at normal text size
+     (3.76:1 light / 2.82:1 dark, both under the 4.5:1 AA floor) — but
+     darkening --accent directly regresses its OTHER role as plain
+     foreground text on a surface (e.g. the language toggle's inactive
+     pill), so this is a separate token, not a replacement.
+     Verified: >=4.5:1 against white text and >=3:1 against the page
+     background in both themes. */
+  --accent-fill: #534ab7;
+  --accent-fill-hover: #423a91;
   --muted: #5f5aa0; /* text secondary */
   --tint: #eeedfe; /* badge / light-fill background */
 }
@@ -24,6 +35,8 @@
   /* Not specified for dark mode — reusing light mode's primary accent as
      the hover step reads as a deliberate darken-on-hover in both themes. */
   --accent-hover: #7f77dd;
+  --accent-fill: #66629e;
+  --accent-fill-hover: #5f5b92;
   --muted: #a9a4d6;
   /* Not specified for dark mode — a subtle purple wash between --surface
      and --border, same role as light mode's --tint. */
@@ -37,6 +50,8 @@
   --color-border: var(--border);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
+  --color-accent-fill: var(--accent-fill);
+  --color-accent-fill-hover: var(--accent-fill-hover);
   --color-muted: var(--muted);
   --color-tint: var(--tint);
   --font-sans: var(--font-geist-sans);
@@ -47,4 +62,92 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+.hero-brand-mark {
+  opacity: 0;
+  filter: blur(6px);
+  transform: translateY(-6px);
+  animation: hero-brand-mark-reveal 0.6s ease-out 0.1s forwards;
+}
+
+@keyframes hero-brand-mark-reveal {
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-brand-mark {
+    opacity: 1;
+    filter: none;
+    transform: none;
+    animation: none;
+  }
+}
+
+/* Decorative floating appointment-card preview in the landing hero
+   (src/app/page.tsx) — pure CSS, no JS/Three.js, unlike the Ballpit
+   background it replaces. Per-card duration/delay offsets (set inline via
+   style, not here) desync the four cards so they don't bob in lockstep. */
+.hero-preview-card {
+  animation: hero-card-float 6s ease-in-out infinite;
+}
+
+@keyframes hero-card-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-preview-card {
+    animation: none;
+  }
+}
+
+/* ScrollStack (vendored: src/components/vendor/ScrollStack.jsx/.css) is
+   used as its own self-contained scrollable panel, matching how the
+   reactbits.dev reference demo actually works (useWindowScroll defaults to
+   false: Lenis scopes to this panel's own scroller, not the whole page).
+   An earlier version of this override tried to make it hijack window
+   scroll instead so it could sit in normal page flow with no bounded
+   height — that fought the component's own architecture and produced
+   janky, stuck-feeling scrolling site-wide. These overrides instead give
+   the panel real height (the vendor CSS's own min-height:100vh convention
+   signals it wants a full screen of room) and restyle it to match
+   DESIGN.md's flat/no-shadow, tint-fill card language. Scoped under
+   .why-stack (two classes) so they win on specificity over the vendor
+   file's plain .scroll-stack-* selectors regardless of CSS import order. */
+.why-stack.scroll-stack-scroller {
+  height: min(80vh, 42rem);
+  overflow-y: auto;
+  overflow-x: visible;
+}
+
+.why-stack .scroll-stack-inner {
+  padding: 3rem 0;
+  min-height: 100%;
+}
+
+.why-stack .scroll-stack-card {
+  height: auto;
+  min-height: 11rem;
+  padding: 2rem;
+  border-radius: 1rem; /* DESIGN.md's "lg" token — matches rounded-2xl on the other landing cards */
+  box-shadow: none;
+  background: var(--tint);
+  border: 1px solid var(--border);
+}
+
+@media (min-width: 640px) {
+  .why-stack .scroll-stack-card {
+    padding: 2.5rem;
+  }
 }

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; }
+    a { color: oklch(0.55 0.12 260); text-decoration: none; }
+    a:hover { color: oklch(0.48 0.12 260); }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</helmet>
+
+<div style="font-family:'Figtree',sans-serif; background:oklch(0.975 0.008 70); color:oklch(0.22 0.02 60); min-height:100vh;">
+
+  <!-- HEADER -->
+  <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 32px; border-bottom:1px solid oklch(0.9 0.015 60); background:oklch(0.99 0.006 70);">
+    <div style="display:flex; align-items:center; gap:8px; font-size:17px; font-weight:800;">
+      <div style="position:relative; width:20px; height:20px; flex-shrink:0;">
+        <div style="position:absolute; left:5px; top:-2px; width:2.2px; height:4.5px; border-radius:1px; background:oklch(0.55 0.09 130);"></div>
+        <div style="position:absolute; left:13px; top:-2px; width:2.2px; height:4.5px; border-radius:1px; background:oklch(0.55 0.09 130);"></div>
+        <div style="position:absolute; inset:0; border-radius:5px; background:oklch(0.99 0.006 70); border:1.5px solid oklch(0.6 0.14 45);"></div>
+        <div style="position:absolute; left:1.5px; right:1.5px; top:1.5px; height:6px; border-radius:4px 4px 0 0; background:oklch(0.6 0.14 45);"></div>
+        <div style="position:absolute; left:50%; top:11px; transform:translateX(-50%); width:6px; height:6px; border-radius:50%; background:oklch(0.55 0.09 130);"></div>
+      </div>
+      CareHub
+    </div>
+    <a href="javascript:void(0)" style="font-size:13.5px; font-weight:600; color:oklch(0.48 0.02 60);">&larr; Back to dashboard</a>
+  </div>
+
+  <div style="max-width:640px; margin:0 auto; padding:32px 32px 100px;">
+    <h1 style="font-size:22px; font-weight:700; margin:0 0 28px;">Profile &amp; settings</h1>
+
+    <!-- ACCOUNT -->
+    <div style="background:oklch(0.99 0.006 70); border:1px solid oklch(0.9 0.015 60); border-radius:16px; padding:22px 24px; margin-bottom:20px;">
+      <div style="display:flex; align-items:center; justify-content:between; gap:16px; margin-bottom:4px;">
+        <div style="display:flex; align-items:center; gap:14px; flex:1;">
+          <div style="width:48px; height:48px; border-radius:50%; background:oklch(0.9 0.02 45); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:oklch(0.4 0.1 45); flex-shrink:0;">AR</div>
+          <div>
+            <div style="font-size:16px; font-weight:700;">Aisyah Rahman</div>
+            <div style="font-size:13.5px; color:oklch(0.48 0.02 60);">aisyah.rahman@email.com</div>
+            <div style="font-size:13.5px; color:oklch(0.48 0.02 60);">+60 12-345 6789</div>
+          </div>
+        </div>
+        <button style="font-family:'Figtree',sans-serif; font-size:13.5px; font-weight:600; color:oklch(0.22 0.02 60); background:transparent; border:1px solid oklch(0.85 0.015 60); border-radius:9px; padding:9px 14px; cursor:pointer; white-space:nowrap;">Edit profile</button>
+      </div>
+    </div>
+
+    <!-- PERSONA -->
+    <div style="background:oklch(0.99 0.006 70); border:1px solid oklch(0.9 0.015 60); border-radius:16px; padding:22px 24px; margin-bottom:20px;">
+      <div style="font-size:13px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:oklch(0.48 0.02 60); margin-bottom:12px;">Mode</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+        <div onClick="{{ selectSelf }}" style="cursor:pointer; border-radius:12px; padding:14px 16px; border:1.5px solid {{ selfBorder }}; background:{{ selfBg }};">
+          <div style="font-size:14px; font-weight:700; margin-bottom:3px;">Just me</div>
+          <div style="font-size:12px; line-height:1.4; color:oklch(0.48 0.02 60);">I manage my own appointments</div>
+        </div>
+        <div onClick="{{ selectCaregiver }}" style="cursor:pointer; border-radius:12px; padding:14px 16px; border:1.5px solid {{ caregiverBorder }}; background:{{ caregiverBg }};">
+          <div style="font-size:14px; font-weight:700; margin-bottom:3px;">Caregiver</div>
+          <div style="font-size:12px; line-height:1.4; color:oklch(0.48 0.02 60);">I also manage others</div>
+        </div>
+      </div>
+      <div style="font-size:12.5px; line-height:1.5; color:oklch(0.55 0.02 60);">Caregiver mode adds a dependant switcher to your dashboard and lets you add profiles for the people you support.</div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div style="background:oklch(0.99 0.006 70); border:1px solid oklch(0.9 0.015 60); border-radius:16px; padding:22px 24px; margin-bottom:20px;">
+      <div style="font-size:13px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:oklch(0.48 0.02 60); margin-bottom:14px;">Notification preferences</div>
+
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid oklch(0.93 0.01 60);">
+        <div>
+          <div style="font-size:14px; font-weight:600;">Email</div>
+          <div style="font-size:12.5px; color:oklch(0.55 0.02 60);">Reminders and weekly summary</div>
+        </div>
+        <div onClick="{{ toggleEmail }}" style="cursor:pointer; width:40px; height:22px; border-radius:100px; background:{{ emailTrackBg }}; position:relative; transition:background 0.2s ease; flex-shrink:0;">
+          <div style="position:absolute; top:2px; left:{{ emailKnobLeft }}px; width:18px; height:18px; border-radius:50%; background:oklch(0.99 0.006 70); transition:left 0.2s ease; box-shadow:0 1px 2px oklch(0.4 0.02 60 / 0.2);"></div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid oklch(0.93 0.01 60); opacity:0.55;">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:14px; font-weight:600;">Push notifications</span>
+            <span style="font-size:10.5px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; color:oklch(0.55 0.02 60); background:oklch(0.93 0.01 60); border-radius:100px; padding:2px 8px;">Coming soon</span>
+          </div>
+          <div style="font-size:12.5px; color:oklch(0.55 0.02 60);">Reminders on this device</div>
+        </div>
+        <div style="width:40px; height:22px; border-radius:100px; background:oklch(0.9 0.01 60); position:relative; flex-shrink:0;">
+          <div style="position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:oklch(0.99 0.006 70);"></div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; margin-bottom:16px; opacity:0.55;">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:14px; font-weight:600;">SMS</span>
+            <span style="font-size:10.5px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; color:oklch(0.55 0.02 60); background:oklch(0.93 0.01 60); border-radius:100px; padding:2px 8px;">Coming soon</span>
+          </div>
+          <div style="font-size:12.5px; color:oklch(0.55 0.02 60);">Text reminders</div>
+        </div>
+        <div style="width:40px; height:22px; border-radius:100px; background:oklch(0.9 0.01 60); position:relative; flex-shrink:0;">
+          <div style="position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:oklch(0.99 0.006 70);"></div>
+        </div>
+      </div>
+
+      <div style="font-size:13px; font-weight:600; color:oklch(0.4 0.02 60); margin-bottom:8px;">Default reminder lead time</div>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        <sc-for list="{{ reminderOptions }}" as="r" hint-placeholder-count="4">
+          <div onClick="{{ r.select }}" style="cursor:pointer; font-size:13px; font-weight:600; padding:8px 14px; border-radius:100px; border:1.5px solid {{ r.border }}; background:{{ r.bg }}; color:{{ r.color }};">{{ r.label }}</div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- SHORTCUTS -->
+    <div style="background:oklch(0.99 0.006 70); border:1px solid oklch(0.9 0.015 60); border-radius:16px; margin-bottom:20px; overflow:hidden;">
+      <sc-if value="{{ isCaregiver }}" hint-placeholder-val="{{ false }}">
+        <a href="javascript:void(0)" style="display:flex; align-items:center; justify-content:space-between; padding:16px 24px; border-bottom:1px solid oklch(0.93 0.01 60); color:oklch(0.22 0.02 60);">
+          <span style="font-size:14.5px; font-weight:600;">Manage dependants</span>
+          <span style="font-size:15px; color:oklch(0.55 0.02 60);">&rarr;</span>
+        </a>
+      </sc-if>
+      <a href="javascript:void(0)" style="display:flex; align-items:center; justify-content:space-between; padding:16px 24px; color:oklch(0.22 0.02 60);">
+        <span style="font-size:14.5px; font-weight:600;">Manage care units</span>
+        <span style="font-size:15px; color:oklch(0.55 0.02 60);">&rarr;</span>
+      </a>
+    </div>
+
+    <!-- DATA & PRIVACY -->
+    <div style="background:oklch(0.99 0.006 70); border:1px solid oklch(0.9 0.015 60); border-radius:16px; padding:22px 24px; margin-bottom:20px;">
+      <div style="font-size:13px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:oklch(0.48 0.02 60); margin-bottom:12px;">Data &amp; privacy</div>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;">
+        <a href="javascript:void(0)" style="font-size:14px; font-weight:600;">Export your data</a>
+        <a href="javascript:void(0)" style="font-size:14px; font-weight:600;">Privacy policy</a>
+      </div>
+      <div style="font-size:12.5px; line-height:1.5; color:oklch(0.55 0.02 60);">CareHub is an independent personal tracker. It does not share your data with, or receive data from, any hospital, clinic, or insurance provider.</div>
+    </div>
+
+    <!-- ACCOUNT ACTIONS -->
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <button style="width:100%; font-family:'Figtree',sans-serif; font-size:14.5px; font-weight:600; color:oklch(0.22 0.02 60); background:oklch(0.99 0.006 70); border:1px solid oklch(0.85 0.015 60); border-radius:10px; padding:12px; cursor:pointer;">Log out</button>
+      <button style="width:100%; font-family:'Figtree',sans-serif; font-size:14.5px; font-weight:600; color:oklch(0.42 0.15 25); background:transparent; border:1px solid oklch(0.75 0.08 25); border-radius:10px; padding:12px; cursor:pointer;">Delete account</button>
+      <div style="font-size:12px; line-height:1.5; color:oklch(0.55 0.02 60); text-align:center; margin-top:2px;">Deleting your account permanently removes your appointments, dependants, and documents.</div>
+    </div>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { persona: 'caregiver', email: true, reminder: '1day' };
+
+  renderVals() {
+    const s = this.state;
+    const clay = 'oklch(0.6 0.14 45)';
+    const white = 'oklch(0.99 0.006 70)';
+    const neutralBorder = 'oklch(0.85 0.015 60)';
+    const neutralBg = 'oklch(0.995 0.004 70)';
+    const mutedText = 'oklch(0.55 0.02 60)';
+    const trackOn = 'oklch(0.6 0.14 45)';
+    const trackOff = 'oklch(0.88 0.012 60)';
+
+    const reminderDefs = [
+      { key: '1hr', label: '1 hour before' },
+      { key: 'morning', label: 'Morning of' },
+      { key: '1day', label: '1 day before' },
+      { key: '2day', label: '2 days before' },
+    ];
+    const reminderOptions = reminderDefs.map((r) => {
+      const active = s.reminder === r.key;
+      return {
+        label: r.label,
+        border: active ? clay : neutralBorder,
+        bg: active ? white : neutralBg,
+        color: active ? 'oklch(0.22 0.02 60)' : mutedText,
+        select: () => this.setState({ reminder: r.key }),
+      };
+    });
+
+    return {
+      isCaregiver: s.persona === 'caregiver',
+      selfBorder: s.persona === 'self' ? clay : neutralBorder,
+      selfBg: s.persona === 'self' ? 'oklch(0.94 0.025 45)' : neutralBg,
+      caregiverBorder: s.persona === 'caregiver' ? clay : neutralBorder,
+      caregiverBg: s.persona === 'caregiver' ? 'oklch(0.94 0.025 45)' : neutralBg,
+      selectSelf: () => this.setState({ persona: 'self' }),
+      selectCaregiver: () => this.setState({ persona: 'caregiver' }),
+      emailTrackBg: s.email ? trackOn : trackOff,
+      emailKnobLeft: s.email ? 20 : 2,
+      toggleEmail: () => this.setState({ email: !this.state.email }),
+      reminderOptions,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -28,8 +28,8 @@ export function LanguageToggle() {
           aria-pressed={locale === code}
           className={
             locale === code
-              ? "bg-accent px-2.5 py-1 font-medium text-white"
-              : "px-2.5 py-1 text-accent"
+              ? "bg-accent-fill px-2.5 py-1 font-medium text-white"
+              : "px-2.5 py-1 text-accent-hover"
           }
         >
           {t(code)}

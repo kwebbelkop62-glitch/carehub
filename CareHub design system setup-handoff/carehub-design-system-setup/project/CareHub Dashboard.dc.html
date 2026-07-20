@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; }
+    a { color: oklch(0.55 0.12 260); text-decoration: none; }
+    a:hover { color: oklch(0.48 0.12 260); }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</helmet>
+
+<div style="font-family:'Figtree',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; --bg:{{ v_bg }}; --surface:{{ v_surface }}; --surface-soft:{{ v_surfaceSoft }}; --border:{{ v_border }}; --border-soft:{{ v_borderSoft }}; --text:{{ v_text }}; --text2:{{ v_text2 }}; --cool-muted:{{ v_coolMuted }}; --clay:{{ v_clay }}; --clay-hover:{{ v_clayHover }}; --clay-soft-bg:{{ v_claySoftBg }}; --clay-soft-bg2:{{ v_claySoftBg2 }}; --clay-soft-text:{{ v_claySoftText }}; --clay-icon-border:{{ v_clayIconBorder }}; --rust-bg:{{ v_rustBg }}; --rust-dot:{{ v_rustDot }}; --blue-bg:{{ v_blueBg }}; --blue-dot:{{ v_blueDot }}; --blue-text:{{ v_blueText }};">
+
+  <!-- preview-only demo toggle -->
+  <div style="display:flex; align-items:center; gap:10px; padding:8px 24px; border-bottom:1px dashed var(--border); font-size:12px; color:var(--text2); background:var(--surface-soft);">
+    <span style="font-weight:700;">Preview:</span>
+    <button onClick="{{ setSelf }}" style="font-family:'Figtree',sans-serif; font-size:12px; font-weight:600; padding:5px 10px; border-radius:6px; border:1px solid var(--border); cursor:pointer; background:{{ selfToggleBg }}; color:{{ selfToggleColor }};">Self view</button>
+    <button onClick="{{ setCaregiver }}" style="font-family:'Figtree',sans-serif; font-size:12px; font-weight:600; padding:5px 10px; border-radius:6px; border:1px solid var(--border); cursor:pointer; background:{{ caregiverToggleBg }}; color:{{ caregiverToggleColor }};">Caregiver view</button>
+    <span style="width:1px; height:16px; background:var(--border); margin:0 4px;"></span>
+    <button onClick="{{ setHasData }}" style="font-family:'Figtree',sans-serif; font-size:12px; font-weight:600; padding:5px 10px; border-radius:6px; border:1px solid var(--border); cursor:pointer; background:{{ dataToggleBg }}; color:{{ dataToggleColor }};">With appointments</button>
+    <button onClick="{{ setEmpty }}" style="font-family:'Figtree',sans-serif; font-size:12px; font-weight:600; padding:5px 10px; border-radius:6px; border:1px solid var(--border); cursor:pointer; background:{{ emptyToggleBg }}; color:{{ emptyToggleColor }};">Empty state</button>
+  </div>
+
+  <!-- HEADER -->
+  <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 32px; border-bottom:1px solid var(--border); background:var(--surface);">
+    <div style="display:flex; align-items:center; gap:28px;">
+      <div style="display:flex; align-items:center; gap:8px; font-size:17px; font-weight:800;">
+        <div style="position:relative; width:20px; height:20px; flex-shrink:0;">
+        <div style="position:absolute; left:5px; top:-2px; width:2.2px; height:4.5px; border-radius:1px; background:oklch(0.55 0.09 130);"></div>
+        <div style="position:absolute; left:13px; top:-2px; width:2.2px; height:4.5px; border-radius:1px; background:oklch(0.55 0.09 130);"></div>
+        <div style="position:absolute; inset:0; border-radius:5px; background:oklch(0.99 0.006 70); border:1.5px solid oklch(0.6 0.14 45);"></div>
+        <div style="position:absolute; left:1.5px; right:1.5px; top:1.5px; height:6px; border-radius:4px 4px 0 0; background:oklch(0.6 0.14 45);"></div>
+        <div style="position:absolute; left:50%; top:11px; transform:translateX(-50%); width:6px; height:6px; border-radius:50%; background:oklch(0.55 0.09 130);"></div>
+      </div>
+        CareHub
+      </div>
+      <sc-if value="{{ isCaregiver }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; align-items:center; gap:6px; background:var(--surface-soft); border-radius:100px; padding:4px;">
+          <button onClick="{{ selectDependant_all }}" style="font-family:'Figtree',sans-serif; font-size:13px; font-weight:600; padding:7px 14px; border-radius:100px; border:none; cursor:pointer; background:{{ depAllBg }}; color:{{ depAllColor }};">Everyone</button>
+          <button onClick="{{ selectDependant_you }}" style="font-family:'Figtree',sans-serif; font-size:13px; font-weight:600; padding:7px 14px; border-radius:100px; border:none; cursor:pointer; background:{{ depYouBg }}; color:{{ depYouColor }};">You</button>
+          <button onClick="{{ selectDependant_mum }}" style="font-family:'Figtree',sans-serif; font-size:13px; font-weight:600; padding:7px 14px; border-radius:100px; border:none; cursor:pointer; background:{{ depMumBg }}; color:{{ depMumColor }};">Mum</button>
+          <button onClick="{{ selectDependant_dad }}" style="font-family:'Figtree',sans-serif; font-size:13px; font-weight:600; padding:7px 14px; border-radius:100px; border:none; cursor:pointer; background:{{ depDadBg }}; color:{{ depDadColor }};">Dad</button>
+        </div>
+      </sc-if>
+    </div>
+    <div style="display:flex; align-items:center; gap:16px;">
+      <div onClick="{{ toggleDark }}" title="Switch light/dark" style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+        <span style="font-size:13px; font-weight:600; color:var(--text2);">{{ darkModeLabel }}</span>
+        <div style="width:44px; height:26px; border-radius:100px; background:{{ darkTrackBg }}; position:relative; transition:background 0.2s ease; flex-shrink:0;">
+          <div style="position:absolute; top:2px; left:{{ darkKnobLeft }}px; width:22px; height:22px; border-radius:50%; background:var(--surface); display:flex; align-items:center; justify-content:center; transition:left 0.2s ease; box-shadow:0 1px 2px oklch(0.4 0.02 60 / 0.25);">
+            <div style="width:10px; height:10px; border-radius:50%; background:{{ darkKnobDotColor }};"></div>
+          </div>
+        </div>
+      </div>
+      <button style="font-family:'Figtree',sans-serif; font-size:14px; font-weight:700; color:oklch(0.99 0.006 70); background:var(--clay); border:none; border-radius:{{ btnRadius }}; padding:10px 18px; cursor:pointer;" style-hover="background:var(--clay-hover);">+ Add appointment</button>
+      <div style="width:34px; height:34px; border-radius:50%; background:var(--clay-soft-bg2); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:var(--clay-soft-text);">AR</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div style="max-width:920px; margin:0 auto; padding:32px 32px 80px;">
+
+    <!-- EMPTY STATE -->
+    <sc-if value="{{ showEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="border:1.5px dashed var(--border); border-radius:{{ boxRadius }}; padding:64px 32px; text-align:center; margin-top:24px;">
+        <div style="width:52px; height:52px; border-radius:{{ iconRadius }}; background:var(--clay-soft-bg); margin:0 auto 20px; display:flex; align-items:center; justify-content:center;">
+          <div style="width:20px; height:20px; border-radius:5px; border:2px solid var(--clay-icon-border);"></div>
+        </div>
+        <h2 style="font-size:19px; font-weight:700; margin:0 0 8px;">No appointments yet</h2>
+        <p style="font-size:14.5px; line-height:1.6; color:var(--text2); max-width:360px; margin:0 auto 24px;">
+          <sc-if value="{{ isCaregiver }}" hint-placeholder-val="{{ false }}">Add a dependant and their first appointment to start building a shared calendar and reminders.</sc-if>
+          <sc-if value="{{ isSelfPersona }}" hint-placeholder-val="{{ true }}">Add the next appointment you've already booked to get a reminder and keep a running history.</sc-if>
+        </p>
+        <button style="font-family:'Figtree',sans-serif; font-size:14.5px; font-weight:700; color:oklch(0.99 0.006 70); background:oklch(0.6 0.14 45); border:none; border-radius:{{ btnRadius }}; padding:12px 22px; cursor:pointer;" style-hover="background:oklch(0.54 0.14 45);">Add your first appointment</button>
+      </div>
+    </sc-if>
+
+    <!-- WITH DATA -->
+    <sc-if value="{{ showData }}" hint-placeholder-val="{{ true }}">
+
+      <div style="margin:24px 0 28px;">
+        <div style="font-size:13px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--text2); margin-bottom:12px;">Next 14 days at a glance</div>
+        <div style="display:flex; gap:6px;">
+          <sc-for list="{{ calendarDays }}" as="day" hint-placeholder-count="14">
+            <a href="{{ day.href }}" style="text-decoration:none; flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 4px 10px; border-radius:{{ calRadius }}; cursor:{{ day.cursor }}; border:1.5px solid {{ day.borderColor }}; background:{{ day.bg }};">
+              <div style="font-size:10.5px; font-weight:700; letter-spacing:0.03em; text-transform:uppercase; color:{{ day.weekdayColor }};">{{ day.weekday }}</div>
+              <div style="font-size:14px; font-weight:700; color:{{ day.numColor }};">{{ day.num }}</div>
+              <div style="width:5px; height:5px; border-radius:50%; background:{{ day.dotColor }};"></div>
+            </a>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="margin:0 0 32px;">
+        <div style="font-size:13px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--text2); margin-bottom:12px;">Due today</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <div style="display:flex; align-items:center; gap:{{ chipGap }}; background:var(--rust-bg); border-radius:{{ chipRadius }}; padding:{{ chipPadding }};">
+            <span style="width:7px; height:7px; border-radius:50%; background:var(--rust-dot); flex-shrink:0;"></span>
+            <span style="font-size:13.5px; font-weight:600;">Physio · Sunway Medical</span>
+            <span style="font-size:13px; color:var(--text2);">3:00 PM</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:{{ chipGap }}; background:var(--rust-bg); border-radius:{{ chipRadius }}; padding:{{ chipPadding }};">
+            <span style="width:7px; height:7px; border-radius:50%; background:var(--rust-dot); flex-shrink:0;"></span>
+            <span style="font-size:13.5px; font-weight:600;">Mum · Dr. Lakshmi</span>
+            <span style="font-size:13px; color:var(--text2);">5:30 PM</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:13px; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; color:var(--text2); margin-bottom:14px;">Next 14 days</div>
+
+      <div id="day-0" style="margin-bottom:{{ sectionGap }};">
+        <div style="font-size:13px; font-weight:700; color:var(--text2); margin-bottom:8px;">Today · Mon, 20 Jul</div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; align-items:center; gap:{{ cardGap }}; background:{{ cardBg }}; border:{{ cardBorder }}; border-radius:{{ cardRadius }}; padding:{{ cardPadding }}; box-shadow:{{ cardShadow }};">
+            <div style="width:{{ timeWidth }}; font-size:{{ timeFontSize }}; font-weight:700; color:var(--text2);">3:00 PM</div>
+            <div style="flex:1;">
+              <div style="font-size:{{ titleFontSize }}; font-weight:700;">Physio · Sunway Medical</div>
+              <div style="font-size:{{ subFontSize }}; color:var(--text2);">You</div>
+            </div>
+            <div style="display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:100px; background:var(--blue-bg);">
+              <span style="width:6px; height:6px; border-radius:50%; background:var(--blue-dot);"></span>
+              <span style="font-size:12px; font-weight:600; color:var(--blue-text);">Upcoming</span>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:{{ cardGap }}; background:{{ cardBg }}; border:{{ cardBorder }}; border-radius:{{ cardRadius }}; padding:{{ cardPadding }}; box-shadow:{{ cardShadow }};">
+            <div style="width:{{ timeWidth }}; font-size:{{ timeFontSize }}; font-weight:700; color:var(--text2);">5:30 PM</div>
+            <div style="flex:1;">
+              <div style="font-size:{{ titleFontSize }}; font-weight:700;">Dr. Lakshmi · Island Hospital</div>
+              <div style="font-size:{{ subFontSize }}; color:var(--text2);">Mum</div>
+            </div>
+            <div style="display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:100px; background:var(--blue-bg);">
+              <span style="width:6px; height:6px; border-radius:50%; background:var(--blue-dot);"></span>
+              <span style="font-size:12px; font-weight:600; color:var(--blue-text);">Upcoming</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="day-1" style="margin-bottom:{{ sectionGap }};">
+        <div style="font-size:13px; font-weight:700; color:var(--text2); margin-bottom:8px;">Tomorrow · Tue, 21 Jul</div>
+        <div style="display:flex; align-items:center; gap:{{ cardGap }}; background:{{ cardBg }}; border:{{ cardBorder }}; border-radius:{{ cardRadius }}; padding:{{ cardPadding }}; box-shadow:{{ cardShadow }};">
+          <div style="width:{{ timeWidth }}; font-size:{{ timeFontSize }}; font-weight:700; color:var(--text2);">9:15 AM</div>
+          <div style="flex:1;">
+            <div style="font-size:{{ titleFontSize }}; font-weight:700;">Dentist · Dr. Farah</div>
+            <div style="font-size:{{ subFontSize }}; color:var(--text2);">You</div>
+          </div>
+          <div style="display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:100px; background:var(--blue-bg);">
+            <span style="width:6px; height:6px; border-radius:50%; background:var(--blue-dot);"></span>
+            <span style="font-size:12px; font-weight:600; color:var(--blue-text);">Upcoming</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="day-4" style="margin-bottom:{{ sectionGap }};">
+        <div style="font-size:13px; font-weight:700; color:var(--text2); margin-bottom:8px;">Fri, 24 Jul</div>
+        <div style="display:flex; align-items:center; gap:{{ cardGap }}; background:{{ cardBg }}; border:{{ cardBorder }}; border-radius:{{ cardRadius }}; padding:{{ cardPadding }}; box-shadow:{{ cardShadow }};">
+          <div style="width:{{ timeWidth }}; font-size:{{ timeFontSize }}; font-weight:700; color:var(--text2);">2:00 PM</div>
+          <div style="flex:1;">
+            <div style="font-size:{{ titleFontSize }}; font-weight:700;">Dr. Tan Wei Ming · Cardiology</div>
+            <div style="font-size:{{ subFontSize }}; color:var(--text2);">Dad</div>
+          </div>
+          <div style="display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:100px; background:var(--blue-bg);">
+            <span style="width:6px; height:6px; border-radius:50%; background:var(--blue-dot);"></span>
+            <span style="font-size:12px; font-weight:600; color:var(--blue-text);">Upcoming</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="day-11">
+        <div style="font-size:13px; font-weight:700; color:var(--text2); margin-bottom:8px;">Fri, 31 Jul</div>
+        <div style="display:flex; align-items:center; gap:{{ cardGap }}; background:{{ cardBg }}; border:{{ cardBorder }}; border-radius:{{ cardRadius }}; padding:{{ cardPadding }}; box-shadow:{{ cardShadow }};">
+          <div style="width:{{ timeWidth }}; font-size:{{ timeFontSize }}; font-weight:700; color:var(--text2);">11:00 AM</div>
+          <div style="flex:1;">
+            <div style="font-size:{{ titleFontSize }}; font-weight:700;">Loh Clinic · General checkup</div>
+            <div style="font-size:{{ subFontSize }}; color:var(--text2);">You</div>
+          </div>
+          <div style="display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:100px; background:var(--blue-bg);">
+            <span style="width:6px; height:6px; border-radius:50%; background:var(--blue-dot);"></span>
+            <span style="font-size:12px; font-weight:600; color:var(--blue-text);">Upcoming</span>
+          </div>
+        </div>
+      </div>
+
+    </sc-if>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;layoutDensity&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;comfortable&quot;, &quot;options&quot;: [&quot;comfortable&quot;, &quot;compact&quot;], &quot;tsType&quot;: &quot;'comfortable' | 'compact'&quot;, &quot;section&quot;: &quot;Feel&quot;},
+  &quot;cardStyle&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;outlined&quot;, &quot;options&quot;: [&quot;outlined&quot;, &quot;flat&quot;, &quot;elevated&quot;], &quot;tsType&quot;: &quot;'outlined' | 'flat' | 'elevated'&quot;, &quot;section&quot;: &quot;Feel&quot;},
+  &quot;cornerStyle&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;soft&quot;, &quot;options&quot;: [&quot;soft&quot;, &quot;sharp&quot;], &quot;tsType&quot;: &quot;'soft' | 'sharp'&quot;, &quot;section&quot;: &quot;Feel&quot;}
+}">
+class Component extends DCLogic {
+  state = { persona: 'caregiver', hasData: true, dependant: 'all', dark: false };
+
+  componentDidMount() {
+    try {
+      const saved = localStorage.getItem('carehub-dark-mode');
+      if (saved !== null) this.setState({ dark: saved === 'true' });
+    } catch (e) {}
+  }
+
+  renderVals() {
+    const dark = this.state.dark;
+    const v = dark ? {
+      bg: 'oklch(0.16 0.012 60)', surface: 'oklch(0.21 0.012 60)', surfaceSoft: 'oklch(0.26 0.012 60)',
+      border: 'oklch(0.32 0.012 60)', borderSoft: 'oklch(0.28 0.012 60)',
+      text: 'oklch(0.94 0.006 70)', text2: 'oklch(0.68 0.01 70)', coolMuted: 'oklch(0.5 0.012 60)',
+      clay: 'oklch(0.68 0.14 45)', clayHover: 'oklch(0.74 0.14 45)',
+      claySoftBg: 'oklch(0.32 0.06 45)', claySoftBg2: 'oklch(0.36 0.05 45)',
+      claySoftText: 'oklch(0.85 0.1 45)', clayIconBorder: 'oklch(0.78 0.13 45)',
+      rustBg: 'oklch(0.3 0.06 25)', rustDot: 'oklch(0.72 0.15 25)',
+      blueBg: 'oklch(0.3 0.05 260)', blueDot: 'oklch(0.72 0.13 260)', blueText: 'oklch(0.82 0.08 260)',
+    } : {
+      bg: 'oklch(0.975 0.008 70)', surface: 'oklch(0.99 0.006 70)', surfaceSoft: 'oklch(0.96 0.01 70)',
+      border: 'oklch(0.9 0.015 60)', borderSoft: 'oklch(0.92 0.012 60)',
+      text: 'oklch(0.22 0.02 60)', text2: 'oklch(0.48 0.02 60)', coolMuted: 'oklch(0.7 0.012 60)',
+      clay: 'oklch(0.6 0.14 45)', clayHover: 'oklch(0.54 0.14 45)',
+      claySoftBg: 'oklch(0.94 0.025 45)', claySoftBg2: 'oklch(0.9 0.02 45)',
+      claySoftText: 'oklch(0.4 0.1 45)', clayIconBorder: 'oklch(0.55 0.13 45)',
+      rustBg: 'oklch(0.94 0.03 25)', rustDot: 'oklch(0.55 0.15 25)',
+      blueBg: 'oklch(0.93 0.03 260)', blueDot: 'oklch(0.5 0.14 260)', blueText: 'oklch(0.4 0.12 260)',
+    };
+
+    const density = this.props.layoutDensity ?? 'comfortable';
+    const cardStyleProp = this.props.cardStyle ?? 'outlined';
+    const corner = this.props.cornerStyle ?? 'soft';
+    const isCompact = density === 'compact';
+
+    const cardGap = isCompact ? '10px' : '14px';
+    const cardPadding = isCompact ? '9px 13px' : '12px 16px';
+    const chipGap = isCompact ? '8px' : '10px';
+    const chipPadding = isCompact ? '8px 12px' : '10px 14px';
+    const timeWidth = isCompact ? '44px' : '52px';
+    const timeFontSize = isCompact ? '12px' : '13px';
+    const titleFontSize = isCompact ? '13.5px' : '14.5px';
+    const subFontSize = isCompact ? '11.5px' : '12.5px';
+    const sectionGap = isCompact ? '14px' : '22px';
+
+    const cardRadius = corner === 'sharp' ? '6px' : '14px';
+    const boxRadius = corner === 'sharp' ? '8px' : '16px';
+    const btnRadius = corner === 'sharp' ? '5px' : '10px';
+    const chipRadius = corner === 'sharp' ? '6px' : '10px';
+    const calRadius = corner === 'sharp' ? '5px' : '10px';
+    const iconRadius = corner === 'sharp' ? '6px' : '14px';
+
+    const cardBg = cardStyleProp === 'flat' ? 'var(--surface-soft)' : 'var(--surface)';
+    const cardBorder = cardStyleProp === 'outlined' ? '1px solid var(--border)' : 'none';
+    const cardShadow = cardStyleProp === 'elevated' ? '0 2px 10px oklch(0.3 0.02 60 / 0.14)' : 'none';
+
+    const isCaregiver = this.state.persona === 'caregiver';
+    const clay = 'var(--clay)';
+    const white = 'oklch(0.99 0.006 70)';
+    const mutedText = 'var(--text2)';
+    const surfaceVar = 'var(--surface)';
+    const textVar = 'var(--text)';
+    const coolMuted = 'var(--cool-muted)';
+    const borderSoft = 'var(--border-soft)';
+    const claySoftBg = 'var(--clay-soft-bg)';
+    const claySoftBg2 = 'var(--clay-soft-bg2)';
+    const dep = this.state.dependant;
+
+    const chip = (active) => ({ bg: active ? white : 'transparent', color: active ? 'oklch(0.22 0.02 60)' : mutedText });
+    const all = chip(dep === 'all'), you = chip(dep === 'you'), mum = chip(dep === 'mum'), dad = chip(dep === 'dad');
+
+    const blockedOffsets = { 0: 'day-0', 1: 'day-1', 4: 'day-4', 11: 'day-11' };
+    const start = new Date(2026, 6, 20);
+    const weekdayFmt = new Intl.DateTimeFormat('en-US', { weekday: 'short' });
+    const calendarDays = Array.from({ length: 14 }, (_, i) => {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      const blocked = !!blockedOffsets[i];
+      return {
+        weekday: weekdayFmt.format(d).slice(0, 2),
+        num: d.getDate(),
+        href: blocked ? '#' + blockedOffsets[i] : 'javascript:void(0)',
+        cursor: blocked ? 'pointer' : 'default',
+        borderColor: i === 0 ? clay : (blocked ? claySoftBg2 : borderSoft),
+        bg: i === 0 ? claySoftBg : surfaceVar,
+        weekdayColor: blocked ? mutedText : coolMuted,
+        numColor: blocked ? textVar : coolMuted,
+        dotColor: blocked ? clay : 'transparent',
+      };
+    });
+
+    return {
+      v_bg: v.bg, v_surface: v.surface, v_surfaceSoft: v.surfaceSoft, v_border: v.border, v_borderSoft: v.borderSoft,
+      v_text: v.text, v_text2: v.text2, v_coolMuted: v.coolMuted, v_clay: v.clay, v_clayHover: v.clayHover,
+      v_claySoftBg: v.claySoftBg, v_claySoftBg2: v.claySoftBg2, v_claySoftText: v.claySoftText, v_clayIconBorder: v.clayIconBorder,
+      v_rustBg: v.rustBg, v_rustDot: v.rustDot, v_blueBg: v.blueBg, v_blueDot: v.blueDot, v_blueText: v.blueText,
+      darkModeLabel: dark ? 'Dark mode' : 'Light mode',
+      darkTrackBg: dark ? 'var(--clay)' : 'var(--border)',
+      darkKnobLeft: dark ? 20 : 2,
+      darkKnobDotColor: dark ? 'oklch(0.16 0.012 60)' : 'oklch(0.75 0.06 85)',
+      toggleDark: () => {
+        const next = !this.state.dark;
+        this.setState({ dark: next });
+        try { localStorage.setItem('carehub-dark-mode', String(next)); } catch (e) {}
+      },
+      calendarDays,
+      cardGap, cardPadding, cardBg, cardBorder, cardRadius, cardShadow,
+      chipGap, chipPadding, chipRadius,
+      timeWidth, timeFontSize, titleFontSize, subFontSize, sectionGap,
+      btnRadius, boxRadius, iconRadius, calRadius,
+      isCaregiver,
+      isSelfPersona: !isCaregiver,
+      showEmpty: !this.state.hasData,
+      showData: this.state.hasData,
+      selfToggleBg: !isCaregiver ? clay : 'transparent',
+      selfToggleColor: !isCaregiver ? white : mutedText,
+      caregiverToggleBg: isCaregiver ? clay : 'transparent',
+      caregiverToggleColor: isCaregiver ? white : mutedText,
+      dataToggleBg: this.state.hasData ? clay : 'transparent',
+      dataToggleColor: this.state.hasData ? white : mutedText,
+      emptyToggleBg: !this.state.hasData ? clay : 'transparent',
+      emptyToggleColor: !this.state.hasData ? white : mutedText,
+      depAllBg: all.bg, depAllColor: all.color,
+      depYouBg: you.bg, depYouColor: you.color,
+      depMumBg: mum.bg, depMumColor: mum.color,
+      depDadBg: dad.bg, depDadColor: dad.color,
+      setSelf: () => this.setState({ persona: 'self' }),
+      setCaregiver: () => this.setState({ persona: 'caregiver' }),
+      setHasData: () => this.setState({ hasData: true }),
+      setEmpty: () => this.setState({ hasData: false }),
+      selectDependant_all: () => this.setState({ dependant: 'all' }),
+      selectDependant_you: () => this.setState({ dependant: 'you' }),
+      selectDependant_mum: () => this.setState({ dependant: 'mum' }),
+      selectDependant_dad: () => this.setState({ dependant: 'dad' }),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -27,8 +27,8 @@ export function AppointmentCard({
             {formatTime(appointment.appointment_time)}
           </p>
         </div>
-        <div className="absolute inset-0 flex rotate-y-180 flex-col justify-center gap-1 rounded-2xl bg-accent p-4 text-white backface-hidden">
-          <span className="text-sm font-medium text-tint">
+        <div className="absolute inset-0 flex rotate-y-180 flex-col justify-center gap-1 rounded-2xl bg-accent-fill p-4 text-white backface-hidden">
+          <span className="text-sm font-medium text-white">
             For {appointment.patients.full_name}
           </span>
           <span className="text-sm text-white/90">

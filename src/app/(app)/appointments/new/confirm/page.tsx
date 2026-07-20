@@ -5,12 +5,18 @@ import { Card } from "@/components/ui/card";
 import { Button, LinkButton } from "@/components/ui/button";
 import { formatDate, formatTime } from "@/lib/format";
 import type { Patient, Unit } from "@/lib/types";
-import { confirmAppointmentAction } from "./actions";
+import { confirmAppointmentAction, rescheduleAppointmentAction } from "./actions";
 
 export default async function ConfirmAppointmentPage({
   searchParams,
 }: {
-  searchParams: Promise<{ patient?: string; unit?: string; date?: string; time?: string }>;
+  searchParams: Promise<{
+    patient?: string;
+    unit?: string;
+    date?: string;
+    time?: string;
+    reschedule?: string;
+  }>;
 }) {
   const params = await searchParams;
   const appUser = await getOrCreateAppUser();
@@ -19,6 +25,9 @@ export default async function ConfirmAppointmentPage({
   if (!params.patient || !params.unit || !params.date || !params.time) {
     redirect("/appointments/new/unit");
   }
+
+  const isReschedule = Boolean(params.reschedule);
+  const rescheduleQuery = params.reschedule ? `&reschedule=${params.reschedule}` : "";
 
   const supabase = createServerSupabaseClient();
   const [{ data: patient }, { data: unit }] = await Promise.all([
@@ -37,10 +46,12 @@ export default async function ConfirmAppointmentPage({
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Confirm appointment
+          {isReschedule ? "Confirm reschedule" : "Confirm appointment"}
         </h1>
         <p className="mt-1 text-sm text-muted">
-          Review the details before booking.
+          {isReschedule
+            ? "Review the new date and time before saving."
+            : "Review the details before booking."}
         </p>
       </div>
 
@@ -71,14 +82,25 @@ export default async function ConfirmAppointmentPage({
         </div>
       </Card>
 
-      <form action={confirmAppointmentAction} className="flex gap-3">
-        <input type="hidden" name="patient" value={params.patient} />
-        <input type="hidden" name="unit" value={params.unit} />
+      <form
+        action={isReschedule ? rescheduleAppointmentAction : confirmAppointmentAction}
+        className="flex gap-3"
+      >
+        {isReschedule ? (
+          <input type="hidden" name="appointmentId" value={params.reschedule} />
+        ) : (
+          <>
+            <input type="hidden" name="patient" value={params.patient} />
+            <input type="hidden" name="unit" value={params.unit} />
+          </>
+        )}
         <input type="hidden" name="date" value={params.date} />
         <input type="hidden" name="time" value={params.time} />
-        <Button type="submit">Confirm appointment</Button>
+        <Button type="submit">
+          {isReschedule ? "Save new time" : "Confirm appointment"}
+        </Button>
         <LinkButton
-          href={`/appointments/new/time?patient=${params.patient}&unit=${params.unit}&date=${params.date}&time=${params.time}`}
+          href={`/appointments/new/time?patient=${params.patient}&unit=${params.unit}&date=${params.date}&time=${params.time}${rescheduleQuery}`}
           variant="secondary"
         >
           Back

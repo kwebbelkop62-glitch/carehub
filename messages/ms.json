@@ -1,11 +1,56 @@
 {
   "Landing": {
-    "brand": "CareHub",
-    "title": "Your appointments, all in one place",
-    "subtitle": "Track hospital visits across every clinic and lab, for yourself or someone you care for, with reminders that keep up for you.",
-    "signIn": "Sign in",
-    "newHere": "New here?",
-    "createAccount": "Create an account"
+    "nav": {
+      "how": "How it works",
+      "who": "Who it's for",
+      "signIn": "Sign in",
+      "cta": "Get started free"
+    },
+    "hero": {
+      "eyebrow": "For patients & caregivers",
+      "title": "Your appointments live in five different places. CareHub brings them into one.",
+      "subtitle": "Between GP visits, specialist follow-ups, physio, and a parent's check-ups, nobody remembers everything. CareHub keeps every appointment, every provider, and every reminder in one running list you actually keep up with.",
+      "ctaPrimary": "Get started free",
+      "ctaSecondary": "See how it works",
+      "disclaimer": "CareHub tracks the appointments you tell it about. It doesn't book appointments or check real-time availability at any hospital or clinic."
+    },
+    "how": {
+      "heading": "Four steps. No clinic account, no hospital login.",
+      "step1Title": "Add a unit",
+      "step1Body": "Search for the clinic, hospital, or doctor you're seeing, or add your own if it's not listed. This is a personal log, not a booking system, so anything goes in.",
+      "step2Title": "Pick a time",
+      "step2Body": "Enter the date and time you already booked, by phone, in person, or through the provider's own app. CareHub doesn't check open slots; it just remembers what you told it.",
+      "step3Title": "Get reminded",
+      "step3Body": "Pick when you want to be reminded, from an hour before to two days out, so you never show up on the wrong day.",
+      "step4Title": "Keep a history",
+      "step4Body": "Every visit rolls into a running timeline per person, so \"when did Dad last see the cardiologist\" has an actual answer."
+    },
+    "who": {
+      "heading": "Built for the person doing the remembering.",
+      "caregiverEyebrow": "If you're keeping track of someone else",
+      "caregiverTitle": "Caregivers",
+      "caregiverBody": "Add a profile for a parent, child, or anyone you support, and manage their appointments alongside your own. See who's up next and what's coming this week, across everyone you look after.",
+      "caregiverPoint1": "Multiple care profiles in one account",
+      "caregiverPoint2": "One running list across everyone you support",
+      "caregiverPoint3": "A visit history for each person you manage",
+      "patientEyebrow": "If you're managing your own care",
+      "patientTitle": "Patients",
+      "patientBody": "Stop juggling separate clinic apps and a paper card. Log every appointment as you make it, get reminded before it happens, and pull up your own history whenever a new doctor asks.",
+      "patientPoint1": "One list across every provider",
+      "patientPoint2": "Reminders that reach your inbox, not just a portal",
+      "patientPoint3": "A visit history you can show any new doctor"
+    },
+    "cta": {
+      "heading": "Start with the next appointment on your calendar.",
+      "subtitle": "Takes under a minute. No clinic integration, no hospital login, just yours.",
+      "button": "Create free account",
+      "note": "Free for individuals. Add family members anytime."
+    },
+    "footer": {
+      "tagline": "A personal appointment tracker for patients and caregivers in Penang.",
+      "disclaimer": "CareHub is an independent personal tracking tool. It is not affiliated with, and does not exchange data with, any hospital, clinic, or insurance provider.",
+      "copyright": "© 2026 CareHub"
+    }
   },
   "Nav": {
     "upcoming": "Upcoming",

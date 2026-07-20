@@ -24,7 +24,8 @@ export default async function DocumentsPage({
     .from("appointments")
     .select("*, units(*), patients(*)")
     .order("appointment_date", { ascending: false });
-  const appointmentList = (appointments ?? []) as AppointmentWithUnitAndPatient[];
+  const appointmentList = (appointments ??
+    []) as AppointmentWithUnitAndPatient[];
 
   let documentsQuery = supabase
     .from("documents")
@@ -68,7 +69,9 @@ export default async function DocumentsPage({
         </Card>
       ) : (
         <Card className="flex flex-col gap-4">
-          <p className="text-sm font-medium text-foreground">Upload a document</p>
+          <p className="text-sm font-medium text-foreground">
+            Upload a document
+          </p>
           <form action={uploadDocumentAction} className="flex flex-col gap-4">
             <Field label="Appointment" htmlFor="appointment">
               <Select
@@ -79,8 +82,8 @@ export default async function DocumentsPage({
               >
                 {appointmentList.map((appointment) => (
                   <option key={appointment.id} value={appointment.id}>
-                    {appointment.patients.full_name} — {appointment.units.name} (
-                    {formatDate(appointment.appointment_date)})
+                    {appointment.patients.full_name} — {appointment.units.name}{" "}
+                    ({formatDate(appointment.appointment_date)})
                   </option>
                 ))}
               </Select>
@@ -108,18 +111,20 @@ export default async function DocumentsPage({
       )}
 
       {!documentsError && documentList.length === 0 && (
-        <Card className="text-sm text-muted">
-          No documents uploaded yet.
-        </Card>
+        <Card className="text-sm text-muted">No documents uploaded yet.</Card>
       )}
 
       <div className="flex flex-col gap-3">
         {documentList.map((doc) => (
-          <Card key={doc.id} className="flex items-center justify-between gap-3">
+          <Card
+            key={doc.id}
+            className="flex items-center justify-between gap-3"
+          >
             <div>
               <p className="font-medium text-foreground">{doc.file_name}</p>
               <p className="text-sm text-muted">
-                {doc.appointments.patients.full_name} — {doc.appointments.units.name}
+                {doc.appointments.patients.full_name} —{" "}
+                {doc.appointments.units.name}
                 {" · "}
                 {formatDate(doc.appointments.appointment_date)}{" "}
                 {formatTime(doc.appointments.appointment_time)}
