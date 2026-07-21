@@ -4,7 +4,8 @@
       "how": "How it works",
       "who": "Who it's for",
       "signIn": "Sign in",
-      "cta": "Get started free"
+      "cta": "Get started free",
+      "ctaSignedIn": "Go to dashboard"
     },
     "hero": {
       "eyebrow": "For patients & caregivers",

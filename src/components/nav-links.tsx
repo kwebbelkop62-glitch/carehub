@@ -40,11 +40,19 @@ export function SidebarNav() {
           <Link
             key={href}
             href={href}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+            className={`flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors ${
               active ? "bg-tint text-foreground" : "text-muted hover:bg-tint hover:text-foreground"
             }`}
           >
-            <Icon size={20} weight={active ? "fill" : "regular"} />
+            <span
+              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-colors ${
+                active
+                  ? "border-accent-fill bg-accent-fill text-white"
+                  : "border-border bg-surface text-muted"
+              }`}
+            >
+              <Icon size={16} weight={active ? "fill" : "regular"} />
+            </span>
             {label}
           </Link>
         );

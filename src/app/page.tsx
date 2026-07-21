@@ -1,5 +1,4 @@
 import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
@@ -35,11 +34,12 @@ function Eyebrow({ children, tone = "light" }: { children: ReactNode; tone?: "li
 }
 
 export default async function RootPage() {
+  // Deliberately does NOT redirect signed-in users away — AppShell's
+  // "Back to site" link points here, and a signed-in visitor should
+  // actually see the marketing page, not get bounced straight back into
+  // the app. Sign-in/sign-up instead redirect straight to /upcoming via
+  // fallbackRedirectUrl, so a fresh login never routes through here.
   const { userId } = await auth();
-  if (userId) {
-    redirect("/upcoming");
-  }
-
   const t = await getTranslations("Landing");
 
   return (
@@ -62,8 +62,11 @@ export default async function RootPage() {
                 {t("nav.who")}
               </a>
             </nav>
-            <Link href="/sign-up" className={`${primaryButtonClass} hidden sm:inline-flex`}>
-              {t("nav.cta")}
+            <Link
+              href={userId ? "/upcoming" : "/sign-up"}
+              className={`${primaryButtonClass} hidden sm:inline-flex`}
+            >
+              {userId ? t("nav.ctaSignedIn") : t("nav.cta")}
             </Link>
           </div>
         </header>
@@ -216,10 +219,10 @@ export default async function RootPage() {
                 {t("cta.subtitle")}
               </p>
               <Link
-                href="/sign-up"
+                href={userId ? "/upcoming" : "/sign-up"}
                 className="mt-7 inline-flex items-center justify-center rounded-full bg-background px-7 py-3.5 text-sm font-semibold text-foreground transition-colors hover:bg-background/90 active:scale-[0.98]"
               >
-                {t("cta.button")}
+                {userId ? t("nav.ctaSignedIn") : t("cta.button")}
               </Link>
               <span className="mt-3 text-xs text-background/60">{t("cta.note")}</span>
             </div>
@@ -241,8 +244,8 @@ export default async function RootPage() {
             <a href="#who" className="text-muted hover:text-foreground">
               {t("nav.who")}
             </a>
-            <Link href="/sign-in" className="text-muted hover:text-foreground">
-              {t("nav.signIn")}
+            <Link href={userId ? "/upcoming" : "/sign-in"} className="text-muted hover:text-foreground">
+              {userId ? t("nav.ctaSignedIn") : t("nav.signIn")}
             </Link>
           </div>
         </div>
