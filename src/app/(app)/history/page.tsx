@@ -3,11 +3,18 @@ import { getOrCreateAppUser } from "@/lib/current-app-user";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Field, Select, Input } from "@/components/ui/field";
-import { AppointmentCard } from "@/components/appointment-card";
-import { todayIso } from "@/lib/format";
+import { Badge } from "@/components/ui/badge";
+import { formatDate, formatTime, todayIso } from "@/lib/format";
 import { unitTypeLabel } from "@/lib/types";
 import type { AppointmentWithUnitAndPatient, Patient } from "@/lib/types";
+
+// CareHub Lists.dc.html's compact date-input treatment — smaller/denser
+// than the shared Field/Input (which is tuned for full forms, not a
+// filter row), so this is hand-rolled rather than reused, same call as
+// the unit-detail/appointment-detail passes.
+const filterLabelClass = "mb-1 block text-xs font-semibold text-muted";
+const filterInputClass =
+  "rounded-lg border border-border bg-background px-3 py-2 text-[13.5px] text-foreground focus:border-accent focus:outline-none";
 
 export default async function HistoryPage({
   searchParams,
@@ -51,40 +58,49 @@ export default async function HistoryPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">History</h1>
-        <p className="mt-1 text-sm text-muted">Past appointments across units.</p>
-      </div>
+      <h1 className="text-xl font-bold text-foreground">History</h1>
 
       {allHistory.length > 0 && (
-        <form method="GET" className="flex flex-col gap-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-            <Field label="Unit" htmlFor="unit">
-              <Select id="unit" name="unit" defaultValue={params.unit ?? ""}>
+        <form method="GET" className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-end gap-2.5">
+            <div>
+              <label className={filterLabelClass} htmlFor="unit">
+                Unit
+              </label>
+              <select id="unit" name="unit" defaultValue={params.unit ?? ""} className={filterInputClass}>
                 <option value="">All units</option>
                 {availableUnits.map((unit) => (
                   <option key={unit.id} value={unit.id}>
                     {unit.name}
                   </option>
                 ))}
-              </Select>
-            </Field>
-            <Field label="Type" htmlFor="type">
-              <Select id="type" name="type" defaultValue={params.type ?? ""}>
+              </select>
+            </div>
+            <div>
+              <label className={filterLabelClass} htmlFor="type">
+                Type
+              </label>
+              <select id="type" name="type" defaultValue={params.type ?? ""} className={filterInputClass}>
                 <option value="">All types</option>
                 {availableTypes.map((type) => (
                   <option key={type} value={type}>
                     {unitTypeLabel(type)}
                   </option>
                 ))}
-              </Select>
-            </Field>
-            <Field label="From" htmlFor="from">
-              <Input id="from" name="from" type="date" defaultValue={params.from ?? ""} />
-            </Field>
-            <Field label="To" htmlFor="to">
-              <Input id="to" name="to" type="date" defaultValue={params.to ?? ""} />
-            </Field>
+              </select>
+            </div>
+            <div>
+              <label className={filterLabelClass} htmlFor="from">
+                From
+              </label>
+              <input id="from" name="from" type="date" defaultValue={params.from ?? ""} className={filterInputClass} />
+            </div>
+            <div>
+              <label className={filterLabelClass} htmlFor="to">
+                To
+              </label>
+              <input id="to" name="to" type="date" defaultValue={params.to ?? ""} className={filterInputClass} />
+            </div>
           </div>
           <div className="flex gap-3">
             <Button type="submit" variant="secondary">
@@ -107,20 +123,52 @@ export default async function HistoryPage({
       )}
 
       {!error && allHistory.length === 0 && (
-        <Card className="text-sm text-muted">No past appointments yet.</Card>
+        <EmptyState
+          title="No history yet"
+          subtitle="Appointments marked attended or missed will build your history here."
+        />
       )}
 
       {!error && allHistory.length > 0 && filtered.length === 0 && (
-        <Card className="text-sm text-muted">No appointments match these filters.</Card>
+        <EmptyState title="No appointments in this range" subtitle="Try widening the date range." />
       )}
 
       {!error && filtered.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex flex-col gap-2">
           {filtered.map((appointment) => (
-            <AppointmentCard key={appointment.id} appointment={appointment} />
+            <Link
+              key={appointment.id}
+              href={`/appointments/${appointment.id}`}
+              className="flex flex-wrap items-center gap-3 rounded-[10px] border border-border bg-surface px-4 py-3 transition-colors hover:border-accent sm:gap-[14px]"
+            >
+              <p className="w-24 shrink-0 text-[13px] font-bold text-muted">
+                {formatDate(appointment.appointment_date)}
+              </p>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-foreground">
+                  {appointment.units.name} &middot; {appointment.units.hospital_or_facility_name}
+                </p>
+                <p className="text-[12.5px] text-muted">
+                  {formatTime(appointment.appointment_time)} &middot; {appointment.patients.full_name}
+                </p>
+              </div>
+              <Badge status={appointment.status} />
+            </Link>
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// CareHub Lists.dc.html's empty-state treatment (dashed border, centered
+// title+subtitle) — used for both "no history at all" and "no results in
+// this date range" per the mockup's own two empty variants.
+function EmptyState({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <div className="rounded-2xl border-[1.5px] border-dashed border-border px-8 py-[52px] text-center">
+      <h2 className="mb-2 text-[17px] font-bold text-foreground">{title}</h2>
+      <p className="mx-auto max-w-[360px] text-sm leading-relaxed text-muted">{subtitle}</p>
     </div>
   );
 }

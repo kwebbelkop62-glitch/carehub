@@ -18,7 +18,7 @@ export default function SignInPage() {
           signUpUrl="/sign-up"
           appearance={{
             variables: {
-              colorPrimary: "#1f9d55",
+              colorPrimary: "oklch(.6 .14 45)",
             },
             elements: {
               card: "shadow-none border border-border rounded-xl",

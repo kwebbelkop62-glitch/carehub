@@ -4,10 +4,10 @@ import { getOrCreateAppUser } from "@/lib/current-app-user";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Field, Input, Select } from "@/components/ui/field";
-import { UNIT_TYPE_LABELS } from "@/lib/types";
+import { Field, Input } from "@/components/ui/field";
 import type { Unit } from "@/lib/types";
 import { deleteUnitAction, updateUnitAction } from "../../actions";
+import { TypeSelector } from "../../type-selector";
 
 export default async function EditUnitPage({
   params,
@@ -36,28 +36,20 @@ export default async function EditUnitPage({
     <div className="flex flex-col gap-6">
       <Link
         href={`/units/${id}`}
-        className="text-sm font-medium text-muted hover:text-foreground"
+        className="text-[13.5px] font-semibold text-muted hover:text-foreground"
       >
         &larr; {typedUnit.name}
       </Link>
 
-      <Card className="flex max-w-lg flex-col gap-4">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          Edit care unit
-        </h1>
+      <Card className="flex max-w-lg flex-col gap-5 p-6 sm:p-[28px_32px]">
+        <h1 className="text-xl font-bold text-foreground">Edit care unit</h1>
         <form action={updateUnitAction} className="flex flex-col gap-4">
           <input type="hidden" name="id" value={typedUnit.id} />
           <Field label="Name" htmlFor="name">
             <Input id="name" name="name" type="text" defaultValue={typedUnit.name} required />
           </Field>
           <Field label="Type" htmlFor="type">
-            <Select id="type" name="type" defaultValue={typedUnit.type} required>
-              {Object.entries(UNIT_TYPE_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </Select>
+            <TypeSelector defaultValue={typedUnit.type} />
           </Field>
           <Field label="Facility name" htmlFor="hospital_or_facility_name">
             <Input
@@ -68,7 +60,7 @@ export default async function EditUnitPage({
               required
             />
           </Field>
-          <Field label="Area" htmlFor="location_area" helper="Optional, e.g. Georgetown, Bayan Lepas">
+          <Field label="Address" htmlFor="location_area" helper="Optional, e.g. Georgetown, Bayan Lepas">
             <Input id="location_area" name="location_area" type="text" defaultValue={typedUnit.location_area ?? ""} />
           </Field>
           <Button type="submit" className="self-start">

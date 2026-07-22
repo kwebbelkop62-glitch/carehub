@@ -52,7 +52,7 @@ Target WCAG 2.1 AA as a floor, but go further where the audience calls for it: p
 
 A few things this redesign hasn't fully resolved yet, worth keeping in view rather than losing track of once code work starts:
 
-- Cancelled has no dark-mode color value defined (DESIGN.md §2).
+- Cancelled has no dark-mode color value defined (DESIGN.md §2) — still genuinely open as of 2026-07-22, re-checked directly against `CareHub Records.dc.html` and `CareHub Design System.dc.html`, neither shows it. Don't guess it.
 - One example card in the Design System file shows a shadow that doesn't match the flat, border-only style used everywhere else (DESIGN.md §4) — likely a leftover, not a new rule.
-- The appointment card is no longer a 3D flip card in the new mockups — confirm this is an intentional simplification before removing the existing flip-card component.
-- The mobile bottom-nav pattern is new scope not present in the original app shell and needs a responsive integration plan, not a wholesale replacement of the desktop header.
+- **Resolved 2026-07-22:** the appointment card is confirmed not a 3D flip card in the approved mockups — checked `CareHub Dashboard.dc.html` and `CareHub Lists.dc.html` directly for flip/rotate/perspective CSS, none present. This is a real change to make, not an open question anymore. See `IMPLEMENTATION_PLAN.md`.
+- The mobile bottom-nav pattern is new scope not present in the original app shell. As of 2026-07-22 this is fully specced against `CareHub Bottom Nav.dc.html` (five items: Home, Units, Book FAB, Alerts, Profile) in `IMPLEMENTATION_PLAN.md` — the one still-open piece is where "Alerts" routes, since no notifications feature exists in the data model yet.

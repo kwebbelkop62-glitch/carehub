@@ -4,6 +4,24 @@ Written at the end of the build. Read the top section first — it's the one
 caveat that applies to every screen below and matters more than any of the
 individual guesses.
 
+**Post-build update 7, 2026-07-22:** audited the repo against the approved Claude Design mockups
+(`carehub-design-system-setup/project/*.dc.html`) after `c4eb095` ("ui fix") visibly drifted from
+them. Findings, full detail in `IMPLEMENTATION_PLAN.md`: `globals.css` tokens are a third,
+undocumented palette (flat emerald/mint hex) matching neither the old violet system nor the
+approved clay/moss oklch system; `DESIGN.md` itself had been rewritten in the same commit to
+falsely claim the emerald palette was the correct one and the clay/moss direction was never
+implemented, that was wrong and `DESIGN.md` has been rebuilt from the mockups directly; five
+unapproved decorative components (Aurora, Lightfall, Stepper, WobbleCard, GlowingStars) were
+added with no basis in any mockup; `nav-links.tsx` is new in this commit and its 5-item set
+doesn't match the approved bottom-nav mockup; the appointment card's 3D flip mechanism (older,
+predates this commit) also doesn't match the approved flat static card. TJ decided: remove
+Ballpit too (it also predates the approved mockup, which has no WebGL hero at all) and replace
+with the mockup's floating-card hero, and rebuild the bottom nav to the mockup's exact 5 items
+(Home, Units, Book FAB, Alerts, Profile). Repo also had `.agents/`, `agent/`, `.playwright-cli/`,
+and `skills-lock.json` committed in the same commit — AI skill library and debug-log clutter,
+staged for removal via `git rm --cached`, blocked on a stale `.git/index.lock` at the time, check
+whether that landed before assuming it did.
+
 **Post-build update 6:** two more patches to `src/components/vendor/
 Ballpit.jsx`, on top of your own `maxX`/`maxY` timing fix. First, wrapped
 `<Ballpit>` in `BallpitBoundary` (`src/components/ballpit-boundary.tsx`)

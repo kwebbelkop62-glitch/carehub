@@ -1,261 +1,214 @@
 ---
 name: CareHub
-description: A clinical-modern appointment tracker for patients and caregivers, in the visual register of biotech/life-sciences product sites — near-black, pale cool-gray, single emerald accent.
+description: A warm, human appointment tracker for patients and caregivers in Penang, deliberately away from clinical teal — terracotta ("clay") and moss-green accents on warm off-white neutrals, Figtree for product UI, Lora reserved for the landing page only.
 colors:
-  background: "#f2f5f3"
-  foreground: "#14171a"
-  surface: "#ffffff"
-  border: "#dfe5e1"
-  accent: "#1f9d55"
-  accent-hover: "#147a3f"
-  accent-fill: "#147a3f"
-  accent-fill-hover: "#0f6032"
-  muted: "#5b6660"
-  tint: "#e6f2ea"
-  error: "#dc2626"
-  error-border: "#fecaca"
-  error-bg: "#fef2f2"
-  dark-background: "#0d0f0e"
-  dark-foreground: "#eef2ef"
-  dark-surface: "#161918"
-  dark-border: "#2a2f2c"
-  dark-accent: "#34c774"
-  dark-accent-hover: "#1f9d55"
-  dark-accent-fill: "#1f9d55"
-  dark-accent-fill-hover: "#17793f"
-  dark-muted: "#93a39b"
-  dark-tint: "#142620"
-  dark-error: "#f87171"
-  dark-error-border: "#7f1d1d"
-  dark-error-bg: "#450a0a"
+  canvas: "oklch(.99 .006 70)"
+  background: "oklch(.975 .008 70)"
+  border: "oklch(.88 .015 60)"
+  muted-icon: "oklch(.7 .018 60)"
+  muted: "oklch(.48 .02 60)"
+  foreground: "oklch(.22 .02 60)"
+  accent: "oklch(.6 .14 45)"
+  accent-hover: "oklch(.54 .14 45)"
+  accent-secondary: "oklch(.55 .09 130)"
+  dark-background: "oklch(.16 .012 60)"
+  dark-surface: "oklch(.21 .012 60)"
+  dark-border: "oklch(.32 .012 60)"
+  dark-muted: "oklch(.62 .01 70)"
+  dark-foreground: "oklch(.94 .006 70)"
+  dark-accent: "oklch(.68 .14 45)"
 typography:
+  display:
+    fontFamily: "Lora, serif"
+    note: "landing page hero and section headlines ONLY — never in product UI"
   title:
-    fontFamily: "Geist, sans-serif"
-    fontSize: "1.375rem"
+    fontFamily: "Figtree, sans-serif"
     fontWeight: 700
-    lineHeight: 1.3
-    letterSpacing: "normal"
   body:
-    fontFamily: "Geist, sans-serif"
-    fontSize: "0.875rem"
+    fontFamily: "Figtree, sans-serif"
     fontWeight: 400
-    lineHeight: 1.6
-    letterSpacing: "normal"
   label:
-    fontFamily: "Geist, sans-serif"
-    fontSize: "0.75rem"
-    fontWeight: 700
-    lineHeight: 1.4
-    letterSpacing: "0.04em"
+    fontFamily: "Figtree, sans-serif"
+    fontWeight: 600
     textTransform: "uppercase"
+    letterSpacing: "0.06em"
+spacing:
+  scale: ["4px", "8px", "12px", "16px", "24px", "32px", "48px", "64px"]
 rounded:
   sm: "9px"
-  md: "12px"
+  md: "10px"
   lg: "16px"
   full: "9999px"
-spacing:
-  xs: "4px"
-  sm: "8px"
-  md: "16px"
-  lg: "24px"
-  xl: "32px"
-  xxl: "48px"
-  xxxl: "64px"
-components:
-  button-primary:
-    backgroundColor: "{colors.accent-fill}"
-    textColor: "#ffffff"
-    rounded: "{rounded.md}"
-    padding: "10px 16px"
-  button-primary-hover:
-    backgroundColor: "{colors.accent-fill-hover}"
-  button-secondary:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.foreground}"
-    border: "1px solid {colors.border}"
-    rounded: "{rounded.md}"
-    padding: "10px 16px"
-  button-ghost:
-    textColor: "{colors.muted}"
-    rounded: "{rounded.md}"
-    padding: "10px 16px"
-  button-danger:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.error}"
-    border: "1px solid {colors.error-border}"
-    rounded: "{rounded.md}"
-    padding: "10px 16px"
-  card:
-    backgroundColor: "{colors.surface}"
-    border: "1px solid {colors.border}"
-    rounded: "{rounded.lg}"
-    padding: "20px 24px"
-  badge:
-    rounded: "{rounded.full}"
-    padding: "5px 10px"
-  input:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.foreground}"
-    border: "1px solid {colors.border}"
-    rounded: "{rounded.sm}"
-    padding: "11px 14px"
 ---
 
 # Design System: CareHub
 
+## 0. This file was rebuilt 2026-07-22 — read this first
+
+The previous version of this file (committed in `c4eb095`, "ui fix") described a completely
+different system: emerald-green accent, cool mint-gray neutrals, Geist as the only typeface, and
+explicitly claimed the clay/moss direction below "was documented but never actually implemented
+in code" and told readers not to reintroduce it. **That claim was false.** The clay/moss,
+Figtree+Lora system below is the one actually approved by the lecturer, verified directly against
+the Claude Design mockup files in `carehub-design-system-setup/project/*.dc.html`
+(`CareHub Design System.dc.html` for tokens, `CareHub Landing Page.dc.html`,
+`CareHub Bottom Nav.dc.html`, `CareHub Records.dc.html` for applied usage). TJ deleted the old
+version of this file on 2026-07-22 because of that false claim, not because the file was merely
+outdated. Every value below is copied directly from those mockup files, not re-derived or
+estimated. If a value is ever needed that isn't listed here, go check the `.dc.html` files
+directly rather than guessing — see `IMPLEMENTATION_PLAN.md` for the full remediation plan this
+file is part of.
+
 ## 1. Overview
 
-**Direction: clinical-modern, biotech-product register.**
+**Direction: warm, human, appointment-tracking product — deliberately away from clinical teal.**
 
-CareHub reads as clean, precise, and scientific — near-black text and dark
-contrast sections, a single emerald-green accent, pale cool-gray/mint
-neutrals (never warm), soft rounded cards with generous whitespace. The
-reference point is life-sciences/biotech product marketing (bento-style
-info grids, dot-prefixed eyebrow labels, restrained color) rather than a
-generic purple SaaS look or a bureaucratic hospital-teal portal.
-
-**This supersedes an earlier "clay/moss" (warm terracotta + green,
-off-white) direction that was documented but never actually implemented in
-code** — the app previously shipped an unrelated violet/Geist palette.
-Everything below describes the system as it now exists in
-`src/app/globals.css`, not an aspiration.
+CareHub reads as warm and approachable: a terracotta ("clay") primary accent and a moss-green
+secondary accent, on warm off-white neutrals (never cool gray). Cards and rows are border-only,
+no shadow. Figtree is the UI typeface everywhere in the product. Lora, a serif, is reserved
+strictly for the landing page's headline and hero copy — it never appears in the authenticated
+product UI.
 
 **Key characteristics:**
-- Emerald green is the *only* brand accent — no second brand hue. Status
-  colors (below) are functional, not brand, and stay visually distinct from
-  the accent.
+- Clay (terracotta, `oklch(.6 .14 45)`) is the primary accent; moss (`oklch(.55 .09 130)`) is a
+  secondary accent used for alternating structural moments (e.g. every other numbered step on the
+  landing page, the second persona card). Status colors (below) are functional, not brand, and
+  stay visually distinct from both.
 - Cards and rows are border-only by default, no shadow.
-- Pale, cool neutrals (mint/gray-green tinge), not warm off-white and not
-  cold blue-gray.
-- Geist (sans) is the only typeface, everywhere — no separate display/serif
-  face.
-- Near-black (not navy, not pure `#000`) is used for both primary text and
-  full-bleed dark contrast sections.
+- Warm, off-white neutrals — not cool gray, not blue-gray.
+- Figtree (sans) for all product UI. Lora (serif) for the landing page headline/hero copy only.
+- Uppercase, letter-spaced "eyebrow" labels are a deliberate structural device across section
+  headers, landing hero badge, and form group labels — not a stray pattern to remove.
 
 ## 2. Colors
 
-### Accent
-- **Accent** (`#1f9d55` light / `#34c774` dark): links, active nav/tab
-  state, focus rings, icons that need to read as "brand."
-- **Accent hover** (`#147a3f` light / dark reuses light's `--accent` value
-  as a deliberate darken-on-hover in both themes — see the comment in
-  `globals.css`): hover/pressed text and icon states.
-- **Accent fill** (`#147a3f` light / `#1f9d55` dark): solid button
-  backgrounds carrying white text — kept as a separate token from `accent`
-  because `accent` alone doesn't reach 4.5:1 contrast against white at
-  normal text size in either theme.
+### Accents
+- **Clay / accent** (`oklch(.6 .14 45)` light / `oklch(.68 .14 45)` dark): primary buttons, links
+  within the brand context, active states, the landing hero eyebrow badge text.
+- **Clay hover** (`oklch(.54 .14 45)`): hover/pressed state for clay-filled buttons.
+- **Moss / accent-secondary** (`oklch(.55 .09 130)`): secondary structural accent — alternating
+  step numbers on the landing "How it works" section, dot accents in the logo mark, the patient
+  persona card treatment.
 
 ### Neutrals
-- **Background** (`#f2f5f3` light / `#0d0f0e` dark): page background.
-- **Surface** (`#ffffff` light / `#161918` dark): card, input, and control
-  backgrounds — one step off the page background.
-- **Border** (`#dfe5e1` light / `#2a2f2c` dark): the standard 1px border on
+- **Canvas** (`oklch(.99 .006 70)`): card and surface fill, one step lighter than background.
+- **Background** (`oklch(.975 .008 70)` light / `oklch(.16 .012 60)` dark): page background.
+- **Border** (`oklch(.88 .015 60)` light / `oklch(.32 .012 60)` dark): standard 1px border on
   every card, row, and input.
-- **Foreground** (`#14171a` light / `#eef2ef` dark): primary text.
-- **Muted** (`#5b6660` light / `#93a39b` dark): secondary text — timestamps,
+- **Muted icon** (`oklch(.7 .018 60)`): decorative/inactive icon tint, light mode only value shown
+  in the mockup.
+- **Muted / text secondary** (`oklch(.48 .02 60)` light / `oklch(.62 .01 70)` dark): timestamps,
   helper copy, metadata rows, inactive nav items.
-- **Tint** (`#e6f2ea` light / `#142620` dark): badge and light-fill
-  backgrounds, active nav-item background.
-
-### Error
-- **Error** / **error-border** / **error-bg**: `#dc2626` / `#fecaca` /
-  `#fef2f2` light, `#f87171` / `#7f1d1d` / `#450a0a` dark. Used for the
-  danger button, form validation errors, failed-reminder states, and
-  data-load error banners. This is a real semantic token now (`--color-error*`
-  in `globals.css`), not an inline Tailwind `red-*` class — every screen
-  should reference it rather than hardcoding red.
+- **Foreground / text primary** (`oklch(.22 .02 60)` light / `oklch(.94 .006 70)` dark).
 
 ### Appointment status
-The `appointments.status` column has five values: `pending`, `attended`,
-`completed`, `cancelled`, `missed`. "Upcoming" is the UI label for
-`pending`. In practice the badge component collapses these into three
-visual buckets rather than five distinct hues, and that's the intended
-design, not a gap to fill in:
-- **Pending / Attended / Completed / Sent** (reminders): `bg-tint
-  text-accent-hover` — the calm, "in progress or resolved fine" treatment.
-- **Cancelled**: `bg-border text-muted` — neutral, de-emphasized, distinct
-  from the tint treatment.
-- **Missed / Failed** (reminders): `bg-error-bg text-error` — the one real
-  warning state, kept out of the calm palette on purpose.
+The `appointments.status` column has five values: `pending`, `attended`, `completed`,
+`cancelled`, `missed`. "Upcoming" is the UI label for `pending`. Unlike the previous (incorrect)
+version of this file, the approved mockups give **five visually distinct status treatments**, not
+a collapsed three-bucket system — confirmed directly in `CareHub Records.dc.html`'s status chip
+logic. Each is dot / background / text:
+
+Light mode:
+```
+upcoming (pending): oklch(.5 .14 260)  / oklch(.93 .03 260)   / oklch(.4 .12 260)
+attended:            oklch(.5 .11 145)  / oklch(.93 .035 145)  / oklch(.38 .1 145)
+completed:           oklch(.58 .12 75)  / oklch(.93 .035 75)   / oklch(.42 .11 75)
+missed:              oklch(.53 .17 25)  / oklch(.93 .035 30)   / oklch(.42 .15 25)
+cancelled:           oklch(.6 .015 60)  / oklch(.93 .008 60)   / oklch(.45 .015 60)
+```
+
+Dark mode (upcoming/attended/completed/missed confirmed in `CareHub Design System.dc.html`;
+cancelled dark value not shown anywhere in the mockups — this is a genuine open item, don't guess
+it, ask before implementing dark-mode cancelled):
+```
+upcoming:   oklch(.72 .13 260) / oklch(.3 .05 260 / .35) / oklch(.82 .06 260)
+attended:   oklch(.72 .12 145) / oklch(.3 .05 145 / .35) / oklch(.8 .06 145)
+completed:  oklch(.75 .12 75)  / oklch(.3 .05 75 / .35)  / oklch(.8 .06 75)
+missed:     oklch(.72 .15 25)  / oklch(.3 .06 25 / .35)  / oklch(.82 .08 25)
+cancelled:  NOT DEFINED — open item, ask before implementing.
+```
+
+### Error
+No dedicated `--error*` token is shown in the mockups distinct from the "missed" status color —
+`missed`'s treatment (`oklch(.53 .17 25)` family) doubles as the one real warning/danger color.
+Reuse it for destructive actions and form validation errors rather than inventing a separate hue.
 
 ## 3. Typography
 
-**Font:** Geist (variable), everywhere — landing page, product UI, nav,
-forms, data. No second typeface.
+**Figtree** (400/500/600/700/800) is the UI sans, used everywhere in the product — nav, cards,
+forms, data, every screen except the landing page's headline copy.
 
-### Hierarchy
-- **Title** (Geist 700, ~1.375rem/22px, line-height 1.3): screen-level
-  headings.
-- **Body** (Geist 400, 0.875rem/14px, line-height 1.6): default text size.
-- **Label** (Geist 700, 0.75rem/12px, uppercase, letter-spacing 0.04em,
-  line-height 1.4): section eyebrows, form group labels, badge text.
+**Lora** (400/500/600, italic 400) is a display serif reserved for the landing page headline and
+hero copy only (`src/app/page.tsx`). It never appears in the authenticated product UI. This is a
+hard rule from the approved mockups, not a stylistic suggestion.
 
 ## 4. Elevation
 
-Cards use **border-only** styling with no shadow — flat, matching the
-biotech reference's soft-panel-on-pale-background language rather than
-drop-shadowed cards. Keep this consistent; don't introduce shadows on a
-one-off basis.
+Cards use **border-only** styling with no shadow — flat, matching every card shown across all ten
+approved mockup screens. Don't introduce shadows on a one-off basis.
 
 ## 5. Components
 
 ### Buttons
-- **Shape:** 12px radius.
-- **Primary:** accent-fill background, white text, 10px/16px padding,
-  hovers to accent-fill-hover.
-- **Secondary:** Surface fill, border, foreground text.
-- **Ghost:** No fill/border, muted text.
-- **Danger:** Surface fill, error-border border, error text — reserved for
-  destructive/cancel actions.
+Confirmed from `CareHub Design System.dc.html`'s button row:
+- **Primary:** clay fill, white/canvas text, 10px radius, 12px/22px padding (13px/16px in
+  compact contexts like appointment cards), hovers to clay-hover.
+- **Secondary:** canvas fill, standard border, foreground text.
+- **Ghost:** transparent fill, no border, muted text, hover fills to a light tint.
 
 ### Badges / status pills
-- **Style:** fully rounded pill, 5px/10px padding.
-- **Colors:** per §2's three-bucket status treatment.
+Fully rounded pill, dot + label, colors per the five-status table in §2. Confirmed pill padding
+in the mockups is roughly 5–7px vertical / 12–14px horizontal depending on context (compact list
+rows use the smaller end).
 
 ### Cards / containers
-- **Corner style:** 16px radius for primary containers (auth card,
-  appointment detail, forms, stat cards); 10–12px for list rows.
-- **Background:** Surface. **Border:** 1px, standard border color.
-  **Shadow:** none.
+16px radius for primary containers (appointment cards, forms, stat cards). Canvas background,
+1px standard border, no shadow (one card in the old Design System mockup shows a very subtle
+shadow — `0 1px 2px oklch(.5 .02 60 / .06)` — treat that as the flat style's own near-zero
+allowance, not a departure from "no shadow," don't scale it up).
 
 ### Inputs / fields
-- **Style:** Surface background, 1px border, 9px radius, 11px/14px padding.
-- **Focus:** border shifts to accent with a matching soft outline ring.
-- **Error:** border and helper text both shift to the error token.
-
-### Navigation
-- **Desktop/tablet:** a left sidebar — brand mark at top, nav items with
-  icons, active item gets a tint background, `ThemeToggle` and the Clerk
-  account control pinned to the bottom.
-- **Mobile:** the sidebar collapses to a slim top bar (brand mark +
-  controls) plus a fixed bottom tab bar reusing the same nav items as
-  icon-only buttons.
+Canvas background, 1px border, 9px radius, 11px/14px padding. Focus state: border shifts to clay
+with a soft `oklch(.6 .14 45 / .35)` outline ring. Error state: border and helper text shift to
+the missed/error color.
 
 ### The appointment card
-Flat, single-face card showing time, title, who it's for (caregiver mode),
-and a status pill — clicking through to Appointment Detail. Not a flip
-card.
+**Confirmed NOT a flip card.** Checked `CareHub Dashboard.dc.html` and `CareHub Lists.dc.html`
+directly for any flip/rotate/perspective/backface CSS — none present. The approved card is a
+flat, single-face card: title, subtitle (provider/location or "who it's for" in caregiver mode),
+date/time, and a status pill, all in one static layout. The existing `appointment-card.tsx`
+3D-flip mechanism (`perspective-*`, `rotate-y-*`, `backface-hidden`) needs to be replaced with a
+static card, this is not an intentional simplification question anymore, it's confirmed. See
+`IMPLEMENTATION_PLAN.md`.
+
+### Navigation
+- **Desktop/tablet:** left sidebar — brand mark at top, nav items with icons, `ThemeToggle` and
+  the Clerk account control pinned to the bottom. No equivalent shown in the mobile-only mockups;
+  keep the existing sidebar structure, just restyle to these tokens.
+- **Mobile:** a fixed bottom tab bar, confirmed from `CareHub Bottom Nav.dc.html` — exactly five
+  items: **Home, Units, Book (raised center FAB, clay circle), Alerts (unread-dot indicator),
+  Profile**. This is a real, specific spec, not a generic "bottom nav" placeholder — see
+  `IMPLEMENTATION_PLAN.md` for the rebuild task and the open question on where Alerts routes.
 
 ## 6. Do's and Don'ts
 
 ### Do:
-- **Do** keep emerald as the only brand accent — don't introduce a second
-  brand hue.
-- **Do** use Geist everywhere; there is no separate display/serif face.
-- **Do** keep cards and rows flat — border only, no shadow.
-- **Do** require an explicit user choice for Attended vs. Missed once an
-  appointment is past due — never infer it.
-- **Do** keep Completed a manual, separate step from Attended, never
-  auto-derived from documents/notes.
-- **Do** show reminder delivery status (`pending`/`sent`/`cancelled`/`failed`)
-  distinctly from appointment status, escalating visually only on `failed`.
-- **Do** use the `error`/`error-border`/`error-bg` tokens for every warning
-  or destructive state — never a hardcoded Tailwind `red-*` class.
+- **Do** keep clay as the primary accent and moss as the one secondary accent — don't introduce a
+  third brand hue.
+- **Do** use Figtree everywhere in the product; reserve Lora strictly for the landing page.
+- **Do** keep cards and rows flat — border only, no meaningful shadow.
+- **Do** use all five status colors distinctly (upcoming/attended/completed/missed/cancelled) —
+  don't collapse them into fewer visual buckets.
+- **Do** require an explicit user choice for Attended vs. Missed vs. Completed once an appointment
+  is past due — never infer it.
+- **Do** show reminder delivery status (`pending`/`sent`/`cancelled`/`failed`) distinctly from
+  appointment status.
 
 ### Don't:
-- **Don't** let Cancelled blend into the tint-treatment statuses — keep it
-  visually flat/neutral but still clearly distinct.
-- **Don't** auto-transition status on a timer or on document upload — every
-  status change is a deliberate user click.
-- **Don't** reintroduce warm off-white or terracotta/moss tones — the
-  palette is deliberately cool now.
+- **Don't** reintroduce the emerald/mint-gray/Geist system that briefly replaced this one in
+  `c4eb095` — that was an error, not a valid alternate direction, see §0.
+- **Don't** use Lora anywhere outside the landing page.
+- **Don't** auto-transition status on a timer or on document upload — every status change is a
+  deliberate user click.
+- **Don't** guess the dark-mode cancelled-status color or any other value not listed here — check
+  the `.dc.html` files or ask.

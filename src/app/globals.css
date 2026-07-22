@@ -5,48 +5,120 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #f2f5f3; /* pale cool mint-gray */
-  --foreground: #14171a; /* text primary, near-black */
-  --surface: #ffffff;
-  --border: #dfe5e1;
-  --accent: #1f9d55;
-  --accent-hover: #147a3f;
-  /* Solid-fill variant for surfaces that carry white text (buttons, the
-     appointment card's flipped back face, the active language pill).
-     --accent itself is too light against white at normal text size
-     (3.76:1 light / 2.82:1 dark, both under the 4.5:1 AA floor) — but
-     darkening --accent directly regresses its OTHER role as plain
-     foreground text on a surface (e.g. the language toggle's inactive
-     pill), so this is a separate token, not a replacement.
-     Verified: >=4.5:1 against white text and >=3:1 against the page
-     background in both themes. */
-  --accent-fill: #147a3f;
-  --accent-fill-hover: #0f6032;
-  --muted: #5b6660; /* text secondary */
-  --tint: #e6f2ea; /* badge / light-fill background */
-  --error: #dc2626;
-  --error-border: #fecaca;
-  --error-bg: #fef2f2;
+  /* Clay/moss system — DESIGN.md §2, verified against CareHub Design
+     System.dc.html. --surface holds the "canvas" role (card/surface
+     fill, one step lighter than --background). */
+  --background: oklch(.975 .008 70);
+  --foreground: oklch(.22 .02 60);
+  --surface: oklch(.99 .006 70);
+  --border: oklch(.88 .015 60);
+  --accent: oklch(.6 .14 45);
+  --accent-hover: oklch(.54 .14 45);
+  /* DESIGN.md's Buttons section: "Primary: clay fill ... hovers to
+     clay-hover" — clay itself is the fill color, no separate darker
+     fill token needed (unlike the old palette, where --accent was too
+     light for AA and needed a darker --accent-fill stand-in). */
+  --accent-fill: oklch(.6 .14 45);
+  --accent-fill-hover: oklch(.54 .14 45);
+  /* Moss — secondary structural accent (DESIGN.md §2). */
+  --accent-secondary: oklch(.55 .09 130);
+  /* Landing-page-only tints, confirmed verbatim in CareHub Landing
+     Page.dc.html: the caregiver/patient persona card fills and the hero
+     eyebrow badge's moss-tinted pill background. */
+  --accent-tint: oklch(.94 .025 45);
+  --accent-secondary-tint: oklch(.94 .025 130);
+  --accent-secondary-badge-bg: oklch(.93 .03 130);
+  /* Small identity-avatar chip (initial + name), confirmed in both the
+     Bottom Nav header ("AR") and Records' patient chip ("D · Dad").
+     Dark-mode value not given anywhere in the mockups. */
+  --avatar-bg: oklch(.9 .02 45);
+  --avatar-text: oklch(.4 .1 45);
+  --muted: oklch(.48 .02 60);
+  --muted-icon: oklch(.7 .018 60);
+  /* No --tint value is given anywhere in DESIGN.md or the plan (it's a
+     generic hover-fill wash, distinct from the now per-status badge
+     colors below). Derived per TJ's direction: apply the same bg-tint
+     recipe the status badges use (~L .93, chroma .03) to the clay hue. */
+  --tint: oklch(.93 .03 45);
+  /* DESIGN.md: "No dedicated --error* token ... missed's treatment
+     doubles as the one real warning/danger color" — reuses the missed
+     status text/bg values, and border shifts to that same color too
+     (no separate pale border tint given). */
+  --error: oklch(.42 .15 25);
+  --error-border: oklch(.42 .15 25);
+  --error-bg: oklch(.93 .035 30);
+
+  /* Appointment status badges — five distinct treatments per DESIGN.md
+     §2 / CareHub Records.dc.html, not collapsed into --tint. */
+  --status-upcoming-dot: oklch(.5 .14 260);
+  --status-upcoming-bg: oklch(.93 .03 260);
+  --status-upcoming-text: oklch(.4 .12 260);
+  --status-attended-dot: oklch(.5 .11 145);
+  --status-attended-bg: oklch(.93 .035 145);
+  --status-attended-text: oklch(.38 .1 145);
+  --status-completed-dot: oklch(.58 .12 75);
+  --status-completed-bg: oklch(.93 .035 75);
+  --status-completed-text: oklch(.42 .11 75);
+  --status-missed-dot: oklch(.53 .17 25);
+  --status-missed-bg: oklch(.93 .035 30);
+  --status-missed-text: oklch(.42 .15 25);
+  --status-cancelled-dot: oklch(.6 .015 60);
+  --status-cancelled-bg: oklch(.93 .008 60);
+  --status-cancelled-text: oklch(.45 .015 60);
 }
 
 .dark {
-  --background: #0d0f0e;
-  --foreground: #eef2ef;
-  --surface: #161918;
-  --border: #2a2f2c;
-  --accent: #34c774;
+  --background: oklch(.16 .012 60);
+  --foreground: oklch(.94 .006 70);
+  --surface: oklch(.21 .012 60);
+  --border: oklch(.32 .012 60);
+  --accent: oklch(.68 .14 45);
   /* Not specified for dark mode — reusing light mode's primary accent as
-     the hover step reads as a deliberate darken-on-hover in both themes. */
-  --accent-hover: #1f9d55;
-  --accent-fill: #1f9d55;
-  --accent-fill-hover: #17793f;
-  --muted: #93a39b;
-  /* Not specified for dark mode — a subtle green wash between --surface
-     and --border, same role as light mode's --tint. */
-  --tint: #142620;
-  --error: #f87171;
-  --error-border: #7f1d1d;
-  --error-bg: #450a0a;
+     the hover step, same technique the previous palette used here. */
+  --accent-hover: oklch(.6 .14 45);
+  --accent-fill: oklch(.68 .14 45);
+  --accent-fill-hover: oklch(.6 .14 45);
+  /* Not specified for dark mode — same +.08 lightness bump the primary
+     clay accent gets (.6 -> .68), so moss text/dots stay legible against
+     dark surfaces the same way clay does. */
+  --accent-secondary: oklch(.63 .09 130);
+  /* Derived, not shown in any mockup (the landing page mockup has no dark
+     variant at all) — same badge-bg-on-dark formula as --tint below (L .3,
+     scaled-up chroma, /.35 alpha) applied to the clay/moss hues, so the
+     persona cards read as a dark tinted wash instead of staying stuck at
+     their light-mode pastel fill (which made the ambient dark-mode
+     foreground text on top of them go light-on-light and disappear). */
+  --accent-tint: oklch(.3 .04 45 / .35);
+  --accent-secondary-tint: oklch(.3 .04 130 / .35);
+  --accent-secondary-badge-bg: oklch(.3 .05 130 / .35);
+  --muted: oklch(.62 .01 70);
+  /* Dark-mode wash, following the same badge-bg-on-dark formula (L .3,
+     lower chroma, /.35 alpha) applied to the clay hue — see :root note. */
+  --tint: oklch(.3 .05 45 / .35);
+  --error: oklch(.82 .08 25);
+  --error-border: oklch(.82 .08 25);
+  --error-bg: oklch(.3 .06 25 / .35);
+
+  --status-upcoming-dot: oklch(.72 .13 260);
+  --status-upcoming-bg: oklch(.3 .05 260 / .35);
+  --status-upcoming-text: oklch(.82 .06 260);
+  --status-attended-dot: oklch(.72 .12 145);
+  --status-attended-bg: oklch(.3 .05 145 / .35);
+  --status-attended-text: oklch(.8 .06 145);
+  --status-completed-dot: oklch(.75 .12 75);
+  --status-completed-bg: oklch(.3 .05 75 / .35);
+  --status-completed-text: oklch(.8 .06 75);
+  --status-missed-dot: oklch(.72 .15 25);
+  --status-missed-bg: oklch(.3 .06 25 / .35);
+  --status-missed-text: oklch(.82 .08 25);
+  /* Derived, not confirmed in any mockup (DESIGN.md flags dark
+     "cancelled" as a genuine open item) — computed by applying the same
+     light-to-dark shift the other four statuses use (dot L+~.2, bg
+     L=.3/alpha .35, text L~.82, chroma scaled down) to the light
+     cancelled hue. Replace if the real mockup value turns up. */
+  --status-cancelled-dot: oklch(.8 .02 60);
+  --status-cancelled-bg: oklch(.3 .012 60 / .35);
+  --status-cancelled-text: oklch(.82 .01 60);
 }
 
 @theme inline {
@@ -58,13 +130,35 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-fill: var(--accent-fill);
   --color-accent-fill-hover: var(--accent-fill-hover);
+  --color-accent-secondary: var(--accent-secondary);
+  --color-accent-tint: var(--accent-tint);
+  --color-accent-secondary-tint: var(--accent-secondary-tint);
+  --color-accent-secondary-badge-bg: var(--accent-secondary-badge-bg);
+  --color-avatar-bg: var(--avatar-bg);
+  --color-avatar-text: var(--avatar-text);
   --color-muted: var(--muted);
+  --color-muted-icon: var(--muted-icon);
   --color-tint: var(--tint);
   --color-error: var(--error);
   --color-error-border: var(--error-border);
   --color-error-bg: var(--error-bg);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-status-upcoming-dot: var(--status-upcoming-dot);
+  --color-status-upcoming-bg: var(--status-upcoming-bg);
+  --color-status-upcoming-text: var(--status-upcoming-text);
+  --color-status-attended-dot: var(--status-attended-dot);
+  --color-status-attended-bg: var(--status-attended-bg);
+  --color-status-attended-text: var(--status-attended-text);
+  --color-status-completed-dot: var(--status-completed-dot);
+  --color-status-completed-bg: var(--status-completed-bg);
+  --color-status-completed-text: var(--status-completed-text);
+  --color-status-missed-dot: var(--status-missed-dot);
+  --color-status-missed-bg: var(--status-missed-bg);
+  --color-status-missed-text: var(--status-missed-text);
+  --color-status-cancelled-dot: var(--status-cancelled-dot);
+  --color-status-cancelled-bg: var(--status-cancelled-bg);
+  --color-status-cancelled-text: var(--status-cancelled-text);
+  --font-sans: var(--font-figtree);
+  --font-serif: var(--font-lora);
 }
 
 body {
@@ -73,66 +167,45 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
-.hero-brand-mark {
-  opacity: 0;
-  filter: blur(6px);
-  transform: translateY(-6px);
-  animation: hero-brand-mark-reveal 0.6s ease-out 0.1s forwards;
+/* Landing hero — CareHub Landing Page.dc.html: floating appointment-card
+   mockups (float1-4) and the fadeUp entrance for the hero copy column.
+   Plain CSS keyframes, no animation library. */
+@keyframes float1 {
+  0%, 100% { transform: rotate(-6deg) translateY(0); }
+  50% { transform: rotate(-6deg) translateY(-10px); }
+}
+@keyframes float2 {
+  0%, 100% { transform: rotate(3deg) translateY(0); }
+  50% { transform: rotate(3deg) translateY(-14px); }
+}
+@keyframes float3 {
+  0%, 100% { transform: rotate(-2deg) translateY(0); }
+  50% { transform: rotate(-2deg) translateY(-8px); }
+}
+@keyframes float4 {
+  0%, 100% { transform: rotate(7deg) translateY(0); }
+  50% { transform: rotate(7deg) translateY(-12px); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes hero-brand-mark-reveal {
-  to {
-    opacity: 1;
-    filter: blur(0);
-    transform: translateY(0);
-  }
-}
+.hero-float-1 { animation: float1 6s ease-in-out infinite; }
+.hero-float-2 { animation: float2 7s ease-in-out infinite; }
+.hero-float-3 { animation: float3 6.5s ease-in-out infinite; }
+.hero-float-4 { animation: float4 7.5s ease-in-out infinite; }
+
+.hero-fade-up { animation: fadeUp 0.6s ease both; }
+.hero-fade-up-1 { animation: fadeUp 0.6s ease 0.1s both; }
+.hero-fade-up-2 { animation: fadeUp 0.6s ease 0.2s both; }
+.hero-fade-up-3 { animation: fadeUp 0.6s ease 0.3s both; }
+.hero-fade-up-4 { animation: fadeUp 0.6s ease 0.4s both; }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-brand-mark {
-    opacity: 1;
-    filter: none;
-    transform: none;
+  .hero-float-1, .hero-float-2, .hero-float-3, .hero-float-4,
+  .hero-fade-up, .hero-fade-up-1, .hero-fade-up-2, .hero-fade-up-3, .hero-fade-up-4 {
     animation: none;
   }
 }
 
-/* ScrollStack (vendored: src/components/vendor/ScrollStack.jsx/.css) is
-   used as its own self-contained scrollable panel, matching how the
-   reactbits.dev reference demo actually works (useWindowScroll defaults to
-   false: Lenis scopes to this panel's own scroller, not the whole page).
-   An earlier version of this override tried to make it hijack window
-   scroll instead so it could sit in normal page flow with no bounded
-   height — that fought the component's own architecture and produced
-   janky, stuck-feeling scrolling site-wide. These overrides instead give
-   the panel real height (the vendor CSS's own min-height:100vh convention
-   signals it wants a full screen of room) and restyle it to match
-   DESIGN.md's flat/no-shadow, tint-fill card language. Scoped under
-   .why-stack (two classes) so they win on specificity over the vendor
-   file's plain .scroll-stack-* selectors regardless of CSS import order. */
-.why-stack.scroll-stack-scroller {
-  height: min(80vh, 42rem);
-  overflow-y: auto;
-  overflow-x: visible;
-}
-
-.why-stack .scroll-stack-inner {
-  padding: 3rem 0;
-  min-height: 100%;
-}
-
-.why-stack .scroll-stack-card {
-  height: auto;
-  min-height: 11rem;
-  padding: 2rem;
-  border-radius: 1rem; /* DESIGN.md's "lg" token — matches rounded-2xl on the other landing cards */
-  box-shadow: none;
-  background: var(--tint);
-  border: 1px solid var(--border);
-}
-
-@media (min-width: 640px) {
-  .why-stack .scroll-stack-card {
-    padding: 2.5rem;
-  }
-}

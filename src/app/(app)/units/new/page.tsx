@@ -3,9 +3,9 @@ import Link from "next/link";
 import { getOrCreateAppUser } from "@/lib/current-app-user";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Field, Input, Select } from "@/components/ui/field";
-import { UNIT_TYPE_LABELS } from "@/lib/types";
+import { Field, Input } from "@/components/ui/field";
 import { createUnitAction } from "../actions";
+import { TypeSelector } from "../type-selector";
 
 export default async function NewUnitPage() {
   const appUser = await getOrCreateAppUser();
@@ -13,27 +13,25 @@ export default async function NewUnitPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Link href="/units" className="text-sm font-medium text-muted hover:text-foreground">
+      <Link href="/units" className="text-[13.5px] font-semibold text-muted hover:text-foreground">
         &larr; All units
       </Link>
 
-      <Card className="flex max-w-lg flex-col gap-4">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          Add a care unit
-        </h1>
+      <Card className="flex max-w-lg flex-col gap-5 p-6 sm:p-[28px_32px]">
+        <h1 className="text-xl font-bold text-foreground">Add a care unit</h1>
         <form action={createUnitAction} className="flex flex-col gap-4">
           <Field label="Name" htmlFor="name">
             <Input id="name" name="name" type="text" placeholder="e.g. Dr. Tan Wei Ming" required />
           </Field>
           <Field label="Type" htmlFor="type">
-            <Select id="type" name="type" defaultValue="private_clinic" required>
-              {Object.entries(UNIT_TYPE_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </Select>
+            <TypeSelector />
           </Field>
+          {/* hospital_or_facility_name is required by the schema but has no
+              matching field in the mockup's form (Name/Type/Address/Phone
+              only) — kept since the data is genuinely required elsewhere
+              (card titles, detail subtitle). Phone has no backing column
+              at all, so it's dropped rather than added as a dead field —
+              see BUILD_NOTES.md if this needs revisiting. */}
           <Field label="Facility name" htmlFor="hospital_or_facility_name">
             <Input
               id="hospital_or_facility_name"
@@ -43,7 +41,7 @@ export default async function NewUnitPage() {
               required
             />
           </Field>
-          <Field label="Area" htmlFor="location_area" helper="Optional, e.g. Georgetown, Bayan Lepas">
+          <Field label="Address" htmlFor="location_area" helper="Optional, e.g. Georgetown, Bayan Lepas">
             <Input id="location_area" name="location_area" type="text" />
           </Field>
           <Button type="submit" className="self-start">

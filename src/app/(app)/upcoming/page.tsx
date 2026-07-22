@@ -1,22 +1,25 @@
+import Link from "next/link";
 import { getOrCreateAppUser } from "@/lib/current-app-user";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
-import { LinkButton } from "@/components/ui/button";
-import { AppointmentCard } from "@/components/appointment-card";
-import { greeting, todayIso, formatDate, formatTime } from "@/lib/format";
+import { Badge } from "@/components/ui/badge";
+import { greeting, todayIso, addDaysIso, formatShortDate, formatTime } from "@/lib/format";
 import type { AppointmentWithUnitAndPatient, Patient } from "@/lib/types";
-import { ClockIcon, CheckCircleIcon, WarningCircleIcon, UsersIcon } from "@phosphor-icons/react/ssr";
-import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 
-type Stat = {
-  label: string;
-  value: number;
-  hint: string;
-  icon: PhosphorIcon;
-  warn?: boolean;
-};
+const WINDOW_DAYS = 14;
 
-export default async function UpcomingPage() {
+function dayLabel(isoDate: string, today: string): string {
+  if (isoDate === today) return `Today · ${formatShortDate(isoDate)}`;
+  if (isoDate === addDaysIso(today, 1)) return `Tomorrow · ${formatShortDate(isoDate)}`;
+  return formatShortDate(isoDate);
+}
+
+export default async function UpcomingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ patient?: string }>;
+}) {
+  const params = await searchParams;
   const appUser = await getOrCreateAppUser();
   const supabase = createServerSupabaseClient();
 
@@ -27,153 +30,233 @@ export default async function UpcomingPage() {
 
   const patientList = (patients ?? []) as Patient[];
   const hasPatients = patientList.length > 0;
+  const isCaregiver = patientList.length > 1;
+  const selectedPatientId = isCaregiver ? params.patient : undefined;
 
-  // Stats need two extra lightweight queries beyond the existing upcoming-list
-  // fetch: every appointment's status (for the completed/missed counts, not
-  // just the upcoming ones) and every reminder's status (failed-delivery
-  // banner). Same direct-Supabase-in-Server-Component pattern as the rest of
-  // the app — no repository layer to route through.
-  const [appointmentsResult, statusResult, reminderResult] = hasPatients
-    ? await Promise.all([
-        supabase
-          .from("appointments")
-          .select("*, units(*), patients(*)")
-          .gte("appointment_date", todayIso())
-          .neq("status", "cancelled")
-          .order("appointment_date", { ascending: true })
-          .order("appointment_time", { ascending: true }),
-        supabase.from("appointments").select("status"),
-        supabase.from("reminders").select("status"),
-      ])
-    : [{ data: [], error: null }, { data: [], error: null }, { data: [], error: null }];
-
-  const { data: appointments, error } = appointmentsResult;
-  const upcoming = (appointments ?? []) as AppointmentWithUnitAndPatient[];
+  const today = todayIso();
+  const windowEnd = addDaysIso(today, WINDOW_DAYS - 1);
   const firstName = appUser?.full_name?.split(" ")[0] ?? "there";
 
-  const statusCounts = ((statusResult.data ?? []) as { status: string }[]).reduce<Record<string, number>>(
-    (acc, row) => {
-      acc[row.status] = (acc[row.status] ?? 0) + 1;
-      return acc;
-    },
-    {},
-  );
-  const completedCount = (statusCounts.attended ?? 0) + (statusCounts.completed ?? 0);
-  const missedCount = statusCounts.missed ?? 0;
+  let query = hasPatients
+    ? supabase
+        .from("appointments")
+        .select("*, units(*), patients(*)")
+        .gte("appointment_date", today)
+        .lte("appointment_date", windowEnd)
+        .neq("status", "cancelled")
+        .order("appointment_date", { ascending: true })
+        .order("appointment_time", { ascending: true })
+    : null;
+  if (query && selectedPatientId) {
+    query = query.eq("patient_id", selectedPatientId);
+  }
 
-  const failedReminders = ((reminderResult.data ?? []) as { status: string }[]).filter(
-    (reminder) => reminder.status === "failed",
-  ).length;
+  const { data: appointments, error } = query ? await query : { data: [], error: null };
+  const upcoming = (appointments ?? []) as AppointmentWithUnitAndPatient[];
 
-  const nextAppointment = upcoming[0];
+  const dueToday = upcoming.filter((a) => a.appointment_date === today);
 
-  const stats: Stat[] = [
-    {
-      label: "Upcoming",
-      value: upcoming.length,
-      hint: nextAppointment
-        ? `Next ${formatDate(nextAppointment.appointment_date)} · ${formatTime(nextAppointment.appointment_time)}`
-        : "Nothing scheduled",
-      icon: ClockIcon,
-    },
-    {
-      label: "Completed",
-      value: completedCount,
-      hint: "Attended or completed",
-      icon: CheckCircleIcon,
-    },
-    {
-      label: "Missed",
-      value: missedCount,
-      hint: missedCount > 0 ? "Needs a look" : "None so far",
-      icon: WarningCircleIcon,
-      warn: missedCount > 0,
-    },
-    {
-      label: "Dependants",
-      value: patientList.length,
-      hint: "Under your care",
-      icon: UsersIcon,
-    },
-  ];
+  const daysWithAppointments = new Set(upcoming.map((a) => a.appointment_date));
+  const calendarDays = Array.from({ length: WINDOW_DAYS }, (_, i) => {
+    const date = addDaysIso(today, i);
+    const d = new Date(`${date}T00:00:00`);
+    return {
+      date,
+      weekday: d.toLocaleDateString("en-MY", { weekday: "short" }).slice(0, 2),
+      num: d.getDate(),
+      isToday: i === 0,
+      hasAppointment: daysWithAppointments.has(date),
+    };
+  });
+
+  const groups: { date: string; items: AppointmentWithUnitAndPatient[] }[] = [];
+  for (const appointment of upcoming) {
+    const lastGroup = groups[groups.length - 1];
+    if (lastGroup && lastGroup.date === appointment.appointment_date) {
+      lastGroup.items.push(appointment);
+    } else {
+      groups.push({ date: appointment.appointment_date, items: [appointment] });
+    }
+  }
 
   return (
-    <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          {greeting()}, {firstName}
-        </h1>
-        <p className="mt-1 text-sm text-muted">Here&apos;s what&apos;s coming up.</p>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">
+            {greeting()}, {firstName}
+          </h1>
+        </div>
+        {hasPatients && (
+          <Link
+            href="/appointments/new/unit"
+            className="inline-flex items-center justify-center rounded-[10px] bg-accent px-[18px] py-2.5 text-sm font-bold text-surface transition-colors hover:bg-accent-hover"
+          >
+            + Add appointment
+          </Link>
+        )}
       </div>
 
-      {patientsError ? (
+      {isCaregiver && (
+        <div className="flex w-fit flex-wrap gap-1 rounded-full bg-tint p-1">
+          <Link
+            href="/upcoming"
+            className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors ${
+              !selectedPatientId ? "bg-surface text-foreground" : "text-muted"
+            }`}
+          >
+            Everyone
+          </Link>
+          {patientList.map((patient) => (
+            <Link
+              key={patient.id}
+              href={`/upcoming?patient=${patient.id}`}
+              className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors ${
+                selectedPatientId === patient.id ? "bg-surface text-foreground" : "text-muted"
+              }`}
+            >
+              {patient.relationship_to_owner}
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {patientsError && (
         <Card className="border-error-border text-sm text-error">
           Couldn&apos;t load your account right now. Try refreshing.
         </Card>
-      ) : !hasPatients ? (
+      )}
+
+      {!patientsError && !hasPatients && (
         <Card className="flex flex-col items-start gap-3">
           <p className="text-sm text-muted">
             Add yourself or a dependant to start booking appointments.
           </p>
-          <LinkButton href="/profile">Add a patient</LinkButton>
+          <Link
+            href="/profile"
+            className="inline-flex items-center justify-center rounded-[10px] bg-accent px-[18px] py-2.5 text-sm font-bold text-surface transition-colors hover:bg-accent-hover"
+          >
+            Add a patient
+          </Link>
         </Card>
-      ) : (
+      )}
+
+      {error && (
+        <Card className="border-error-border text-sm text-error">
+          Couldn&apos;t load appointments right now. Try refreshing.
+        </Card>
+      )}
+
+      {!error && hasPatients && upcoming.length === 0 && (
+        <div className="rounded-2xl border-[1.5px] border-dashed border-border px-8 py-16 text-center">
+          <div className="mx-auto mb-5 flex h-[52px] w-[52px] items-center justify-center rounded-2xl bg-tint">
+            <span className="h-5 w-5 rounded-[5px] border-2 border-accent" />
+          </div>
+          <h2 className="mb-2 text-[19px] font-bold text-foreground">No appointments yet</h2>
+          <p className="mx-auto mb-6 max-w-[360px] text-[14.5px] leading-relaxed text-muted">
+            {isCaregiver
+              ? "Add a dependant and their first appointment to start building a shared calendar and reminders."
+              : "Add the next appointment you've already booked to get a reminder and keep a running history."}
+          </p>
+          <Link
+            href="/appointments/new/unit"
+            className="inline-flex items-center justify-center rounded-[10px] bg-accent px-[22px] py-3 text-[14.5px] font-bold text-surface transition-colors hover:bg-accent-hover"
+          >
+            Add your first appointment
+          </Link>
+        </div>
+      )}
+
+      {!error && upcoming.length > 0 && (
         <>
-          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-            {stats.map(({ label, value, hint, icon: Icon, warn }) => (
-              <Card key={label} className="flex flex-col gap-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wide text-muted">
-                    {label}
-                  </span>
-                  <Icon size={18} className={warn ? "text-error" : "text-accent"} />
-                </div>
-                <div>
-                  <p
-                    className={`text-2xl font-semibold tracking-tight ${warn ? "text-error" : "text-foreground"}`}
-                  >
-                    {value}
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted">{hint}</p>
-                </div>
-              </Card>
-            ))}
+          <div>
+            <p className="mb-3 text-[13px] font-bold tracking-wide text-muted uppercase">
+              Next {WINDOW_DAYS} days at a glance
+            </p>
+            <div className="flex gap-1.5">
+              {calendarDays.map((day) => {
+                const inner = (
+                  <>
+                    <div className={`text-[10.5px] font-bold tracking-wide uppercase ${day.hasAppointment ? "text-muted" : "text-muted-icon"}`}>
+                      {day.weekday}
+                    </div>
+                    <div className={`text-sm font-bold ${day.hasAppointment || day.isToday ? "text-foreground" : "text-muted-icon"}`}>
+                      {day.num}
+                    </div>
+                    <span
+                      className={`h-[5px] w-[5px] rounded-full ${day.hasAppointment ? "bg-accent" : "bg-transparent"}`}
+                    />
+                  </>
+                );
+                const className = `flex flex-1 flex-col items-center gap-1 rounded-[10px] border-[1.5px] py-2 ${
+                  day.isToday ? "border-accent bg-tint" : "border-transparent bg-surface"
+                }`;
+                return day.hasAppointment ? (
+                  <a key={day.date} href={`#day-${day.date}`} className={`${className} cursor-pointer`}>
+                    {inner}
+                  </a>
+                ) : (
+                  <div key={day.date} className={className}>
+                    {inner}
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          {failedReminders > 0 && (
-            <Card className="border-error-border text-sm text-error">
-              {failedReminders} reminder{failedReminders > 1 ? "s" : ""} failed to send — check the
-              affected appointments.
-            </Card>
-          )}
-
-          <LinkButton href="/appointments/new/unit" className="self-start">
-            Add Appointment
-          </LinkButton>
-
-          {error && (
-            <Card className="border-error-border text-sm text-error">
-              Couldn&apos;t load appointments right now. Try refreshing.
-            </Card>
-          )}
-
-          {!error && upcoming.length === 0 && (
-            <Card className="text-sm text-muted">No upcoming appointments.</Card>
-          )}
-
-          {!error && upcoming.length > 0 && (
-            <>
-              <div className="flex items-center justify-between">
-                <h2 className="text-xs font-bold uppercase tracking-wide text-muted">Upcoming</h2>
-                <p className="text-xs text-muted">Hover or tap a card for more</p>
-              </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {upcoming.map((appointment) => (
-                  <AppointmentCard key={appointment.id} appointment={appointment} />
+          {dueToday.length > 0 && (
+            <div>
+              <p className="mb-3 text-[13px] font-bold tracking-wide text-muted uppercase">Due today</p>
+              <div className="flex flex-wrap gap-2.5">
+                {dueToday.map((appointment) => (
+                  <Link
+                    key={appointment.id}
+                    href={`/appointments/${appointment.id}`}
+                    className="flex items-center gap-2.5 rounded-[10px] bg-status-missed-bg px-3.5 py-2.5"
+                  >
+                    <span className="h-[7px] w-[7px] shrink-0 rounded-full bg-status-missed-dot" />
+                    <span className="text-[13.5px] font-semibold text-foreground">
+                      {appointment.units.name} &middot; {appointment.units.hospital_or_facility_name}
+                    </span>
+                    <span className="text-[13px] text-muted">{formatTime(appointment.appointment_time)}</span>
+                  </Link>
                 ))}
               </div>
-            </>
+            </div>
           )}
+
+          <div>
+            <p className="mb-3.5 text-[13px] font-bold tracking-wide text-muted uppercase">
+              Next {WINDOW_DAYS} days
+            </p>
+            <div className="flex flex-col gap-[22px]">
+              {groups.map((group) => (
+                <div key={group.date} id={`day-${group.date}`}>
+                  <p className="mb-2 text-[13px] font-bold text-muted">{dayLabel(group.date, today)}</p>
+                  <div className="flex flex-col gap-2">
+                    {group.items.map((appointment) => (
+                      <Link
+                        key={appointment.id}
+                        href={`/appointments/${appointment.id}`}
+                        className="flex flex-wrap items-center gap-3 rounded-[14px] border border-border bg-surface px-4 py-3 transition-colors hover:border-accent sm:gap-[14px]"
+                      >
+                        <p className="w-[52px] shrink-0 text-[13px] font-bold text-muted">
+                          {formatTime(appointment.appointment_time)}
+                        </p>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[14.5px] font-bold text-foreground">
+                            {appointment.units.name} &middot; {appointment.units.hospital_or_facility_name}
+                          </p>
+                          <p className="text-[12.5px] text-muted">{appointment.patients.relationship_to_owner}</p>
+                        </div>
+                        <Badge status={appointment.status} />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </>
       )}
     </div>

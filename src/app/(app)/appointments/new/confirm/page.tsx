@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getOrCreateAppUser } from "@/lib/current-app-user";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { Card } from "@/components/ui/card";
-import { Button, LinkButton } from "@/components/ui/button";
 import { formatDate, formatTime } from "@/lib/format";
+import { REMINDER_LEAD_TIME_LABELS, type ReminderLeadTimeKey } from "@/lib/reminders";
 import type { Patient, Unit } from "@/lib/types";
 import { confirmAppointmentAction, rescheduleAppointmentAction } from "./actions";
+import { BookingProgress, StepEyebrow } from "../booking-progress";
 
 export default async function ConfirmAppointmentPage({
   searchParams,
@@ -15,6 +16,8 @@ export default async function ConfirmAppointmentPage({
     unit?: string;
     date?: string;
     time?: string;
+    reminder?: string;
+    notes?: string;
     reschedule?: string;
   }>;
 }) {
@@ -41,50 +44,33 @@ export default async function ConfirmAppointmentPage({
 
   const typedPatient = patient as Patient;
   const typedUnit = unit as Unit;
+  const reminderLabel = params.reminder
+    ? REMINDER_LEAD_TIME_LABELS[params.reminder as ReminderLeadTimeKey]
+    : undefined;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          {isReschedule ? "Confirm reschedule" : "Confirm appointment"}
-        </h1>
-        <p className="mt-1 text-sm text-muted">
-          {isReschedule
-            ? "Review the new date and time before saving."
-            : "Review the details before booking."}
-        </p>
+    <div className="mx-auto w-full max-w-[520px] rounded-[20px] border border-border bg-surface p-6 sm:p-[36px_40px]">
+      <BookingProgress step={5} />
+      <StepEyebrow step={5} />
+      <h1 className="mb-2 text-xl font-bold text-foreground">Review &amp; confirm</h1>
+      <p className="mb-5 text-sm leading-relaxed text-muted">Check the details before saving.</p>
+
+      <div className="mb-5 rounded-xl border border-border px-4">
+        <SummaryRow label="Unit" value={`${typedUnit.name} · ${typedUnit.hospital_or_facility_name}`} />
+        <SummaryRow label="For" value={typedPatient.relationship_to_owner} />
+        <SummaryRow label="When" value={`${formatDate(params.date)}, ${formatTime(params.time)}`} />
+        {reminderLabel && <SummaryRow label="Reminder" value={reminderLabel} />}
+        {params.notes && <SummaryRow label="Notes" value={params.notes} last />}
       </div>
 
-      <Card className="flex flex-col gap-3">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted">
-            Patient
-          </p>
-          <p className="text-sm text-foreground">{typedPatient.full_name}</p>
-        </div>
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted">
-            Unit
-          </p>
-          <p className="text-sm text-foreground">{typedUnit.name}</p>
-          <p className="text-sm text-muted">
-            {typedUnit.hospital_or_facility_name}
-            {typedUnit.location_area ? ` · ${typedUnit.location_area}` : ""}
-          </p>
-        </div>
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted">
-            Date &amp; time
-          </p>
-          <p className="text-sm text-foreground">
-            {formatDate(params.date)} at {formatTime(params.time)}
-          </p>
-        </div>
-      </Card>
+      <p className="mb-5 text-[12.5px] leading-relaxed text-muted">
+        This saves the appointment to your CareHub log. It doesn&apos;t send a booking request to the clinic or
+        hospital — you&apos;re already booked there.
+      </p>
 
       <form
         action={isReschedule ? rescheduleAppointmentAction : confirmAppointmentAction}
-        className="flex gap-3"
+        className="flex gap-2.5"
       >
         {isReschedule ? (
           <input type="hidden" name="appointmentId" value={params.reschedule} />
@@ -92,20 +78,38 @@ export default async function ConfirmAppointmentPage({
           <>
             <input type="hidden" name="patient" value={params.patient} />
             <input type="hidden" name="unit" value={params.unit} />
+            <input type="hidden" name="reminder" value={params.reminder ?? "1day"} />
+            <input type="hidden" name="notes" value={params.notes ?? ""} />
           </>
         )}
         <input type="hidden" name="date" value={params.date} />
         <input type="hidden" name="time" value={params.time} />
-        <Button type="submit">
-          {isReschedule ? "Save new time" : "Confirm appointment"}
-        </Button>
-        <LinkButton
-          href={`/appointments/new/time?patient=${params.patient}&unit=${params.unit}&date=${params.date}&time=${params.time}${rescheduleQuery}`}
-          variant="secondary"
+        <Link
+          href={
+            isReschedule
+              ? `/appointments/new/time?patient=${params.patient}&unit=${params.unit}&date=${params.date}&time=${params.time}${rescheduleQuery}`
+              : `/appointments/new/reminder?patient=${params.patient}&unit=${params.unit}&date=${params.date}&time=${params.time}&reminder=${params.reminder ?? "1day"}`
+          }
+          className="flex-1 rounded-[10px] border border-border px-3 py-3 text-center text-[15px] font-semibold text-foreground transition-colors hover:bg-tint"
         >
           Back
-        </LinkButton>
+        </Link>
+        <button
+          type="submit"
+          className="flex-[2] rounded-[10px] bg-accent px-3 py-3 text-[15px] font-bold text-surface transition-colors hover:bg-accent-hover"
+        >
+          {isReschedule ? "Save changes" : "Confirm booking"}
+        </button>
       </form>
+    </div>
+  );
+}
+
+function SummaryRow({ label, value, last = false }: { label: string; value: string; last?: boolean }) {
+  return (
+    <div className={`flex justify-between gap-4 py-3 ${last ? "" : "border-b border-border"}`}>
+      <span className="shrink-0 text-[13px] text-muted">{label}</span>
+      <span className="text-right text-[13.5px] font-bold text-foreground">{value}</span>
     </div>
   );
 }

@@ -3,7 +3,12 @@
 import { redirect } from "next/navigation";
 import { getOrCreateAppUser } from "@/lib/current-app-user";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { computeRemindAt, preserveLeadTime } from "@/lib/reminders";
+import {
+  computeRemindAt,
+  preserveLeadTime,
+  REMINDER_LEAD_TIME_LABELS,
+  type ReminderLeadTimeKey,
+} from "@/lib/reminders";
 
 export async function confirmAppointmentAction(formData: FormData) {
   const appUser = await getOrCreateAppUser();
@@ -13,6 +18,10 @@ export async function confirmAppointmentAction(formData: FormData) {
   const unitId = String(formData.get("unit") ?? "");
   const date = String(formData.get("date") ?? "");
   const time = String(formData.get("time") ?? "");
+  const notes = String(formData.get("notes") ?? "").trim();
+  const reminderInput = String(formData.get("reminder") ?? "1day");
+  const leadTime: ReminderLeadTimeKey =
+    reminderInput in REMINDER_LEAD_TIME_LABELS ? (reminderInput as ReminderLeadTimeKey) : "1day";
 
   if (!patientId || !unitId || !date || !time) {
     throw new Error("Missing appointment details.");
@@ -28,6 +37,7 @@ export async function confirmAppointmentAction(formData: FormData) {
       appointment_date: date,
       appointment_time: time,
       status: "pending",
+      notes: notes || null,
       created_at: new Date().toISOString(),
     })
     .select("id")
@@ -35,12 +45,13 @@ export async function confirmAppointmentAction(formData: FormData) {
 
   if (appointmentError) throw appointmentError;
 
-  // Default lead time (1 day before) — the appointment detail page lets the
-  // user change this afterwards. This only inserts the row; the actual send
-  // job is intentionally not built, see BUILD_NOTES.md.
+  // Lead time picked in the Reminder step (step 4 of the booking flow),
+  // defaulting to 1 day before if that step was somehow skipped. This only
+  // inserts the row; the actual send job is intentionally not built, see
+  // BUILD_NOTES.md.
   const { error: reminderError } = await supabase.from("reminders").insert({
     appointment_id: appointment.id,
-    remind_at: computeRemindAt(date, time, "1day"),
+    remind_at: computeRemindAt(date, time, leadTime),
     channel: "email",
     status: "pending",
     created_at: new Date().toISOString(),

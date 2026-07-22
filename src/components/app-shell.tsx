@@ -4,8 +4,45 @@ import { ArrowLeftIcon, SignOutIcon } from "@phosphor-icons/react/ssr";
 import { NavLogo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SidebarNav, MobileTabBar } from "@/components/nav-links";
+import { getOrCreateAppUser } from "@/lib/current-app-user";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { todayIso } from "@/lib/format";
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+// Two-step lookup (today's appointment ids, then any reminder against
+// them) rather than an embedded-relationship filter
+// (reminders.select("*, appointments!inner(...)").eq("appointments.x", y))
+// — that syntax needs PostgREST to resolve the relationship correctly and
+// wasn't worth the risk for a nav badge; this mirrors the plain .in()
+// pattern already used elsewhere (e.g. the booking flow's conflict
+// check). Wrapped defensively so a transient query failure never breaks
+// the shell every authenticated page renders through.
+async function hasTodayReminders(): Promise<boolean> {
+  try {
+    const appUser = await getOrCreateAppUser();
+    if (!appUser) return false;
+    const supabase = createServerSupabaseClient();
+
+    const { data: todaysAppointments } = await supabase
+      .from("appointments")
+      .select("id")
+      .eq("appointment_date", todayIso());
+    const appointmentIds = (todaysAppointments ?? []).map((a) => a.id);
+    if (appointmentIds.length === 0) return false;
+
+    const { data: reminders } = await supabase
+      .from("reminders")
+      .select("id")
+      .in("appointment_id", appointmentIds)
+      .limit(1);
+    return (reminders?.length ?? 0) > 0;
+  } catch {
+    return false;
+  }
+}
+
+export async function AppShell({ children }: { children: React.ReactNode }) {
+  const hasUnread = await hasTodayReminders();
+
   return (
     <div className="flex min-h-full flex-1">
       <aside className="hidden md:flex md:w-64 md:flex-shrink-0 md:flex-col md:border-r md:border-border md:bg-surface">
@@ -68,7 +105,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {children}
         </main>
 
-        <MobileTabBar />
+        <MobileTabBar hasUnread={hasUnread} />
       </div>
     </div>
   );

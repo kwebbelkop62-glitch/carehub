@@ -8,7 +8,6 @@ export async function addUnitAction(formData: FormData) {
   const appUser = await getOrCreateAppUser();
   if (!appUser) redirect("/sign-in");
 
-  const patient = String(formData.get("patient") ?? "");
   const name = String(formData.get("name") ?? "").trim();
   const type = String(formData.get("type") ?? "").trim();
   const facility = String(formData.get("hospital_or_facility_name") ?? "").trim();
@@ -34,5 +33,5 @@ export async function addUnitAction(formData: FormData) {
 
   if (error) throw error;
 
-  redirect(`/appointments/new/time?patient=${patient}&unit=${data.id}`);
+  redirect(`/appointments/new/dependant?unit=${data.id}`);
 }

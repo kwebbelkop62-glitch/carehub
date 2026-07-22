@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getOrCreateAppUser } from "@/lib/current-app-user";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
-import { Button, LinkButton } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
 import { formatDate, todayIso } from "@/lib/format";
 import { UNIT_TYPE_LABELS, unitTypeLabel } from "@/lib/types";
@@ -89,18 +89,14 @@ export default async function UnitsPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Your care units
-          </h1>
-          <p className="mt-1 text-sm text-muted">
-            Every unit you&apos;ve added or booked with, in one place.
-          </p>
-        </div>
-        <LinkButton href="/units/new" className="self-start">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-xl font-bold text-foreground">Your care units</h1>
+        <Link
+          href="/units/new"
+          className="inline-flex items-center justify-center rounded-[9px] bg-accent px-4 py-2.5 text-[13.5px] font-bold text-surface transition-colors hover:bg-accent-hover"
+        >
           + Add unit
-        </LinkButton>
+        </Link>
       </div>
 
       <form method="GET" className="flex items-end gap-3">
@@ -111,7 +107,7 @@ export default async function UnitsPage({
               name="q"
               type="text"
               defaultValue={params.q ?? ""}
-              placeholder="Search your units…"
+              placeholder="Search units…"
             />
           </Field>
         </div>
@@ -135,21 +131,23 @@ export default async function UnitsPage({
       )}
 
       {!hasError && filtered.length > 0 && (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-[22px]">
           {groups.map((group) => (
             <div key={group.type}>
-              <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
+              <p className="mb-2.5 text-[12.5px] font-bold tracking-wide text-muted uppercase">
                 {unitTypeLabel(group.type)}
               </p>
               <div className="flex flex-col gap-2">
                 {group.units.map(({ unit, lastVisit }) => (
-                  <Link key={unit.id} href={`/units/${unit.id}`}>
-                    <Card className="flex items-center justify-between gap-3 transition-colors hover:border-accent">
-                      <p className="font-medium text-foreground">{unit.name}</p>
-                      <p className="text-sm text-muted">
-                        {lastVisit ? `Last visit ${formatDate(lastVisit)}` : "No visits yet"}
-                      </p>
-                    </Card>
+                  <Link
+                    key={unit.id}
+                    href={`/units/${unit.id}`}
+                    className="flex items-center justify-between gap-3 rounded-[10px] border border-border bg-surface px-4 py-[13px] transition-colors hover:border-accent"
+                  >
+                    <p className="text-[14.5px] font-bold text-foreground">{unit.name}</p>
+                    <p className="shrink-0 text-[13px] text-muted">
+                      {lastVisit ? `Last visit ${formatDate(lastVisit)}` : "No visits yet"}
+                    </p>
                   </Link>
                 ))}
               </div>

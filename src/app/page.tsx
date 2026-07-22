@@ -3,36 +3,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
-import {
-  BuildingsIcon,
-  ClockIcon,
-  BellRingingIcon,
-  ClipboardTextIcon,
-  UserCircleIcon,
-  HandHeartIcon,
-} from "@phosphor-icons/react/ssr";
 import { NavLogo } from "@/components/logo";
-import { HeroLightfall } from "@/components/hero-lightfall";
-import { CtaAurora } from "@/components/cta-aurora";
-import Stepper, { Step } from "@/components/vendor/Stepper";
-import { WobbleCard } from "@/components/ui/wobble-card";
-import { Reveal } from "@/components/reveal";
-
-const primaryButtonClass =
-  "inline-flex items-center justify-center rounded-full bg-accent-fill px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-accent-fill-hover active:scale-[0.98]";
-
-function Eyebrow({ children, tone = "light" }: { children: ReactNode; tone?: "light" | "dark" }) {
-  return (
-    <span
-      className={`inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide ${
-        tone === "dark" ? "text-background/70" : "text-accent-hover"
-      }`}
-    >
-      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
-      {children}
-    </span>
-  );
-}
+import { LandingNav } from "@/components/landing-nav";
 
 export default async function RootPage() {
   const { userId } = await auth();
@@ -43,303 +15,396 @@ export default async function RootPage() {
   const t = await getTranslations("Landing");
 
   return (
-    <div className="flex min-h-full flex-1 flex-col bg-background">
-      {/* HERO — full-bleed dark section, Lightfall WebGL background */}
-      <section className="relative overflow-hidden bg-foreground">
-        <div className="absolute inset-0">
-          <HeroLightfall className="h-full w-full" />
-        </div>
+    <div className="flex min-h-full flex-1 flex-col bg-background text-foreground">
+      <LandingNav
+        howLabel={t("nav.how")}
+        whoLabel={t("nav.who")}
+        signInLabel={t("nav.signIn")}
+        ctaLabel={t("nav.cta")}
+      />
 
-        {/* NAV — floating pill overlaid on the dark hero, stays visible on scroll */}
-        <header className="sticky top-4 z-30 px-4 sm:top-6 sm:px-6 lg:px-8">
-          <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 rounded-full border border-border/60 bg-surface/90 py-2 pl-4 pr-2 shadow-lg shadow-black/20 backdrop-blur-md">
-            <NavLogo className="h-6" />
-            <nav className="hidden items-center gap-6 text-sm font-medium text-muted md:flex">
-              <a href="#how" className="hover:text-foreground">
-                {t("nav.how")}
-              </a>
-              <a href="#who" className="hover:text-foreground">
-                {t("nav.who")}
-              </a>
-            </nav>
-            <Link href="/sign-up" className={`${primaryButtonClass} hidden sm:inline-flex`}>
-              {t("nav.cta")}
-            </Link>
+      {/* HERO */}
+      <section className="mx-auto grid w-full max-w-[1280px] grid-cols-1 gap-12 px-6 py-16 sm:px-10 lg:grid-cols-[1.05fr_0.95fr] lg:px-14 lg:py-[88px]">
+        <div>
+          <div className="hero-fade-up mb-[22px] inline-block rounded-full bg-accent-secondary-badge-bg px-3.5 py-1.5 text-[13px] font-bold uppercase tracking-wide text-accent-secondary">
+            {t("hero.eyebrow")}
           </div>
-        </header>
-
-        <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center px-4 pb-24 pt-16 text-center sm:px-6 sm:pb-32 sm:pt-20 lg:px-8 lg:pb-40 lg:pt-24">
-          <Reveal>
-            <Eyebrow tone="dark">{t("hero.eyebrow")}</Eyebrow>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <h1 className="mt-6 text-[clamp(2rem,1.3rem+3vw,3.5rem)] font-medium leading-[1.1] tracking-tight text-background">
-              {t("hero.title")}
-            </h1>
-          </Reveal>
-          <Reveal delay={0.2}>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-background/70">
-              {t("hero.subtitle")}
-            </p>
-          </Reveal>
-          <Reveal delay={0.3} className="mt-9">
+          <h1 className="hero-fade-up-1 mb-[22px] font-serif text-[clamp(2rem,1.4rem+2.5vw,3.25rem)] font-semibold leading-[1.1] tracking-tight">
+            {t("hero.title")}
+          </h1>
+          <p className="hero-fade-up-2 mb-7 max-w-[520px] text-[17px] leading-relaxed text-[oklch(.42_.02_60)] dark:text-muted">
+            {t("hero.subtitle")}
+          </p>
+          <div className="hero-fade-up-3 mb-[18px] flex flex-wrap gap-3.5">
+            <Link
+              href="/sign-up"
+              className="inline-flex items-center justify-center rounded-[10px] bg-accent px-6 py-3.5 text-[15px] font-bold text-surface transition-colors hover:bg-accent-hover active:scale-[0.98]"
+            >
+              {t("hero.ctaPrimary")}
+            </Link>
             <a
               href="#how"
-              className="inline-flex items-center justify-center rounded-xl border border-background/25 px-6 py-3.5 text-sm font-medium text-background transition-colors hover:bg-background/10 active:scale-[0.98]"
+              className="inline-flex items-center justify-center rounded-[10px] border border-border px-6 py-3.5 text-[15px] font-semibold transition-colors hover:bg-surface active:scale-[0.98]"
             >
               {t("hero.ctaSecondary")}
             </a>
-          </Reveal>
-          <Reveal delay={0.4}>
-            <p className="mt-8 max-w-md text-xs leading-relaxed text-background/50">
-              {t("hero.disclaimer")}
-            </p>
-          </Reveal>
+          </div>
+          <p className="hero-fade-up-4 max-w-[460px] text-[13px] leading-relaxed text-[oklch(.55_.02_60)] dark:text-muted">
+            {t("hero.disclaimer")}
+          </p>
         </div>
-      </section>
 
-      {/* HIGHLIGHTS — light strip following the dark hero, bento wobble cards */}
-      <section className="w-full border-b border-border bg-surface">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-3 lg:px-8">
-          <Reveal className="lg:col-span-2">
-            <WobbleCard containerClassName="relative h-full min-h-[280px] overflow-hidden bg-foreground">
-              <div className="max-w-xs">
-                <h3 className="text-lg font-semibold text-white">{t("highlights.stat1Label")}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">{t("highlights.stat1Body")}</p>
-              </div>
-              <AppointmentPreview className="absolute -right-8 -bottom-6 hidden w-60 rotate-2 sm:block" />
-            </WobbleCard>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <WobbleCard containerClassName="h-full min-h-[220px] bg-accent-fill">
-              <h3 className="text-lg font-semibold text-white">{t("highlights.stat2Label")}</h3>
-              <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/80">
-                {t("highlights.stat2Body")}
-              </p>
-            </WobbleCard>
-          </Reveal>
-          <Reveal delay={0.2} className="lg:col-span-3">
-            <WobbleCard containerClassName="relative h-full min-h-[220px] overflow-hidden bg-foreground">
-              <div className="max-w-sm">
-                <h3 className="text-lg font-semibold text-white">{t("highlights.stat3Label")}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">{t("highlights.stat3Body")}</p>
-              </div>
-              <AppointmentPreview className="absolute -right-6 -bottom-10 hidden w-64 -rotate-2 md:block" />
-            </WobbleCard>
-          </Reveal>
+        {/* Mobile (<sm): the mockup's floating/rotated absolute layout has
+            no room to work with at narrow widths, so this is a simple
+            static stacked list instead — same card content/styling, no
+            rotation or float animation. Desktop keeps the mockup's exact
+            floating layout, swapped in at sm: and up. */}
+        <div className="flex flex-col gap-3 sm:hidden">
+          <HeroCard
+            title="Dr. Tan Wei Ming"
+            subtitle="Cardiology · Gleneagles Penang"
+            meta="Wed, 14 Aug · 10:30 AM"
+            status="pending"
+            statusLabel={t("hero.card1Status")}
+          />
+          <HeroCard
+            title="Mum · Dr. Lakshmi"
+            subtitle="Island Hospital"
+            status="attended"
+            statusLabel={t("hero.card2Status")}
+            compact
+          />
+          <HeroCard
+            title="Physio · Sunway Medical"
+            subtitle="Mon, 22 Jun"
+            status="missed"
+            statusLabel={t("hero.card3Status")}
+            compact
+          />
+          <HeroCard
+            title="Dentist · Dr. Farah"
+            status="pending"
+            statusLabel={t("hero.card4Status")}
+            inline
+            compact
+          />
+        </div>
+
+        <div className="relative hidden h-[440px] sm:block">
+          <HeroCard
+            floatClassName="hero-float-1 top-5 left-[10%] w-[78%] p-[18px_20px]"
+            title="Dr. Tan Wei Ming"
+            subtitle="Cardiology · Gleneagles Penang"
+            meta="Wed, 14 Aug · 10:30 AM"
+            status="pending"
+            statusLabel={t("hero.card1Status")}
+          />
+          <HeroCard
+            floatClassName="hero-float-2 top-[150px] left-[2%] w-[70%] p-4"
+            title="Mum · Dr. Lakshmi"
+            subtitle="Island Hospital"
+            status="attended"
+            statusLabel={t("hero.card2Status")}
+            compact
+          />
+          <HeroCard
+            floatClassName="hero-float-3 top-[270px] left-[16%] w-[72%] p-4"
+            title="Physio · Sunway Medical"
+            subtitle="Mon, 22 Jun"
+            status="missed"
+            statusLabel={t("hero.card3Status")}
+            compact
+          />
+          <HeroCard
+            floatClassName="hero-float-4 top-[370px] left-[6%] w-[66%] p-[14px_16px]"
+            title="Dentist · Dr. Farah"
+            status="pending"
+            statusLabel={t("hero.card4Status")}
+            inline
+            compact
+          />
         </div>
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="how" className="relative w-full scroll-mt-24 overflow-hidden bg-tint">
-        <div className="pointer-events-none absolute left-1/2 top-0 h-80 w-80 -translate-x-1/2 -translate-y-1/3 rounded-full bg-accent/25 blur-3xl" />
-        <div className="relative mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-          <Reveal>
-            <h2 className="mx-auto max-w-xl text-center text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem]">
-              {t("how.heading")}
-            </h2>
-          </Reveal>
-          <Reveal delay={0.1} className="mt-10">
-            <Stepper backButtonText={t("how.back")} nextButtonText={t("how.next")}>
-              <Step>
-                <StepIcon icon={<BuildingsIcon size={20} weight="duotone" />} />
-                <h3>{t("how.step1Title")}</h3>
-                <p>{t("how.step1Body")}</p>
-              </Step>
-              <Step>
-                <StepIcon icon={<ClockIcon size={20} weight="duotone" />} />
-                <h3>{t("how.step2Title")}</h3>
-                <p>{t("how.step2Body")}</p>
-              </Step>
-              <Step>
-                <StepIcon icon={<BellRingingIcon size={20} weight="duotone" />} />
-                <h3>{t("how.step3Title")}</h3>
-                <p>{t("how.step3Body")}</p>
-              </Step>
-              <Step>
-                <StepIcon icon={<ClipboardTextIcon size={20} weight="duotone" />} />
-                <h3>{t("how.step4Title")}</h3>
-                <p>{t("how.step4Body")}</p>
-              </Step>
-            </Stepper>
-          </Reveal>
+      <section id="how" className="mx-auto w-full max-w-[900px] scroll-mt-20 px-6 py-10 sm:px-10 lg:px-14 lg:py-24">
+        <div className="mb-14 text-left">
+          <div className="mb-3 text-[13px] font-bold uppercase tracking-wider text-accent">{t("how.eyebrow")}</div>
+          <h2 className="max-w-[560px] font-serif text-3xl font-semibold sm:text-4xl">{t("how.heading")}</h2>
+        </div>
+
+        <div className="relative isolate">
+          {/* isolate on the wrapper + -z-10 on the line: without isolate,
+              this div doesn't establish its own stacking context (plain
+              position:relative doesn't), so the negative z-index escapes
+              to an ancestor and paints behind the page's own opaque
+              background instead of just behind the circles below —
+              isolate scopes it locally so the line sits behind the
+              circles but still above everything else. */}
+          <div className="absolute top-2 bottom-2 left-[22px] -z-10 w-0.5 -translate-x-1/2 bg-border sm:left-1/2" />
+
+          <HowStep side="left" number={1} tone="accent" title={t("how.step1Title")} body={t("how.step1Body")} />
+          <HowStep side="right" number={2} tone="accent-secondary" title={t("how.step2Title")} body={t("how.step2Body")} />
+          <HowStep side="left" number={3} tone="accent" title={t("how.step3Title")} body={t("how.step3Body")} />
+          <HowStep
+            side="right"
+            number={4}
+            tone="accent-secondary"
+            title={t("how.step4Title")}
+            body={t("how.step4Body")}
+            last
+          />
         </div>
       </section>
 
       {/* WHO IT'S FOR */}
-      <section id="who" className="relative w-full scroll-mt-24 overflow-hidden">
-        <div className="pointer-events-none absolute right-0 top-1/4 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
-        <div className="pointer-events-none absolute -left-10 bottom-0 h-64 w-64 rounded-full bg-accent-fill/20 blur-3xl" />
-        <div className="relative mx-auto max-w-5xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-24">
-          <Reveal>
-            <h2 className="max-w-xl text-2xl font-semibold tracking-tight text-foreground sm:text-[1.75rem]">
-              {t("who.heading")}
-            </h2>
-          </Reveal>
-          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 sm:items-stretch">
-            <Reveal className="h-full">
-              <PersonaCard
-                icon={<HandHeartIcon size={22} weight="duotone" />}
-                eyebrow={t("who.caregiverEyebrow")}
-                title={t("who.caregiverTitle")}
-                body={t("who.caregiverBody")}
-                points={[t("who.caregiverPoint1"), t("who.caregiverPoint2"), t("who.caregiverPoint3")]}
-                tone="dark"
-              />
-            </Reveal>
-            <Reveal delay={0.1} className="h-full">
-              <PersonaCard
-                icon={<UserCircleIcon size={22} weight="duotone" />}
-                eyebrow={t("who.patientEyebrow")}
-                title={t("who.patientTitle")}
-                body={t("who.patientBody")}
-                points={[t("who.patientPoint1"), t("who.patientPoint2"), t("who.patientPoint3")]}
-                tone="plain"
-              />
-            </Reveal>
-          </div>
+      <section id="who" className="mx-auto w-full max-w-[1280px] scroll-mt-20 px-6 py-4 sm:px-10 lg:px-14 lg:py-24">
+        <div className="mb-11">
+          <div className="mb-3 text-[13px] font-bold uppercase tracking-wider text-accent">{t("who.eyebrow")}</div>
+          <h2 className="max-w-[560px] font-serif text-3xl font-semibold sm:text-4xl">{t("who.heading")}</h2>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <PersonaCard
+            tone="accent"
+            eyebrow={t("who.caregiverEyebrow")}
+            title={t("who.caregiverTitle")}
+            body={t("who.caregiverBody")}
+            points={[t("who.caregiverPoint1"), t("who.caregiverPoint2"), t("who.caregiverPoint3")]}
+          />
+          <PersonaCard
+            tone="accent-secondary"
+            eyebrow={t("who.patientEyebrow")}
+            title={t("who.patientTitle")}
+            body={t("who.patientBody")}
+            points={[t("who.patientPoint1"), t("who.patientPoint2"), t("who.patientPoint3")]}
+          />
         </div>
       </section>
 
-      {/* CTA — dark spotlight section, Aurora WebGL background, scale-in reveal */}
-      <section className="mx-auto w-full max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20 lg:px-8 lg:pb-24">
-        <Reveal variant="scale">
-          <div className="relative overflow-hidden rounded-3xl bg-foreground px-8 py-16 sm:px-14 sm:py-20">
-            <div className="absolute inset-0">
-              <CtaAurora className="h-full w-full" />
-            </div>
-            <div className="relative flex flex-col items-center gap-2 text-center">
-              <h2 className="max-w-lg text-2xl font-semibold leading-snug text-background sm:text-[2rem]">
-                {t("cta.heading")}
-              </h2>
-              <p className="mt-2 max-w-sm text-sm leading-relaxed text-background/70">
-                {t("cta.subtitle")}
-              </p>
+      {/* CTA — bg-foreground/text-background deliberately swap polarity
+          with the page theme (dark box on the light page, light box on the
+          dark page) so this band always reads as the "spotlight" section.
+          Anything inside it that isn't already a foreground/background
+          token (the subtitle/note below) needs an explicit dark: pair for
+          the same reason, or it goes invisible when the box flips. */}
+      <section className="mx-auto w-full max-w-[1280px] px-6 py-4 sm:px-10 lg:px-14 lg:py-24">
+        <div className="relative grid grid-cols-1 items-center gap-8 overflow-hidden rounded-3xl bg-foreground px-8 py-14 sm:grid-cols-[1fr_0.85fr] sm:px-14 sm:py-16">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-50"
+            style={{
+              backgroundImage:
+                "radial-gradient(color-mix(in oklab, var(--surface) 6%, transparent) 1.5px, transparent 1.5px)",
+              backgroundSize: "22px 22px",
+            }}
+          />
+          <div className="relative">
+            <h2 className="mb-3.5 max-w-lg font-serif text-2xl font-semibold leading-tight text-background sm:text-[2rem]">
+              {t("cta.heading")}
+            </h2>
+            <p className="max-w-[440px] text-[15.5px] leading-relaxed text-[oklch(.78_.01_70)] dark:text-[oklch(.48_.02_60)]">
+              {t("cta.subtitle")}
+            </p>
+          </div>
+          <div className="relative">
+            <div className="mb-3 flex gap-2.5">
               <Link
                 href="/sign-up"
-                className="mt-7 inline-flex items-center justify-center rounded-full bg-background px-7 py-3.5 text-sm font-semibold text-foreground transition-colors hover:bg-background/90 active:scale-[0.98]"
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-[10px] bg-accent px-[22px] py-3.5 text-[15px] font-bold text-surface transition-colors hover:bg-accent-hover active:scale-[0.98]"
               >
                 {t("cta.button")}
               </Link>
-              <span className="mt-3 text-xs text-background/60">{t("cta.note")}</span>
             </div>
+            <div className="text-[13px] text-[oklch(.65_.01_70)] dark:text-[oklch(.55_.02_60)]">{t("cta.note")}</div>
           </div>
-        </Reveal>
+        </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="border-t border-border">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-start sm:justify-between sm:px-6 lg:px-8">
-          <div className="max-w-xs">
-            <NavLogo className="h-6" />
-            <p className="mt-3 text-sm leading-relaxed text-muted">{t("footer.tagline")}</p>
+      <footer className="border-t border-border px-6 pt-12 pb-10 sm:px-10 lg:px-14">
+        <div className="mx-auto mb-9 grid max-w-[1280px] grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
+          <div>
+            <NavLogo className="mb-3 h-6" />
+            <p className="max-w-[280px] text-[13.5px] leading-relaxed text-muted">{t("footer.tagline")}</p>
           </div>
-          <div className="flex items-center gap-6 text-sm">
-            <a href="#how" className="text-muted hover:text-foreground">
-              {t("nav.how")}
-            </a>
-            <a href="#who" className="text-muted hover:text-foreground">
-              {t("nav.who")}
-            </a>
-            <Link href="/sign-in" className="text-muted hover:text-foreground">
-              {t("nav.signIn")}
-            </Link>
-          </div>
+          <FooterColumn heading={t("footer.productHeading")}>
+            <a href="#how">{t("footer.productHowItWorks")}</a>
+            <a href="#who">{t("footer.productForCaregivers")}</a>
+            <a href="#who">{t("footer.productForPatients")}</a>
+          </FooterColumn>
+          <FooterColumn heading={t("footer.companyHeading")}>
+            <a href="#">{t("footer.companyAbout")}</a>
+            <a href="#">{t("footer.companyContact")}</a>
+          </FooterColumn>
+          <FooterColumn heading={t("footer.legalHeading")}>
+            <a href="#">{t("footer.legalPrivacy")}</a>
+          </FooterColumn>
         </div>
-        <div className="border-t border-border">
-          <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-            <p className="max-w-xl text-xs leading-relaxed text-muted">{t("footer.disclaimer")}</p>
-            <p className="shrink-0 text-xs text-muted">{t("footer.copyright")}</p>
-          </div>
+        <div className="mx-auto flex max-w-[1280px] flex-wrap justify-between gap-6 border-t border-border pt-6">
+          <p className="max-w-[560px] text-xs leading-relaxed text-muted">{t("footer.disclaimer")}</p>
+          <p className="text-xs text-muted">{t("footer.copyright")}</p>
         </div>
       </footer>
     </div>
   );
 }
 
+const statusTokens = {
+  pending: { bg: "bg-status-upcoming-bg", dot: "bg-status-upcoming-dot", text: "text-status-upcoming-text" },
+  attended: { bg: "bg-status-attended-bg", dot: "bg-status-attended-dot", text: "text-status-attended-text" },
+  missed: { bg: "bg-status-missed-bg", dot: "bg-status-missed-dot", text: "text-status-missed-text" },
+} as const;
 
-// Decorative mock-up for the bento highlight cards — built from the app's
-// own card/badge vocabulary rather than a hotlinked stock photo, so there's
-// no external asset to go stale or fail to load.
-function AppointmentPreview({ className = "" }: { className?: string }) {
+// Decorative hero mockups — matching CareHub Landing Page.dc.html's exact
+// per-card padding/sizing, which is smaller than the shared <Badge>
+// component's own dimensions, so this hand-rolls the pill rather than
+// reusing that component. Renders statically (full-width, no rotation/
+// animation, normal flow) when floatClassName is omitted — used for the
+// <sm mobile stacked list, since the mockup's absolute-positioned floating
+// layout has no room to work with at narrow widths.
+function HeroCard({
+  floatClassName,
+  title,
+  subtitle,
+  meta,
+  status,
+  statusLabel,
+  compact = false,
+  inline = false,
+}: {
+  floatClassName?: string;
+  title: string;
+  subtitle?: string;
+  meta?: string;
+  status: keyof typeof statusTokens;
+  statusLabel: string;
+  compact?: boolean;
+  inline?: boolean;
+}) {
+  const tokens = statusTokens[status];
+  const pill = (
+    <div className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 ${tokens.bg}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${tokens.dot}`} />
+      <span className={`text-[10px] font-bold ${tokens.text}`}>{statusLabel}</span>
+    </div>
+  );
+
   return (
-    <div className={`rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-md ${className}`}>
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-semibold text-white">Dr. Tan Wei Ming</p>
-        <span className="shrink-0 rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
-          Pending
-        </span>
+    <div
+      className={`rounded-2xl border border-border bg-surface ${floatClassName ? `absolute ${floatClassName}` : "relative w-full p-4"}`}
+      style={{ boxShadow: "0 12px 28px oklch(.4 .02 60 / .1)" }}
+    >
+      <div className={`flex items-start justify-between gap-2 ${meta || !inline ? "mb-2" : ""}`}>
+        <div>
+          <div className={`font-bold ${compact ? "text-sm" : "text-[15px]"}`}>{title}</div>
+          {subtitle && <div className="text-xs text-muted">{subtitle}</div>}
+        </div>
+        {pill}
       </div>
-      <p className="mt-1 text-[10px] text-white/60">Cardiology · Gleneagles Penang</p>
-      <div className="mt-3 h-px w-full bg-white/15" />
-      <div className="mt-3 flex items-center justify-between gap-2">
-        <p className="text-xs font-semibold text-white">Mum · Dr. Lakshmi</p>
-        <span className="shrink-0 rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
-          Attended
-        </span>
-      </div>
-      <p className="mt-1 text-[10px] text-white/60">Island Hospital</p>
+      {meta && <div className="text-xs text-muted">{meta}</div>}
     </div>
   );
 }
 
-function StepIcon({ icon }: { icon: ReactNode }) {
+function HowStep({
+  side,
+  number,
+  tone,
+  title,
+  body,
+  last = false,
+}: {
+  side: "left" | "right";
+  number: number;
+  tone: "accent" | "accent-secondary";
+  title: string;
+  body: string;
+  last?: boolean;
+}) {
+  // Mobile (<sm): single left-aligned column, circle always in col 1 —
+  // the desktop alternating-sides layout has no room to work with at
+  // narrow widths. Desktop (sm+): circle explicitly placed in the middle
+  // column regardless of DOM order, text explicitly placed left or right
+  // per `side` — explicit grid-column placement overrides source order,
+  // so this needs no separate mobile/desktop markup, just responsive
+  // column-start utilities on a template that itself changes at sm:.
+  const circle = (
+    <div className="col-start-1 flex justify-center sm:col-start-2">
+      <div
+        className={`flex h-[34px] w-[34px] items-center justify-center rounded-full text-sm font-extrabold text-surface ${
+          tone === "accent" ? "bg-accent" : "bg-accent-secondary"
+        }`}
+      >
+        {number}
+      </div>
+    </div>
+  );
+
+  const text = (
+    <div
+      className={`col-start-2 pl-4 text-left ${
+        side === "left" ? "sm:col-start-1 sm:pr-7 sm:pl-0 sm:text-right" : "sm:col-start-3 sm:pl-7 sm:text-left"
+      } ${last ? "" : "pb-[60px]"}`}
+    >
+      <div className="mb-2 font-serif text-lg font-semibold">{title}</div>
+      <div className="text-[15px] leading-relaxed text-muted">{body}</div>
+    </div>
+  );
+
   return (
-    <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent-fill text-white">
-      {icon}
-    </span>
+    <div className="grid grid-cols-[44px_1fr] items-start sm:grid-cols-[1fr_44px_1fr]">
+      {circle}
+      {text}
+    </div>
   );
 }
 
 function PersonaCard({
-  icon,
+  tone,
   eyebrow,
   title,
   body,
   points,
-  tone,
 }: {
-  icon: ReactNode;
+  tone: "accent" | "accent-secondary";
   eyebrow: string;
   title: string;
   body: string;
   points: string[];
-  tone: "dark" | "plain";
 }) {
-  const dark = tone === "dark";
+  const isAccent = tone === "accent";
   return (
     <div
-      className={`flex h-full flex-col rounded-2xl border p-8 shadow-xl backdrop-blur-xl ${
-        dark ? "border-white/10 bg-foreground/70 shadow-black/20" : "border-white/40 bg-surface/50 shadow-black/5"
+      className={`rounded-[20px] p-6 pb-7 transition-transform duration-200 ease-out sm:p-9 sm:pb-10 hover:-translate-y-1.5 ${
+        isAccent ? "bg-accent-tint" : "bg-accent-secondary-tint"
       }`}
     >
-      <span
-        className={`flex h-11 w-11 items-center justify-center rounded-xl ${
-          dark ? "bg-background/10 text-background" : "bg-accent-fill text-white"
+      <div
+        className={`mb-3.5 text-[13px] font-bold uppercase tracking-wide ${
+          isAccent ? "text-accent-hover" : "text-accent-secondary"
         }`}
       >
-        {icon}
-      </span>
-      <div className="mt-5">
-        <Eyebrow tone={dark ? "dark" : "light"}>{eyebrow}</Eyebrow>
+        {eyebrow}
       </div>
-      <h3 className={`mt-2 text-xl font-semibold ${dark ? "text-background" : "text-foreground"}`}>
-        {title}
-      </h3>
-      <p className={`mt-3 text-sm leading-relaxed ${dark ? "text-background/70" : "text-muted"}`}>
-        {body}
-      </p>
-      <ul className="mt-5 flex flex-col gap-2.5">
+      <h3 className="mb-3.5 font-serif text-2xl font-semibold">{title}</h3>
+      <p className="mb-5 text-[15.5px] leading-relaxed text-[oklch(.35_.02_60)] dark:text-muted">{body}</p>
+      <div className="flex flex-col gap-3">
         {points.map((point) => (
-          <li
-            key={point}
-            className={`flex items-start gap-2.5 text-sm ${dark ? "text-background" : "text-foreground"}`}
-          >
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+          <div key={point} className="flex items-baseline gap-2.5 text-sm text-[oklch(.3_.02_60)] dark:text-foreground">
+            <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${isAccent ? "bg-accent-hover" : "bg-accent-secondary"}`} />
             {point}
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
+    </div>
+  );
+}
+
+function FooterColumn({ heading, children }: { heading: string; children: ReactNode }) {
+  return (
+    <div>
+      <div className="mb-3.5 text-xs font-bold uppercase tracking-wide text-muted">{heading}</div>
+      <div className="flex flex-col gap-2.5 text-sm">{children}</div>
     </div>
   );
 }

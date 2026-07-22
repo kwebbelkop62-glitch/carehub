@@ -1,11 +1,13 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getOrCreateAppUser } from "@/lib/current-app-user";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { Card } from "@/components/ui/card";
-import { Button, LinkButton } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/field";
-import { formatDate, formatTime, todayIso } from "@/lib/format";
+import { formatDate, formatTime, todayIso, addDaysIso } from "@/lib/format";
 import type { AppointmentWithUnitAndPatient, Patient, Unit } from "@/lib/types";
+import { BookingProgress, StepEyebrow } from "../booking-progress";
+
+const TIME_PRESETS = ["09:00", "11:00", "14:00", "16:00"];
 
 export default async function SelectTimePage({
   searchParams,
@@ -26,9 +28,9 @@ export default async function SelectTimePage({
     redirect("/appointments/new/unit");
   }
 
-  const rescheduleQuery = params.reschedule
-    ? `&reschedule=${params.reschedule}`
-    : "";
+  const isReschedule = Boolean(params.reschedule);
+  const rescheduleQuery = params.reschedule ? `&reschedule=${params.reschedule}` : "";
+  const baseQuery = `patient=${params.patient}&unit=${params.unit}`;
 
   const supabase = createServerSupabaseClient();
 
@@ -46,7 +48,8 @@ export default async function SelectTimePage({
 
   const date = params.date ?? "";
   const time = params.time ?? "";
-  const dateIsPast = date !== "" && date < todayIso();
+  const today = todayIso();
+  const dateIsPast = date !== "" && date < today;
 
   let conflicts: AppointmentWithUnitAndPatient[] = [];
   if (date && time && !dateIsPast) {
@@ -66,82 +69,161 @@ export default async function SelectTimePage({
     }
 
     const { data: conflictRows } = await conflictQuery;
-
     conflicts = (conflictRows ?? []) as AppointmentWithUnitAndPatient[];
   }
 
   const canContinue = Boolean(date && time && !dateIsPast);
+  const nextHref = isReschedule
+    ? `/appointments/new/confirm?${baseQuery}&date=${date}&time=${time}${rescheduleQuery}`
+    : `/appointments/new/reminder?${baseQuery}&date=${date}&time=${time}`;
+
+  const shortDay = (iso: string) =>
+    new Date(`${iso}T00:00:00`).toLocaleDateString("en-MY", { day: "numeric", month: "short" });
+  const weekday = (iso: string) =>
+    new Date(`${iso}T00:00:00`).toLocaleDateString("en-MY", { weekday: "short" });
+  const datePresetIsos = [today, addDaysIso(today, 1), addDaysIso(today, 2), addDaysIso(today, 7)];
+  const datePresets = datePresetIsos.map((iso, i) => ({
+    iso,
+    label:
+      i === 0
+        ? `Today · ${shortDay(iso)}`
+        : i === 1
+          ? `Tomorrow · ${shortDay(iso)}`
+          : `${weekday(iso)} · ${shortDay(iso)}`,
+  }));
+
+  function chipHref(overrides: Record<string, string>) {
+    const merged = { patient: params.patient!, unit: params.unit!, date, time, ...overrides };
+    const qs = new URLSearchParams(Object.entries(merged).filter(([, v]) => v));
+    if (params.reschedule) qs.set("reschedule", params.reschedule);
+    return `/appointments/new/time?${qs.toString()}`;
+  }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          {params.reschedule ? "Reschedule appointment" : "Select a date and time"}
-        </h1>
-        <p className="mt-1 text-sm text-muted">
-          For {typedPatient.full_name} at {typedUnit.name},{" "}
-          {typedUnit.hospital_or_facility_name}
-        </p>
+    <div className="mx-auto w-full max-w-[520px] rounded-[20px] border border-border bg-surface p-6 sm:p-[36px_40px]">
+      <BookingProgress step={3} />
+      {isReschedule ? (
+        <>
+          <p className="mb-2.5 text-[12.5px] font-bold tracking-wide text-accent uppercase">Reschedule</p>
+          <h1 className="mb-2 text-xl font-bold text-foreground">Pick a new date &amp; time</h1>
+          <p className="mb-5 text-[13.5px] leading-relaxed text-muted">
+            {typedUnit.name} &middot; {typedUnit.hospital_or_facility_name}, {typedPatient.relationship_to_owner},
+            and your reminder lead-time all stay the same — only the date and time change. CareHub checks this only
+            against your own saved appointments, not real hospital or clinic availability.
+          </p>
+        </>
+      ) : (
+        <>
+          <StepEyebrow step={3} />
+          <h1 className="mb-2 text-xl font-bold text-foreground">When did you book it for?</h1>
+          <p className="mb-5 text-[13.5px] leading-relaxed text-muted">
+            Enter the date and time you already have — CareHub checks this only against your own saved
+            appointments, not real hospital or clinic availability.
+          </p>
+        </>
+      )}
+
+      <p className="mb-2 text-sm font-semibold text-foreground">Date</p>
+      <div className="mb-3.5 flex flex-wrap gap-2">
+        {datePresets.map((preset) => (
+          <Link
+            key={preset.iso}
+            href={chipHref({ date: preset.iso })}
+            className={`rounded-[9px] border-[1.5px] px-3.5 py-2 text-[13.5px] font-semibold ${
+              date === preset.iso ? "border-accent bg-surface text-foreground" : "border-border bg-background text-muted"
+            }`}
+          >
+            {preset.label}
+          </Link>
+        ))}
       </div>
-
-      <Card className="border-amber-200 bg-amber-50 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300">
-        CareHub checks this slot against appointments already booked in your own
-        account. It cannot check the unit&apos;s real availability — confirm the
-        time works with them directly if it matters.
-      </Card>
-
-      <form method="GET" className="flex flex-col gap-4">
+      <form method="GET" className="mb-3.5 flex items-end gap-2">
         <input type="hidden" name="patient" value={params.patient} />
         <input type="hidden" name="unit" value={params.unit} />
-        {params.reschedule && (
-          <input type="hidden" name="reschedule" value={params.reschedule} />
-        )}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Date" htmlFor="date" error={dateIsPast ? "Pick a date that isn't in the past." : undefined}>
-            <Input id="date" name="date" type="date" min={todayIso()} defaultValue={date} required />
-          </Field>
-          <Field label="Time" htmlFor="time">
-            <Input id="time" name="time" type="time" defaultValue={time} required />
+        <input type="hidden" name="time" value={time} />
+        {params.reschedule && <input type="hidden" name="reschedule" value={params.reschedule} />}
+        <div className="flex-1">
+          <Field label="Custom date" htmlFor="date" error={dateIsPast ? "Pick a date that isn't in the past." : undefined}>
+            <Input id="date" name="date" type="date" min={today} defaultValue={date} />
           </Field>
         </div>
-        <Button type="submit" variant="secondary" className="self-start">
-          Check this slot
-        </Button>
+        <button
+          type="submit"
+          className="h-[42px] rounded-[9px] border border-border px-3.5 text-sm font-semibold text-foreground transition-colors hover:bg-tint"
+        >
+          Set
+        </button>
       </form>
 
-      {date && time && !dateIsPast && (
-        <Card className={conflicts.length > 0 ? "border-amber-300" : "border-green-300"}>
-          {conflicts.length > 0 ? (
-            <div className="flex flex-col gap-2">
-              <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
-                You already have an appointment at this time
-              </p>
-              {conflicts.map((c) => (
-                <p key={c.id} className="text-sm text-muted">
-                  {c.patients.full_name} at {c.units.name} — {formatDate(c.appointment_date)}{" "}
-                  {formatTime(c.appointment_time)}
-                </p>
-              ))}
-              <p className="text-xs text-muted">
-                You can still continue if this is intentional.
-              </p>
-            </div>
-          ) : (
-            <p className="text-sm text-green-700 dark:text-green-400">
-              No conflicts with your other appointments.
+      <p className="mb-2 text-sm font-semibold text-foreground">Time</p>
+      <div className="mb-3.5 flex flex-wrap gap-2">
+        {TIME_PRESETS.map((preset) => (
+          <Link
+            key={preset}
+            href={chipHref({ time: preset })}
+            className={`rounded-[9px] border-[1.5px] px-3.5 py-2 text-[13.5px] font-semibold ${
+              time === preset ? "border-accent bg-surface text-foreground" : "border-border bg-background text-muted"
+            }`}
+          >
+            {formatTime(preset)}
+          </Link>
+        ))}
+      </div>
+
+      <form method="GET" className="mb-5 flex items-end gap-2">
+        <input type="hidden" name="patient" value={params.patient} />
+        <input type="hidden" name="unit" value={params.unit} />
+        <input type="hidden" name="date" value={date} />
+        {params.reschedule && <input type="hidden" name="reschedule" value={params.reschedule} />}
+        <div className="flex-1">
+          <Field label="Custom time" htmlFor="time">
+            <Input id="time" name="time" type="time" defaultValue={time} />
+          </Field>
+        </div>
+        <button
+          type="submit"
+          className="h-[42px] rounded-[9px] border border-border px-3.5 text-sm font-semibold text-foreground transition-colors hover:bg-tint"
+        >
+          Set
+        </button>
+      </form>
+
+      {conflicts.length > 0 && (
+        <div className="mb-5 flex gap-2.5 rounded-[10px] bg-status-missed-bg px-3.5 py-3">
+          <span className="mt-1.5 h-[7px] w-[7px] shrink-0 rounded-full bg-status-missed-dot" />
+          <div>
+            <p className="mb-0.5 text-[13.5px] font-bold text-status-missed-text">
+              This clashes with an appointment you already saved
             </p>
-          )}
-        </Card>
+            <p className="text-[13px] leading-relaxed text-status-missed-text">
+              You already have {conflicts[0].units.name} on {formatDate(conflicts[0].appointment_date)} at{" "}
+              {formatTime(conflicts[0].appointment_time)}. This is only a check against your own CareHub entries —
+              not live availability at the clinic.
+            </p>
+          </div>
+        </div>
       )}
 
-      {canContinue && (
-        <LinkButton
-          href={`/appointments/new/confirm?patient=${params.patient}&unit=${params.unit}&date=${date}&time=${time}${rescheduleQuery}`}
-          className="self-start"
+      <div className="flex gap-2.5">
+        <Link
+          href={isReschedule ? `/appointments/${params.reschedule}` : "/appointments/new/dependant"}
+          className="flex-1 rounded-[10px] border border-border px-3 py-3 text-center text-[15px] font-semibold text-foreground transition-colors hover:bg-tint"
         >
-          Continue
-        </LinkButton>
-      )}
+          {isReschedule ? "Cancel" : "Back"}
+        </Link>
+        {canContinue ? (
+          <Link
+            href={nextHref}
+            className="flex-[2] rounded-[10px] bg-accent px-3 py-3 text-center text-[15px] font-bold text-surface transition-colors hover:bg-accent-hover"
+          >
+            {isReschedule ? "Save changes" : "Continue"}
+          </Link>
+        ) : (
+          <span className="flex-[2] cursor-not-allowed rounded-[10px] bg-border px-3 py-3 text-center text-[15px] font-bold text-muted">
+            {isReschedule ? "Save changes" : "Continue"}
+          </span>
+        )}
+      </div>
     </div>
   );
 }
