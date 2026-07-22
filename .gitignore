@@ -44,3 +44,13 @@ next-env.d.ts
 CLAUDE.md
 .claude/
 .mcp.json
+
+# AI tool skill libraries / debug artifacts (local-only, never commit)
+.agents/
+agent/
+.playwright-cli/
+skills-lock.json
+AGENT_HANDOFF.md
+design-reference/
+carehub-design-system-setup/
+CareHub design system setup-handoff.zip
