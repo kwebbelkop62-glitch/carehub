@@ -1,6 +1,13 @@
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { SignIn } from "@clerk/nextjs";
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  const { userId } = await auth();
+  if (userId) {
+    redirect("/upcoming");
+  }
+
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-16">
       <div className="w-full max-w-sm">
@@ -16,6 +23,8 @@ export default function SignInPage() {
           routing="path"
           path="/sign-in"
           signUpUrl="/sign-up"
+          fallbackRedirectUrl="/upcoming"
+          signUpFallbackRedirectUrl="/upcoming"
           appearance={{
             variables: {
               colorPrimary: "oklch(.6 .14 45)",
