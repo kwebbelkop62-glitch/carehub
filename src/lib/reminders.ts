@@ -23,6 +23,14 @@ const HOURS_BEFORE: Record<Exclude<ReminderLeadTimeKey, "morning">, number> = {
 // not a fixed duration before — the other three presets are.
 const MORNING_OF_HOUR = 7;
 
+// `time` is "HH:MM" when it comes fresh from the booking flow's own presets,
+// but "HH:MM:SS" once it's round-tripped through Postgres's `time` column
+// (appointments.appointment_time) — normalize before building a Date string
+// or the seconds get double-appended (e.g. "11:00:00:00", an invalid Date).
+function toHHMM(time: string): string {
+  return time.slice(0, 5);
+}
+
 export function computeRemindAt(
   date: string,
   time: string,
@@ -33,7 +41,7 @@ export function computeRemindAt(
       `${date}T${String(MORNING_OF_HOUR).padStart(2, "0")}:00:00`,
     ).toISOString();
   }
-  const appointmentDateTime = new Date(`${date}T${time}:00`);
+  const appointmentDateTime = new Date(`${date}T${toHHMM(time)}:00`);
   return new Date(
     appointmentDateTime.getTime() - HOURS_BEFORE[leadTime] * 60 * 60 * 1000,
   ).toISOString();
@@ -64,8 +72,8 @@ export function preserveLeadTime(
   newDate: string,
   newTime: string,
 ): string {
-  const oldDateTime = new Date(`${oldDate}T${oldTime}:00`).getTime();
+  const oldDateTime = new Date(`${oldDate}T${toHHMM(oldTime)}:00`).getTime();
   const delta = oldDateTime - new Date(oldRemindAt).getTime();
-  const newDateTime = new Date(`${newDate}T${newTime}:00`).getTime();
+  const newDateTime = new Date(`${newDate}T${toHHMM(newTime)}:00`).getTime();
   return new Date(newDateTime - delta).toISOString();
 }

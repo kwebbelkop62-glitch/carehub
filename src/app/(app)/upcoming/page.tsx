@@ -4,7 +4,9 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { greeting, todayIso, addDaysIso, formatShortDate, formatTime } from "@/lib/format";
+import { canUseCaregiverMode, getViewMode } from "@/lib/view-mode";
 import type { AppointmentWithUnitAndPatient, Patient } from "@/lib/types";
+import { ModeSwitch } from "@/components/mode-switch";
 
 const WINDOW_DAYS = 14;
 
@@ -14,12 +16,7 @@ function dayLabel(isoDate: string, today: string): string {
   return formatShortDate(isoDate);
 }
 
-export default async function UpcomingPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ patient?: string }>;
-}) {
-  const params = await searchParams;
+export default async function UpcomingPage() {
   const appUser = await getOrCreateAppUser();
   const supabase = createServerSupabaseClient();
 
@@ -30,8 +27,14 @@ export default async function UpcomingPage({
 
   const patientList = (patients ?? []) as Patient[];
   const hasPatients = patientList.length > 0;
-  const isCaregiver = patientList.length > 1;
-  const selectedPatientId = isCaregiver ? params.patient : undefined;
+  const mode = await getViewMode(patientList.length);
+  const isCaregiverMode = mode === "caregiver";
+  const caregiverEligible = canUseCaregiverMode(patientList.length);
+  // Ordered by created_at asc above, so [0] is the account's original
+  // patient — the same "you add yourself first" convention Profile and the
+  // booking flow's empty states already rely on. "Just me" filters down to
+  // just that patient; "Caregiver" shows every patient's appointments.
+  const selfPatientId = patientList[0]?.id;
 
   const today = todayIso();
   const windowEnd = addDaysIso(today, WINDOW_DAYS - 1);
@@ -47,8 +50,8 @@ export default async function UpcomingPage({
         .order("appointment_date", { ascending: true })
         .order("appointment_time", { ascending: true })
     : null;
-  if (query && selectedPatientId) {
-    query = query.eq("patient_id", selectedPatientId);
+  if (query && !isCaregiverMode && selfPatientId) {
+    query = query.eq("patient_id", selfPatientId);
   }
 
   const { data: appointments, error } = query ? await query : { data: [], error: null };
@@ -97,27 +100,12 @@ export default async function UpcomingPage({
         )}
       </div>
 
-      {isCaregiver && (
-        <div className="flex w-fit flex-wrap gap-1 rounded-full bg-tint p-1">
-          <Link
-            href="/upcoming"
-            className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors ${
-              !selectedPatientId ? "bg-surface text-foreground" : "text-muted"
-            }`}
-          >
-            Everyone
-          </Link>
-          {patientList.map((patient) => (
-            <Link
-              key={patient.id}
-              href={`/upcoming?patient=${patient.id}`}
-              className={`rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors ${
-                selectedPatientId === patient.id ? "bg-surface text-foreground" : "text-muted"
-              }`}
-            >
-              {patient.relationship_to_owner}
-            </Link>
-          ))}
+      {hasPatients && (
+        <div className="flex flex-col gap-1.5">
+          <ModeSwitch mode={mode} caregiverEligible={caregiverEligible} redirectTo="/upcoming" />
+          {!caregiverEligible && (
+            <p className="text-xs text-muted">Add a dependant in Profile to switch to caregiver mode.</p>
+          )}
         </div>
       )}
 
@@ -154,7 +142,7 @@ export default async function UpcomingPage({
           </div>
           <h2 className="mb-2 text-[19px] font-bold text-foreground">No appointments yet</h2>
           <p className="mx-auto mb-6 max-w-[360px] text-[14.5px] leading-relaxed text-muted">
-            {isCaregiver
+            {patientList.length > 1
               ? "Add a dependant and their first appointment to start building a shared calendar and reminders."
               : "Add the next appointment you've already booked to get a reminder and keep a running history."}
           </p>

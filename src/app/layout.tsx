@@ -49,12 +49,10 @@ export default async function RootLayout({
         className={`${figtree.variable} ${lora.variable} h-full scroll-smooth antialiased`}
         suppressHydrationWarning
       >
-        <head>
+        <body className="min-h-full flex flex-col" suppressHydrationWarning>
           <Script id="theme-init" strategy="beforeInteractive">
             {THEME_INIT_SCRIPT}
           </Script>
-        </head>
-        <body className="min-h-full flex flex-col" suppressHydrationWarning>
           <NextIntlClientProvider>{children}</NextIntlClientProvider>
         </body>
       </html>

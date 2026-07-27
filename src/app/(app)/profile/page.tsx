@@ -7,7 +7,9 @@ import { Field, Input } from "@/components/ui/field";
 import { formatDate, todayIso } from "@/lib/format";
 import { REMINDER_LEAD_TIME_LABELS } from "@/lib/reminders";
 import type { Patient } from "@/lib/types";
+import { canUseCaregiverMode, getViewMode } from "@/lib/view-mode";
 import { addDependantAction, updateProfileAction } from "./actions";
+import { setViewModeAction } from "../view-mode-actions";
 
 export default async function ProfilePage() {
   const appUser = await getOrCreateAppUser();
@@ -20,7 +22,9 @@ export default async function ProfilePage() {
     .order("created_at", { ascending: true });
 
   const patientList = (patients ?? []) as Patient[];
-  const isCaregiver = patientList.length > 1;
+  const mode = await getViewMode(patientList.length);
+  const isCaregiver = mode === "caregiver";
+  const caregiverEligible = canUseCaregiverMode(patientList.length);
 
   return (
     <div className="flex flex-col gap-5">
@@ -98,33 +102,47 @@ export default async function ProfilePage() {
         </details>
       </SettingsCard>
 
-      {/* MODE — read-only, derived from patient count (same rule as the
-          Upcoming patient-filter pills and the booking flow's dependant
-          step), not a stored preference — there's no column for it. */}
+      {/* MODE — a real stored preference (cookie, see src/lib/view-mode.ts),
+          not derived from patient count. Also drives the pill switch at the
+          top of Upcoming; both read/write the same cookie. */}
       <SettingsCard>
         <Eyebrow>Mode</Eyebrow>
         <div className="mb-2.5 grid grid-cols-2 gap-2.5">
-          <div
-            className={`rounded-xl border-[1.5px] px-4 py-3.5 ${
-              !isCaregiver ? "border-accent bg-accent-tint" : "border-border bg-background"
-            }`}
-          >
-            <p className="mb-0.5 text-sm font-bold text-foreground">Just me</p>
-            <p className="text-xs leading-relaxed text-muted">I manage my own appointments</p>
-          </div>
-          <div
-            className={`rounded-xl border-[1.5px] px-4 py-3.5 ${
-              isCaregiver ? "border-accent bg-accent-tint" : "border-border bg-background"
-            }`}
-          >
-            <p className="mb-0.5 text-sm font-bold text-foreground">Caregiver</p>
-            <p className="text-xs leading-relaxed text-muted">I also manage others</p>
-          </div>
+          <form action={setViewModeAction.bind(null, "self", "/profile")}>
+            <button
+              type="submit"
+              className={`w-full rounded-xl border-[1.5px] px-4 py-3.5 text-left transition-colors ${
+                !isCaregiver ? "border-accent bg-accent-tint" : "border-border bg-background hover:bg-tint"
+              }`}
+            >
+              <p className="mb-0.5 text-sm font-bold text-foreground">Just me</p>
+              <p className="text-xs leading-relaxed text-muted">I manage my own appointments</p>
+            </button>
+          </form>
+          <form action={setViewModeAction.bind(null, "caregiver", "/profile")}>
+            <button
+              type="submit"
+              disabled={!caregiverEligible}
+              title={caregiverEligible ? undefined : "Add a dependant below to switch to caregiver mode"}
+              className={`w-full rounded-xl border-[1.5px] px-4 py-3.5 text-left transition-colors ${
+                isCaregiver
+                  ? "border-accent bg-accent-tint"
+                  : caregiverEligible
+                    ? "border-border bg-background hover:bg-tint"
+                    : "cursor-not-allowed border-border bg-background opacity-50"
+              }`}
+            >
+              <p className="mb-0.5 text-sm font-bold text-foreground">Caregiver</p>
+              <p className="text-xs leading-relaxed text-muted">I also manage others</p>
+            </button>
+          </form>
         </div>
         <p className="text-[12.5px] leading-relaxed text-muted">
           {isCaregiver
-            ? "You're in caregiver mode — the dashboard shows a dependant switcher since you manage more than one patient."
-            : "Add a dependant above to switch into caregiver mode, which adds a dependant switcher to your dashboard."}
+            ? "You're in caregiver mode — the dashboard shows a mode switch you can use any time."
+            : caregiverEligible
+              ? "Switch to caregiver mode to unlock the mode switch on your dashboard."
+              : "Add a dependant above to unlock caregiver mode."}
         </p>
       </SettingsCard>
 
