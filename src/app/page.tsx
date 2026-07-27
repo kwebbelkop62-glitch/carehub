@@ -5,6 +5,8 @@ import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { NavLogo } from "@/components/logo";
 import { LandingNav } from "@/components/landing-nav";
+import { HeroCardsMobile, HeroCardsDesktop } from "@/components/hero-cards";
+import { HowStep } from "@/components/how-step";
 
 export default async function RootPage() {
   const { userId } = await auth();
@@ -56,74 +58,99 @@ export default async function RootPage() {
 
         {/* Mobile (<sm): the mockup's floating/rotated absolute layout has
             no room to work with at narrow widths, so this is a simple
-            static stacked list instead — same card content/styling, no
-            rotation or float animation. Desktop keeps the mockup's exact
-            floating layout, swapped in at sm: and up. */}
-        <div className="flex flex-col gap-3 sm:hidden">
-          <HeroCard
-            title="Dr. Tan Wei Ming"
-            subtitle="Cardiology · Gleneagles Penang"
-            meta="Wed, 14 Aug · 10:30 AM"
-            status="pending"
-            statusLabel={t("hero.card1Status")}
-          />
-          <HeroCard
-            title="Mum · Dr. Lakshmi"
-            subtitle="Island Hospital"
-            status="attended"
-            statusLabel={t("hero.card2Status")}
-            compact
-          />
-          <HeroCard
-            title="Physio · Sunway Medical"
-            subtitle="Mon, 22 Jun"
-            status="missed"
-            statusLabel={t("hero.card3Status")}
-            compact
-          />
-          <HeroCard
-            title="Dentist · Dr. Farah"
-            status="pending"
-            statusLabel={t("hero.card4Status")}
-            inline
-            compact
-          />
-        </div>
+            stacked list instead — same card content/styling, drop-in
+            entrance but no rotation or idle float. Desktop keeps the
+            mockup's exact floating layout, swapped in at sm: and up. Both
+            use Framer Motion to drop the cards in one by one on mount. */}
+        <HeroCardsMobile
+          cards={[
+            {
+              title: "Dr. Tan Wei Ming",
+              subtitle: "Cardiology · Gleneagles Penang",
+              meta: "Wed, 14 Aug · 10:30 AM",
+              status: "pending",
+              statusLabel: t("hero.card1Status"),
+            },
+            {
+              title: "Mum · Dr. Lakshmi",
+              subtitle: "Island Hospital",
+              status: "attended",
+              statusLabel: t("hero.card2Status"),
+              compact: true,
+            },
+            {
+              title: "Physio · Sunway Medical",
+              subtitle: "Mon, 22 Jun",
+              status: "missed",
+              statusLabel: t("hero.card3Status"),
+              compact: true,
+            },
+            {
+              title: "Dentist · Dr. Farah",
+              status: "pending",
+              statusLabel: t("hero.card4Status"),
+              inline: true,
+              compact: true,
+            },
+          ]}
+        />
 
-        <div className="relative hidden h-[440px] sm:block">
-          <HeroCard
-            floatClassName="hero-float-1 top-5 left-[10%] w-[78%] p-[18px_20px]"
-            title="Dr. Tan Wei Ming"
-            subtitle="Cardiology · Gleneagles Penang"
-            meta="Wed, 14 Aug · 10:30 AM"
-            status="pending"
-            statusLabel={t("hero.card1Status")}
-          />
-          <HeroCard
-            floatClassName="hero-float-2 top-[150px] left-[2%] w-[70%] p-4"
-            title="Mum · Dr. Lakshmi"
-            subtitle="Island Hospital"
-            status="attended"
-            statusLabel={t("hero.card2Status")}
-            compact
-          />
-          <HeroCard
-            floatClassName="hero-float-3 top-[270px] left-[16%] w-[72%] p-4"
-            title="Physio · Sunway Medical"
-            subtitle="Mon, 22 Jun"
-            status="missed"
-            statusLabel={t("hero.card3Status")}
-            compact
-          />
-          <HeroCard
-            floatClassName="hero-float-4 top-[370px] left-[6%] w-[66%] p-[14px_16px]"
-            title="Dentist · Dr. Farah"
-            status="pending"
-            statusLabel={t("hero.card4Status")}
-            inline
-            compact
-          />
-        </div>
+        <HeroCardsDesktop
+          cards={[
+            {
+              title: "Dr. Tan Wei Ming",
+              subtitle: "Cardiology · Gleneagles Penang",
+              meta: "Wed, 14 Aug · 10:30 AM",
+              status: "pending",
+              statusLabel: t("hero.card1Status"),
+              top: 20,
+              left: "10%",
+              width: "78%",
+              rotate: -6,
+              floatDistance: 10,
+              floatDuration: 6,
+            },
+            {
+              title: "Mum · Dr. Lakshmi",
+              subtitle: "Island Hospital",
+              status: "attended",
+              statusLabel: t("hero.card2Status"),
+              compact: true,
+              top: 150,
+              left: "2%",
+              width: "70%",
+              rotate: 3,
+              floatDistance: 14,
+              floatDuration: 7,
+            },
+            {
+              title: "Physio · Sunway Medical",
+              subtitle: "Mon, 22 Jun",
+              status: "missed",
+              statusLabel: t("hero.card3Status"),
+              compact: true,
+              top: 270,
+              left: "16%",
+              width: "72%",
+              rotate: -2,
+              floatDistance: 8,
+              floatDuration: 6.5,
+            },
+            {
+              title: "Dentist · Dr. Farah",
+              status: "pending",
+              statusLabel: t("hero.card4Status"),
+              inline: true,
+              compact: true,
+              top: 370,
+              left: "6%",
+              width: "66%",
+              rotate: 7,
+              floatDistance: 12,
+              floatDuration: 7.5,
+            },
+          ]}
+        />
       </section>
 
       {/* HOW IT WORKS */}
@@ -245,116 +272,6 @@ export default async function RootPage() {
           <p className="text-xs text-muted">{t("footer.copyright")}</p>
         </div>
       </footer>
-    </div>
-  );
-}
-
-const statusTokens = {
-  pending: { bg: "bg-status-upcoming-bg", dot: "bg-status-upcoming-dot", text: "text-status-upcoming-text" },
-  attended: { bg: "bg-status-attended-bg", dot: "bg-status-attended-dot", text: "text-status-attended-text" },
-  missed: { bg: "bg-status-missed-bg", dot: "bg-status-missed-dot", text: "text-status-missed-text" },
-} as const;
-
-// Decorative hero mockups — matching CareHub Landing Page.dc.html's exact
-// per-card padding/sizing, which is smaller than the shared <Badge>
-// component's own dimensions, so this hand-rolls the pill rather than
-// reusing that component. Renders statically (full-width, no rotation/
-// animation, normal flow) when floatClassName is omitted — used for the
-// <sm mobile stacked list, since the mockup's absolute-positioned floating
-// layout has no room to work with at narrow widths.
-function HeroCard({
-  floatClassName,
-  title,
-  subtitle,
-  meta,
-  status,
-  statusLabel,
-  compact = false,
-  inline = false,
-}: {
-  floatClassName?: string;
-  title: string;
-  subtitle?: string;
-  meta?: string;
-  status: keyof typeof statusTokens;
-  statusLabel: string;
-  compact?: boolean;
-  inline?: boolean;
-}) {
-  const tokens = statusTokens[status];
-  const pill = (
-    <div className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 ${tokens.bg}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${tokens.dot}`} />
-      <span className={`text-[10px] font-bold ${tokens.text}`}>{statusLabel}</span>
-    </div>
-  );
-
-  return (
-    <div
-      className={`rounded-2xl border border-border bg-surface ${floatClassName ? `absolute ${floatClassName}` : "relative w-full p-4"}`}
-      style={{ boxShadow: "0 12px 28px oklch(.4 .02 60 / .1)" }}
-    >
-      <div className={`flex items-start justify-between gap-2 ${meta || !inline ? "mb-2" : ""}`}>
-        <div>
-          <div className={`font-bold ${compact ? "text-sm" : "text-[15px]"}`}>{title}</div>
-          {subtitle && <div className="text-xs text-muted">{subtitle}</div>}
-        </div>
-        {pill}
-      </div>
-      {meta && <div className="text-xs text-muted">{meta}</div>}
-    </div>
-  );
-}
-
-function HowStep({
-  side,
-  number,
-  tone,
-  title,
-  body,
-  last = false,
-}: {
-  side: "left" | "right";
-  number: number;
-  tone: "accent" | "accent-secondary";
-  title: string;
-  body: string;
-  last?: boolean;
-}) {
-  // Mobile (<sm): single left-aligned column, circle always in col 1 —
-  // the desktop alternating-sides layout has no room to work with at
-  // narrow widths. Desktop (sm+): circle explicitly placed in the middle
-  // column regardless of DOM order, text explicitly placed left or right
-  // per `side` — explicit grid-column placement overrides source order,
-  // so this needs no separate mobile/desktop markup, just responsive
-  // column-start utilities on a template that itself changes at sm:.
-  const circle = (
-    <div className="col-start-1 flex justify-center sm:col-start-2">
-      <div
-        className={`flex h-[34px] w-[34px] items-center justify-center rounded-full text-sm font-extrabold text-surface ${
-          tone === "accent" ? "bg-accent" : "bg-accent-secondary"
-        }`}
-      >
-        {number}
-      </div>
-    </div>
-  );
-
-  const text = (
-    <div
-      className={`col-start-2 pl-4 text-left ${
-        side === "left" ? "sm:col-start-1 sm:pr-7 sm:pl-0 sm:text-right" : "sm:col-start-3 sm:pl-7 sm:text-left"
-      } ${last ? "" : "pb-[60px]"}`}
-    >
-      <div className="mb-2 font-serif text-lg font-semibold">{title}</div>
-      <div className="text-[15px] leading-relaxed text-muted">{body}</div>
-    </div>
-  );
-
-  return (
-    <div className="grid grid-cols-[44px_1fr] items-start sm:grid-cols-[1fr_44px_1fr]">
-      {circle}
-      {text}
     </div>
   );
 }

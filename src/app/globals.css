@@ -167,34 +167,15 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
-/* Landing hero — CareHub Landing Page.dc.html: floating appointment-card
-   mockups (float1-4) and the fadeUp entrance for the hero copy column.
-   Plain CSS keyframes, no animation library. */
-@keyframes float1 {
-  0%, 100% { transform: rotate(-6deg) translateY(0); }
-  50% { transform: rotate(-6deg) translateY(-10px); }
-}
-@keyframes float2 {
-  0%, 100% { transform: rotate(3deg) translateY(0); }
-  50% { transform: rotate(3deg) translateY(-14px); }
-}
-@keyframes float3 {
-  0%, 100% { transform: rotate(-2deg) translateY(0); }
-  50% { transform: rotate(-2deg) translateY(-8px); }
-}
-@keyframes float4 {
-  0%, 100% { transform: rotate(7deg) translateY(0); }
-  50% { transform: rotate(7deg) translateY(-12px); }
-}
+/* Landing hero — CareHub Landing Page.dc.html: the fadeUp entrance for the
+   hero copy column. Plain CSS keyframes, no animation library. The
+   appointment-card mockups' drop-in + idle float live in
+   src/components/hero-cards.tsx via Framer Motion instead, since they need
+   to sequence (drop one by one, then settle into a loop). */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(18px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-.hero-float-1 { animation: float1 6s ease-in-out infinite; }
-.hero-float-2 { animation: float2 7s ease-in-out infinite; }
-.hero-float-3 { animation: float3 6.5s ease-in-out infinite; }
-.hero-float-4 { animation: float4 7.5s ease-in-out infinite; }
 
 .hero-fade-up { animation: fadeUp 0.6s ease both; }
 .hero-fade-up-1 { animation: fadeUp 0.6s ease 0.1s both; }
@@ -203,7 +184,6 @@ body {
 .hero-fade-up-4 { animation: fadeUp 0.6s ease 0.4s both; }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-float-1, .hero-float-2, .hero-float-3, .hero-float-4,
   .hero-fade-up, .hero-fade-up-1, .hero-fade-up-2, .hero-fade-up-3, .hero-fade-up-4 {
     animation: none;
   }
