@@ -35,6 +35,29 @@ export function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+// Combines an appointment's date + time into a real Date and checks it
+// against right now — unlike a plain `appointment_date < todayIso()`
+// comparison, this flips the moment the appointment's actual time passes,
+// not just at midnight. appointment_time may come back from Supabase as
+// "HH:MM" or "HH:MM:SS" (see the reminder-crash fix), so pad it to
+// seconds before parsing. Falls back to a date-only comparison if
+// appointmentTime is missing/empty, same behavior as before.
+//
+// CareHub is Penang/Malaysia-only (see src/lib/reminders.ts's MY_OFFSET
+// comment for the full reasoning) -- the "+08:00" below is required, not
+// optional. Without it, this string is parsed as local time of whatever
+// machine runs the code (UTC on Vercel), not Malaysia time, which is the
+// exact bug computeRemindAt had before that fix: every check would flip
+// 8 hours later than a real Malaysia clock.
+export function isAppointmentPast(appointmentDate: string, appointmentTime?: string | null): boolean {
+  if (!appointmentTime) {
+    return appointmentDate < todayIso();
+  }
+  const time = appointmentTime.length === 5 ? `${appointmentTime}:00` : appointmentTime;
+  const appointmentDateTime = new Date(`${appointmentDate}T${time}+08:00`);
+  return appointmentDateTime.getTime() < Date.now();
+}
+
 export function addDaysIso(baseIso: string, days: number): string {
   const d = new Date(`${baseIso}T00:00:00`);
   d.setDate(d.getDate() + days);

@@ -3,7 +3,7 @@ import { getOrCreateAppUser } from "@/lib/current-app-user";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { greeting, todayIso, addDaysIso, formatShortDate, formatTime } from "@/lib/format";
+import { greeting, todayIso, addDaysIso, formatShortDate, formatTime, isAppointmentPast } from "@/lib/format";
 import { canUseCaregiverMode, getViewMode } from "@/lib/view-mode";
 import type { AppointmentWithUnitAndPatient, Patient } from "@/lib/types";
 import { ModeSwitch } from "@/components/mode-switch";
@@ -55,7 +55,15 @@ export default async function UpcomingPage() {
   }
 
   const { data: appointments, error } = query ? await query : { data: [], error: null };
-  const upcoming = (appointments ?? []) as AppointmentWithUnitAndPatient[];
+  // Query pre-filters to appointment_date >= today (cheap, date-only), but a
+  // date-only cutoff means today's appointments stick around here even
+  // after their actual time has passed. Filter those out in JS so an
+  // appointment moves out of "Upcoming" the moment it's really over, not at
+  // midnight — same real-time cutoff as Appointment Detail's
+  // isAppointmentPast, and mirrored on the History side below.
+  const upcoming = ((appointments ?? []) as AppointmentWithUnitAndPatient[]).filter(
+    (a) => !isAppointmentPast(a.appointment_date, a.appointment_time),
+  );
 
   const dueToday = upcoming.filter((a) => a.appointment_date === today);
 

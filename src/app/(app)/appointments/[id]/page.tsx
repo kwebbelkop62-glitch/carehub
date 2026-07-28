@@ -4,7 +4,7 @@ import { getOrCreateAppUser } from "@/lib/current-app-user";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Button, LinkButton } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/field";
-import { formatDate, formatTime, todayIso } from "@/lib/format";
+import { formatDate, formatTime, isAppointmentPast } from "@/lib/format";
 import { unitTypeLabel } from "@/lib/types";
 import {
   matchLeadTime,
@@ -105,7 +105,10 @@ export default async function AppointmentDetailPage({
     if (signed) signedUrls.set(doc.id, signed.signedUrl);
   }
 
-  const isPast = typedAppointment.appointment_date < todayIso();
+  const isPast = isAppointmentPast(
+    typedAppointment.appointment_date,
+    typedAppointment.appointment_time,
+  );
   const isPending = typedAppointment.status === "pending";
   const isAttended = typedAppointment.status === "attended";
   const canEditOrCancel = isPending && !isPast;

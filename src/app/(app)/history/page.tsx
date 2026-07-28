@@ -4,7 +4,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatDate, formatTime, todayIso } from "@/lib/format";
+import { formatDate, formatTime, isAppointmentPast, todayIso } from "@/lib/format";
 import { unitTypeLabel } from "@/lib/types";
 import type { AppointmentWithUnitAndPatient, Patient } from "@/lib/types";
 
@@ -35,13 +35,21 @@ export default async function HistoryPage({
       ? await supabase
           .from("appointments")
           .select("*, units(*), patients(*)")
-          .lt("appointment_date", todayIso())
+          // <= today (not < today): a date-only cutoff would hide today's
+          // appointments here until midnight even once their actual time has
+          // passed. The real cutoff is applied below with isAppointmentPast,
+          // mirroring Upcoming's page and Appointment Detail so a status
+          // change (or just time passing) moves an appointment between the
+          // two screens immediately, not at midnight.
+          .lte("appointment_date", todayIso())
           .order("appointment_date", { ascending: false })
           .order("appointment_time", { ascending: false })
       : { data: [], error: null };
 
   const error = patientsError || appointmentsError;
-  const allHistory = (appointments ?? []) as AppointmentWithUnitAndPatient[];
+  const allHistory = ((appointments ?? []) as AppointmentWithUnitAndPatient[]).filter((a) =>
+    isAppointmentPast(a.appointment_date, a.appointment_time),
+  );
 
   const availableUnits = Array.from(
     new Map(allHistory.map((a) => [a.units.id, a.units])).values(),
