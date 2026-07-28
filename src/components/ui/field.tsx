@@ -1,4 +1,5 @@
 import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { cn } from "@/lib/utils";
 
 const controlClasses =
   "w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent";
@@ -28,14 +29,20 @@ export function Field({
   );
 }
 
-export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
-  return <input className={controlClasses} {...props} />;
+// className merges with (rather than replaces) the base control styles via
+// cn()/twMerge -- previously `{...props}` was spread after a hardcoded
+// className, so any caller passing its own className silently wiped out
+// the border, background, text color, and every focus state, not just
+// overrode the specific properties it meant to change. Confirmed this was
+// live on 6 screens before this fix.
+export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
+  return <input className={cn(controlClasses, className)} {...props} />;
 }
 
-export function Select(props: SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select className={controlClasses} {...props} />;
+export function Select({ className, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
+  return <select className={cn(controlClasses, className)} {...props} />;
 }
 
-export function Textarea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea className={`${controlClasses} min-h-24`} {...props} />;
+export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return <textarea className={cn(controlClasses, "min-h-24", className)} {...props} />;
 }
