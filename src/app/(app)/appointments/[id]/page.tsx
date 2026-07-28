@@ -2,10 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getOrCreateAppUser } from "@/lib/current-app-user";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { Button, LinkButton } from "@/components/ui/button";
-import { EditNotesButton } from "@/components/edit-notes-button";
-import { Textarea } from "@/components/ui/field";
-import { formatDate, formatTime, isAppointmentPast } from "@/lib/format";
+import { Button } from "@/components/ui/button";
+import { Field, Input, Textarea } from "@/components/ui/field";
+import { formatDate, formatTime, isAppointmentPast, todayIso } from "@/lib/format";
 import { unitTypeLabel } from "@/lib/types";
 import {
   matchLeadTime,
@@ -15,9 +14,9 @@ import {
 import type { AppointmentWithUnitAndPatient, Document, Reminder } from "@/lib/types";
 import {
   cancelAppointmentAction,
-  editAppointmentAction,
   markAppointmentStatusAction,
   setReminderLeadTimeAction,
+  updateAppointmentAction,
 } from "./actions";
 
 // dot/bg/text token classes per status, matching CareHub Records.dc.html's
@@ -123,13 +122,6 @@ export default async function AppointmentDetailPage({
         typedReminder.remind_at,
       )
     : null;
-  const rescheduleHref =
-    `/appointments/new/time?patient=${typedAppointment.patient_id}` +
-    `&unit=${typedAppointment.unit_id}` +
-    `&date=${typedAppointment.appointment_date}` +
-    `&time=${typedAppointment.appointment_time.slice(0, 5)}` +
-    `&reschedule=${typedAppointment.id}`;
-
   const reminderTone = typedReminder
     ? reminderStatusTone[typedReminder.status] ?? reminderStatusTone.pending
     : null;
@@ -271,27 +263,61 @@ export default async function AppointmentDetailPage({
           )}
         </div>
 
-        <Eyebrow>Notes</Eyebrow>
         {canEditOrCancel ? (
-          <form id="notes" action={editAppointmentAction} className="mb-6 flex flex-col gap-3">
-            <input type="hidden" name="id" value={typedAppointment.id} />
-            <Textarea
-              name="notes"
-              aria-label="Notes"
-              defaultValue={typedAppointment.notes ?? ""}
-              className="!min-h-0 rounded-[10px] bg-[oklch(.96_.008_70)] px-3.5 py-3 text-sm leading-relaxed dark:bg-background"
-            />
-            <Button type="submit" variant="secondary" className="self-start">
-              Save notes
-            </Button>
-          </form>
+          <>
+            <Eyebrow>Edit appointment</Eyebrow>
+            <form id="notes" action={updateAppointmentAction} className="mb-6 flex flex-col gap-3.5">
+              <input type="hidden" name="id" value={typedAppointment.id} />
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Date" htmlFor="date">
+                  <Input
+                    id="date"
+                    name="date"
+                    type="date"
+                    min={todayIso()}
+                    defaultValue={typedAppointment.appointment_date}
+                    required
+                  />
+                </Field>
+                <Field label="Time" htmlFor="time">
+                  <Input
+                    id="time"
+                    name="time"
+                    type="time"
+                    defaultValue={typedAppointment.appointment_time.slice(0, 5)}
+                    required
+                  />
+                </Field>
+              </div>
+              <Field label="Notes" htmlFor="notes-input">
+                <Textarea
+                  id="notes-input"
+                  name="notes"
+                  aria-label="Notes"
+                  defaultValue={typedAppointment.notes ?? ""}
+                  className="!min-h-0 rounded-[10px] bg-[oklch(.96_.008_70)] px-3.5 py-3 text-sm leading-relaxed dark:bg-background"
+                />
+              </Field>
+              <p className="text-xs leading-relaxed text-muted">
+                Changing the date or time keeps the same reminder lead-time — it recalculates
+                automatically off the new time. This only checks against your own saved
+                appointments, not real hospital or clinic availability.
+              </p>
+              <Button type="submit" variant="secondary" className="self-start">
+                Save changes
+              </Button>
+            </form>
+          </>
         ) : (
-          <p
-            id="notes"
-            className="mb-6 rounded-[10px] bg-[oklch(.96_.008_70)] px-3.5 py-3 text-sm leading-relaxed text-[oklch(.35_.02_60)] dark:bg-background dark:text-foreground"
-          >
-            {typedAppointment.notes || "No notes added."}
-          </p>
+          <>
+            <Eyebrow>Notes</Eyebrow>
+            <p
+              id="notes"
+              className="mb-6 rounded-[10px] bg-[oklch(.96_.008_70)] px-3.5 py-3 text-sm leading-relaxed text-[oklch(.35_.02_60)] dark:bg-background dark:text-foreground"
+            >
+              {typedAppointment.notes || "No notes added."}
+            </p>
+          </>
         )}
 
         <Eyebrow>Attached documents</Eyebrow>
@@ -327,24 +353,14 @@ export default async function AppointmentDetailPage({
         </div>
 
         {canEditOrCancel && (
-          <>
-            <div className="flex flex-col gap-2.5 border-t border-border pt-3 sm:flex-row">
-              <EditNotesButton className="flex-1 justify-center" />
-              <LinkButton href={rescheduleHref} variant="secondary" className="flex-1 justify-center">
-                Reschedule
-              </LinkButton>
-              <form action={cancelAppointmentAction} className="flex-1">
-                <Button type="submit" variant="danger" className="w-full">
-                  Cancel
-                </Button>
-                <input type="hidden" name="id" value={typedAppointment.id} />
-              </form>
-            </div>
-            <p className="mt-2.5 text-xs leading-relaxed text-muted">
-              Reschedule keeps the same unit, dependant, and reminder lead-time — the reminder recalculates
-              automatically off the new time.
-            </p>
-          </>
+          <div className="border-t border-border pt-3">
+            <form action={cancelAppointmentAction}>
+              <input type="hidden" name="id" value={typedAppointment.id} />
+              <Button type="submit" variant="danger" className="w-full sm:w-auto">
+                Cancel appointment
+              </Button>
+            </form>
+          </div>
         )}
       </div>
     </div>
