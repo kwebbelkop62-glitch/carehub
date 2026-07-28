@@ -88,7 +88,7 @@ export function MobileTabBar({ hasUnread = false }: { hasUnread?: boolean }) {
   ];
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-20 flex items-end justify-around border-t border-border bg-surface px-1 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-20 flex items-end justify-around border-t border-border bg-surface px-1 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] md:hidden print:hidden">
       {tabs.map(({ href, label, icon: Icon }) => {
         const active = isActive(pathname, href);
         return (

@@ -44,14 +44,14 @@ export default async function ProfilePage() {
               <span className="block">
                 <span className="block text-base font-bold text-foreground">{appUser.full_name}</span>
                 <span className="block text-[13.5px] text-muted">{appUser.email}</span>
-                <span className="block text-[13.5px] text-muted-icon">Phone &middot; Coming soon</span>
+                <span className="block text-[13.5px] text-muted">{appUser.phone || "No phone number added"}</span>
               </span>
             </span>
             <span className="rounded-[9px] border border-border px-3.5 py-2.5 text-[13.5px] font-semibold text-foreground transition-colors hover:bg-tint">
               Edit profile
             </span>
           </summary>
-          <EditProfileForm defaultName={appUser.full_name} />
+          <EditProfileForm defaultName={appUser.full_name} defaultPhone={appUser.phone ?? ""} />
         </details>
         <p className="mt-3 text-xs text-muted">
           Manage sign-in details from the account menu in the top-right corner.
@@ -146,12 +146,14 @@ export default async function ProfilePage() {
         </p>
       </SettingsCard>
 
-      {/* NOTIFICATIONS — every toggle here is inert. Email has no column to
-          persist a preference (reminders always send by email regardless),
-          and Push/SMS are "Coming soon" in the mockup itself. */}
+      {/* NOTIFICATIONS — none of these are real per-user toggles, there's no
+          column to persist a choice either way. Email is shown enabled
+          because that's genuinely how reminders work (the send job always
+          emails, unconditionally); Push/SMS stay greyed out as "Coming
+          soon" since neither is built. */}
       <SettingsCard>
         <Eyebrow>Notification preferences</Eyebrow>
-        <ToggleRow label="Email" hint="Reminders and weekly summary" comingSoon />
+        <ToggleRow label="Email" hint="Reminders and weekly summary" enabled />
         <ToggleRow label="Push notifications" hint="Reminders on this device" comingSoon />
         <ToggleRow label="SMS" hint="Text reminders" comingSoon last />
 
@@ -192,12 +194,16 @@ export default async function ProfilePage() {
         </Link>
       </SettingsCard>
 
-      {/* DATA & PRIVACY — no export feature or policy content exists yet. */}
+      {/* DATA & PRIVACY */}
       <SettingsCard>
         <Eyebrow>Data &amp; privacy</Eyebrow>
         <div className="mb-3.5 flex flex-col gap-2.5">
-          <span className="text-sm font-semibold text-muted-icon">Export your data &middot; Coming soon</span>
-          <span className="text-sm font-semibold text-muted-icon">Privacy policy &middot; Coming soon</span>
+          <Link href="/export" className="text-sm font-semibold text-accent-hover hover:underline">
+            Export your data
+          </Link>
+          <Link href="/privacy" className="text-sm font-semibold text-accent-hover hover:underline">
+            Privacy policy
+          </Link>
         </div>
         <p className="text-[12.5px] leading-relaxed text-muted">
           CareHub is an independent personal tracker. It does not share your data with, or receive data from, any
@@ -242,15 +248,19 @@ function ToggleRow({
   label,
   hint,
   comingSoon = false,
+  enabled = false,
   last = false,
 }: {
   label: string;
   hint: string;
   comingSoon?: boolean;
+  enabled?: boolean;
   last?: boolean;
 }) {
   return (
-    <div className={`flex items-center justify-between gap-3 py-2.5 opacity-55 ${last ? "" : "border-b border-border"}`}>
+    <div
+      className={`flex items-center justify-between gap-3 py-2.5 ${enabled ? "" : "opacity-55"} ${last ? "" : "border-b border-border"}`}
+    >
       <div>
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-foreground">{label}</span>
@@ -262,24 +272,37 @@ function ToggleRow({
         </div>
         <p className="text-[12.5px] text-muted">{hint}</p>
       </div>
-      <span className="relative h-[22px] w-10 shrink-0 rounded-full bg-border">
-        <span className="absolute top-0.5 left-0.5 h-[18px] w-[18px] rounded-full bg-surface shadow-sm" />
+      {/* Not a real interactive control either way — no per-user column to
+          persist a choice (see the section comment above). Email always
+          sends (that's how the reminder job works), so it's shown locked
+          on rather than clickable; Push/SMS are shown locked off. */}
+      <span className={`relative h-[22px] w-10 shrink-0 rounded-full ${enabled ? "bg-accent" : "bg-border"}`}>
+        <span
+          className={`absolute top-0.5 h-[18px] w-[18px] rounded-full bg-surface shadow-sm ${enabled ? "left-[19px]" : "left-0.5"}`}
+        />
       </span>
     </div>
   );
 }
 
-function EditProfileForm({ defaultName }: { defaultName: string }) {
+function EditProfileForm({
+  defaultName,
+  defaultPhone,
+}: {
+  defaultName: string;
+  defaultPhone: string;
+}) {
   return (
-    <form action={updateProfileAction} className="mt-3.5 flex gap-3 border-t border-border pt-3.5">
-      <div className="flex-1">
-        <Field label="Full name" htmlFor="full_name">
-          <Input id="full_name" name="full_name" type="text" defaultValue={defaultName} required />
-        </Field>
-      </div>
+    <form action={updateProfileAction} className="mt-3.5 flex flex-col gap-3.5 border-t border-border pt-3.5">
+      <Field label="Full name" htmlFor="full_name">
+        <Input id="full_name" name="full_name" type="text" defaultValue={defaultName} required />
+      </Field>
+      <Field label="Phone" htmlFor="phone" helper="Optional">
+        <Input id="phone" name="phone" type="tel" defaultValue={defaultPhone} placeholder="e.g. 012-345 6789" />
+      </Field>
       <button
         type="submit"
-        className="self-end rounded-[9px] bg-accent px-4 py-2.5 text-sm font-bold text-surface transition-colors hover:bg-accent-hover"
+        className="self-start rounded-[9px] bg-accent px-4 py-2.5 text-sm font-bold text-surface transition-colors hover:bg-accent-hover"
       >
         Save
       </button>

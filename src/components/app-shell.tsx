@@ -45,7 +45,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-full flex-1">
-      <aside className="hidden md:flex md:w-64 md:flex-shrink-0 md:flex-col md:border-r md:border-border md:bg-surface">
+      <aside className="hidden md:flex md:w-64 md:flex-shrink-0 md:flex-col md:border-r md:border-border md:bg-surface print:hidden">
         <Link href="/upcoming" className="flex items-center px-6 py-6">
           <NavLogo className="h-7" />
         </Link>
@@ -75,7 +75,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="flex min-h-full flex-1 flex-col">
-        <header className="flex items-center justify-between border-b border-border px-4 py-3 md:hidden">
+        <header className="flex items-center justify-between border-b border-border px-4 py-3 md:hidden print:hidden">
           <Link href="/upcoming" className="flex items-center">
             <NavLogo className="h-6" />
           </Link>

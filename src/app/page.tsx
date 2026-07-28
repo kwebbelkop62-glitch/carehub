@@ -260,11 +260,11 @@ export default async function RootPage() {
             <a href="#who">{t("footer.productForPatients")}</a>
           </FooterColumn>
           <FooterColumn heading={t("footer.companyHeading")}>
-            <span className="text-muted-icon">{t("footer.companyAbout")} &middot; Coming soon</span>
-            <span className="text-muted-icon">{t("footer.companyContact")} &middot; Coming soon</span>
+            <Link href="/about">{t("footer.companyAbout")}</Link>
+            <Link href="/contact">{t("footer.companyContact")}</Link>
           </FooterColumn>
           <FooterColumn heading={t("footer.legalHeading")}>
-            <span className="text-muted-icon">{t("footer.legalPrivacy")} &middot; Coming soon</span>
+            <Link href="/privacy">{t("footer.legalPrivacy")}</Link>
           </FooterColumn>
         </div>
         <div className="mx-auto flex max-w-[1280px] flex-wrap justify-between gap-6 border-t border-border pt-6">
