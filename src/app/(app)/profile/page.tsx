@@ -44,14 +44,14 @@ export default async function ProfilePage() {
               <span className="block">
                 <span className="block text-base font-bold text-foreground">{appUser.full_name}</span>
                 <span className="block text-[13.5px] text-muted">{appUser.email}</span>
-                <span className="block text-[13.5px] text-muted-icon">Phone &middot; Coming soon</span>
+                <span className="block text-[13.5px] text-muted">{appUser.phone || "No phone number added"}</span>
               </span>
             </span>
             <span className="rounded-[9px] border border-border px-3.5 py-2.5 text-[13.5px] font-semibold text-foreground transition-colors hover:bg-tint">
               Edit profile
             </span>
           </summary>
-          <EditProfileForm defaultName={appUser.full_name} />
+          <EditProfileForm defaultName={appUser.full_name} defaultPhone={appUser.phone ?? ""} />
         </details>
         <p className="mt-3 text-xs text-muted">
           Manage sign-in details from the account menu in the top-right corner.
@@ -281,17 +281,24 @@ function ToggleRow({
   );
 }
 
-function EditProfileForm({ defaultName }: { defaultName: string }) {
+function EditProfileForm({
+  defaultName,
+  defaultPhone,
+}: {
+  defaultName: string;
+  defaultPhone: string;
+}) {
   return (
-    <form action={updateProfileAction} className="mt-3.5 flex gap-3 border-t border-border pt-3.5">
-      <div className="flex-1">
-        <Field label="Full name" htmlFor="full_name">
-          <Input id="full_name" name="full_name" type="text" defaultValue={defaultName} required />
-        </Field>
-      </div>
+    <form action={updateProfileAction} className="mt-3.5 flex flex-col gap-3.5 border-t border-border pt-3.5">
+      <Field label="Full name" htmlFor="full_name">
+        <Input id="full_name" name="full_name" type="text" defaultValue={defaultName} required />
+      </Field>
+      <Field label="Phone" htmlFor="phone" helper="Optional">
+        <Input id="phone" name="phone" type="tel" defaultValue={defaultPhone} placeholder="e.g. 012-345 6789" />
+      </Field>
       <button
         type="submit"
-        className="self-end rounded-[9px] bg-accent px-4 py-2.5 text-sm font-bold text-surface transition-colors hover:bg-accent-hover"
+        className="self-start rounded-[9px] bg-accent px-4 py-2.5 text-sm font-bold text-surface transition-colors hover:bg-accent-hover"
       >
         Save
       </button>
