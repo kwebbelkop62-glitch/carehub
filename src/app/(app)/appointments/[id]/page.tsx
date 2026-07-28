@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getOrCreateAppUser } from "@/lib/current-app-user";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { Button, LinkButton } from "@/components/ui/button";
+import { EditNotesButton } from "@/components/edit-notes-button";
 import { Textarea } from "@/components/ui/field";
 import { formatDate, formatTime, isAppointmentPast } from "@/lib/format";
 import { unitTypeLabel } from "@/lib/types";
@@ -328,9 +329,7 @@ export default async function AppointmentDetailPage({
         {canEditOrCancel && (
           <>
             <div className="flex flex-col gap-2.5 border-t border-border pt-3 sm:flex-row">
-              <LinkButton href="#notes" variant="secondary" className="flex-1 justify-center">
-                Edit
-              </LinkButton>
+              <EditNotesButton className="flex-1 justify-center" />
               <LinkButton href={rescheduleHref} variant="secondary" className="flex-1 justify-center">
                 Reschedule
               </LinkButton>
