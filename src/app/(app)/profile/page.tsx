@@ -146,12 +146,14 @@ export default async function ProfilePage() {
         </p>
       </SettingsCard>
 
-      {/* NOTIFICATIONS — every toggle here is inert. Email has no column to
-          persist a preference (reminders always send by email regardless),
-          and Push/SMS are "Coming soon" in the mockup itself. */}
+      {/* NOTIFICATIONS — none of these are real per-user toggles, there's no
+          column to persist a choice either way. Email is shown enabled
+          because that's genuinely how reminders work (the send job always
+          emails, unconditionally); Push/SMS stay greyed out as "Coming
+          soon" since neither is built. */}
       <SettingsCard>
         <Eyebrow>Notification preferences</Eyebrow>
-        <ToggleRow label="Email" hint="Reminders and weekly summary" comingSoon />
+        <ToggleRow label="Email" hint="Reminders and weekly summary" enabled />
         <ToggleRow label="Push notifications" hint="Reminders on this device" comingSoon />
         <ToggleRow label="SMS" hint="Text reminders" comingSoon last />
 
@@ -242,15 +244,19 @@ function ToggleRow({
   label,
   hint,
   comingSoon = false,
+  enabled = false,
   last = false,
 }: {
   label: string;
   hint: string;
   comingSoon?: boolean;
+  enabled?: boolean;
   last?: boolean;
 }) {
   return (
-    <div className={`flex items-center justify-between gap-3 py-2.5 opacity-55 ${last ? "" : "border-b border-border"}`}>
+    <div
+      className={`flex items-center justify-between gap-3 py-2.5 ${enabled ? "" : "opacity-55"} ${last ? "" : "border-b border-border"}`}
+    >
       <div>
         <div className="flex items-center gap-2">
           <span className="text-sm font-semibold text-foreground">{label}</span>
@@ -262,8 +268,14 @@ function ToggleRow({
         </div>
         <p className="text-[12.5px] text-muted">{hint}</p>
       </div>
-      <span className="relative h-[22px] w-10 shrink-0 rounded-full bg-border">
-        <span className="absolute top-0.5 left-0.5 h-[18px] w-[18px] rounded-full bg-surface shadow-sm" />
+      {/* Not a real interactive control either way — no per-user column to
+          persist a choice (see the section comment above). Email always
+          sends (that's how the reminder job works), so it's shown locked
+          on rather than clickable; Push/SMS are shown locked off. */}
+      <span className={`relative h-[22px] w-10 shrink-0 rounded-full ${enabled ? "bg-accent" : "bg-border"}`}>
+        <span
+          className={`absolute top-0.5 h-[18px] w-[18px] rounded-full bg-surface shadow-sm ${enabled ? "left-[19px]" : "left-0.5"}`}
+        />
       </span>
     </div>
   );
