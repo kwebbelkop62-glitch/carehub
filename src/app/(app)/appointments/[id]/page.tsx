@@ -114,7 +114,10 @@ export default async function AppointmentDetailPage({
   const canEditOrCancel = isPending && !isPast;
   const canMarkAttendedOrMissed = isPending && isPast;
   const canMarkCompleted = isAttended;
-  const canEditReminderLeadTime = canEditOrCancel && Boolean(typedReminder);
+  // Not gated on a reminder already existing -- setReminderLeadTimeAction
+  // creates one if none exists yet (see the comment in actions.ts), so an
+  // appointment with no reminder still gets clickable pills to add one.
+  const canEditReminderLeadTime = canEditOrCancel;
   const activeLeadTime = typedReminder
     ? matchLeadTime(
         typedAppointment.appointment_date,
@@ -259,7 +262,9 @@ export default async function AppointmentDetailPage({
               </span>
             )
           ) : (
-            <span className="text-[12.5px] text-muted">No reminder scheduled.</span>
+            <span className="text-[12.5px] text-muted">
+              {canEditReminderLeadTime ? "No reminder yet — pick one above to add it." : "No reminder scheduled."}
+            </span>
           )}
         </div>
 

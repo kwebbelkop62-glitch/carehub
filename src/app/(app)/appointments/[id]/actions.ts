@@ -127,9 +127,15 @@ export async function markAppointmentStatusAction(formData: FormData) {
   redirect(`/appointments/${id}`);
 }
 
-// Lets the user pick when the (not-yet-built) reminder send job should fire
-// — see computeRemindAt in lib/reminders.ts for why this doesn't need a
-// schema change.
+// Lets the user pick when the reminder send job (supabase/functions/
+// send-reminders) should fire — see computeRemindAt in lib/reminders.ts.
+// Every appointment is *supposed* to get a reminder row at booking time
+// (confirmAppointmentAction inserts one unconditionally), but some
+// existing rows predate that guarantee or came from another path -- so
+// this creates the reminder if none exists yet, rather than only ever
+// updating one that's already there. That's also why the lead-time pills
+// on the Appointment Detail page are always clickable now instead of
+// being gated on a reminder already existing.
 export async function setReminderLeadTimeAction(formData: FormData) {
   const appUser = await getOrCreateAppUser();
   if (!appUser) redirect("/sign-in");
@@ -158,12 +164,30 @@ export async function setReminderLeadTimeAction(formData: FormData) {
     leadTime,
   );
 
-  const { error } = await supabase
+  const { data: existingReminder } = await supabase
     .from("reminders")
-    .update({ remind_at: remindAt })
-    .eq("appointment_id", appointmentId);
+    .select("id")
+    .eq("appointment_id", appointmentId)
+    .maybeSingle();
 
-  if (error) throw error;
+  if (existingReminder) {
+    const { error } = await supabase
+      .from("reminders")
+      .update({ remind_at: remindAt })
+      .eq("appointment_id", appointmentId);
+
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from("reminders").insert({
+      appointment_id: appointmentId,
+      remind_at: remindAt,
+      channel: "email",
+      status: "pending",
+      created_at: new Date().toISOString(),
+    });
+
+    if (error) throw error;
+  }
 
   redirect(`/appointments/${appointmentId}`);
 }
