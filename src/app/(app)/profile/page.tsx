@@ -194,12 +194,16 @@ export default async function ProfilePage() {
         </Link>
       </SettingsCard>
 
-      {/* DATA & PRIVACY — no export feature or policy content exists yet. */}
+      {/* DATA & PRIVACY */}
       <SettingsCard>
         <Eyebrow>Data &amp; privacy</Eyebrow>
         <div className="mb-3.5 flex flex-col gap-2.5">
-          <span className="text-sm font-semibold text-muted-icon">Export your data &middot; Coming soon</span>
-          <span className="text-sm font-semibold text-muted-icon">Privacy policy &middot; Coming soon</span>
+          <Link href="/export" className="text-sm font-semibold text-accent-hover hover:underline">
+            Export your data
+          </Link>
+          <Link href="/privacy" className="text-sm font-semibold text-accent-hover hover:underline">
+            Privacy policy
+          </Link>
         </div>
         <p className="text-[12.5px] leading-relaxed text-muted">
           CareHub is an independent personal tracker. It does not share your data with, or receive data from, any
