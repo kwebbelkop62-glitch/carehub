@@ -1,8 +1,8 @@
 // Reminder send job. Invoked on a schedule by pg_cron (see
-// supabase/migrations/20260728_reminder_send_job.sql), never called directly
-// by app code or by end users. Reads reminders that are due, sends one email
-// per reminder via Resend, and updates reminders.status to "sent" or
-// "failed" accordingly.
+// supabase/migrations/20260728010000_reminder_send_job.sql), never called
+// directly by app code or by end users. Reads reminders that are due, sends
+// one email per reminder via Resend, and updates reminders.status to "sent"
+// or "failed" accordingly.
 //
 // Auth: not a user-facing function, so verify_jwt is off (see the deploy
 // call). Instead it checks a shared secret header set by the calling cron
@@ -13,6 +13,21 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const CRON_SECRET = Deno.env.get("CRON_SECRET");
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const RESEND_FROM_EMAIL = Deno.env.get("RESEND_FROM_EMAIL");
+
+// Brand colors approximated from DESIGN.md's clay/moss oklch tokens as flat
+// hex -- email clients have effectively no oklch() support, so this is a
+// deliberate one-off approximation for this surface only, not a value to
+// treat as authoritative for anything in the actual app UI.
+const COLOR = {
+  bg: "#F5F1EA",
+  card: "#FFFFFF",
+  border: "#E3DACB",
+  clay: "#C1662F",
+  clayTint: "#FBF3EC",
+  text: "#382F26",
+  muted: "#7A6F60",
+  mutedLight: "#A79C8B",
+};
 
 type ReminderRow = {
   id: string;
@@ -27,6 +42,124 @@ type ReminderRow = {
     } | null;
   } | null;
 };
+
+// User-entered values (patient/unit names, notes) end up interpolated into
+// HTML -- escape them so a stray "<" or "&" in someone's notes can't break
+// the markup or, worse, inject something into an email rendered by a real
+// mail client.
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function formatDateNice(isoDate: string): string {
+  return new Date(`${isoDate}T00:00:00`).toLocaleDateString("en-MY", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function formatDateShort(isoDate: string): string {
+  return new Date(`${isoDate}T00:00:00`).toLocaleDateString("en-MY", {
+    day: "numeric",
+    month: "short",
+  });
+}
+
+function formatTimeNice(time: string): string {
+  const [hours, minutes] = time.split(":");
+  const d = new Date();
+  d.setHours(Number(hours), Number(minutes));
+  return d.toLocaleTimeString("en-MY", { hour: "numeric", minute: "2-digit" });
+}
+
+function buildEmailHtml(params: {
+  recipientName: string;
+  patientName: string;
+  unitName: string;
+  facilityName: string;
+  dateNice: string;
+  timeNice: string;
+  notes: string | null;
+}): string {
+  const recipientName = escapeHtml(params.recipientName);
+  const patientName = escapeHtml(params.patientName);
+  const unitName = escapeHtml(params.unitName);
+  const facilityName = escapeHtml(params.facilityName);
+  const notes = params.notes ? escapeHtml(params.notes) : null;
+
+  const notesRow = notes
+    ? `<tr><td style="padding:0 32px 24px 32px;">
+         <p style="margin:0 0 4px 0;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:${COLOR.muted};">Notes</p>
+         <p style="margin:0;font-size:14px;line-height:1.5;color:${COLOR.text};">${notes}</p>
+       </td></tr>`
+    : "";
+
+  return `<!doctype html>
+<html>
+  <body style="margin:0;padding:0;background-color:${COLOR.bg};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLOR.bg};padding:32px 16px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background-color:${COLOR.card};border-radius:16px;border:1px solid ${COLOR.border};">
+            <tr>
+              <td style="padding:24px 32px;text-align:center;border-bottom:1px solid ${COLOR.border};">
+                <span style="font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:${COLOR.clay};">CareHub</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:28px 32px 4px 32px;">
+                <p style="margin:0 0 4px 0;font-size:15px;color:${COLOR.text};">Hi ${recipientName},</p>
+                <p style="margin:0 0 20px 0;font-size:15px;line-height:1.5;color:${COLOR.text};">
+                  This is a reminder for <strong>${patientName}</strong>&rsquo;s upcoming appointment.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 32px 24px 32px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${COLOR.clayTint};border-radius:12px;">
+                  <tr>
+                    <td style="padding:2px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td width="4" style="background-color:${COLOR.clay};border-radius:3px;">&nbsp;</td>
+                          <td style="padding:16px 18px;">
+                            <p style="margin:0 0 3px 0;font-size:16px;font-weight:700;color:${COLOR.text};">${unitName}</p>
+                            <p style="margin:0 0 12px 0;font-size:13px;color:${COLOR.muted};">${facilityName}</p>
+                            <p style="margin:0;font-size:14px;color:${COLOR.text};">
+                              <strong>${params.dateNice}</strong> &middot; ${params.timeNice}
+                            </p>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            ${notesRow}
+            <tr>
+              <td style="padding:0 32px 28px 32px;border-top:1px solid ${COLOR.border};">
+                <p style="margin:20px 0 0 0;font-size:12px;line-height:1.5;color:${COLOR.mutedLight};">
+                  Sent by CareHub, an independent personal appointment tracker &mdash; not an official
+                  message from ${facilityName} or any hospital.
+                </p>
+              </td>
+            </tr>
+          </table>
+          <p style="margin:20px 0 0 0;font-size:11px;color:${COLOR.mutedLight};">&copy; 2026 CareHub</p>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
 
 Deno.serve(async (req: Request) => {
   if (!CRON_SECRET || req.headers.get("x-cron-secret") !== CRON_SECRET) {
@@ -84,13 +217,16 @@ Deno.serve(async (req: Request) => {
       continue;
     }
 
-    const subject = `Reminder: ${appt.units.name} on ${appt.appointment_date}`;
-    const html = `<p>Hi ${appt.patients?.users?.full_name ?? "there"},</p>
-<p>This is a reminder for ${appt.patients?.full_name}'s upcoming appointment:</p>
-<p><strong>${appt.units.name}</strong> &mdash; ${appt.units.hospital_or_facility_name}<br>
-${appt.appointment_date} at ${appt.appointment_time}</p>
-${appt.notes ? `<p>Notes: ${appt.notes}</p>` : ""}
-<p>&mdash; CareHub</p>`;
+    const subject = `Reminder: ${appt.units.name} on ${formatDateShort(appt.appointment_date)}`;
+    const html = buildEmailHtml({
+      recipientName: appt.patients?.users?.full_name ?? "there",
+      patientName: appt.patients?.full_name ?? "your",
+      unitName: appt.units.name,
+      facilityName: appt.units.hospital_or_facility_name,
+      dateNice: formatDateNice(appt.appointment_date),
+      timeNice: formatTimeNice(appt.appointment_time),
+      notes: appt.notes,
+    });
 
     try {
       const res = await fetch("https://api.resend.com/emails", {

@@ -23,6 +23,17 @@ const HOURS_BEFORE: Record<Exclude<ReminderLeadTimeKey, "morning">, number> = {
 // not a fixed duration before — the other three presets are.
 const MORNING_OF_HOUR = 7;
 
+// CareHub is Penang/Malaysia-only (see CLAUDE.md), and Malaysia has used a
+// fixed UTC+8 offset with no DST since 1982 -- a hardcoded offset is
+// correct here, not a shortcut around a real IANA timezone library.
+//
+// Without this, `new Date("2026-07-28T18:11:00")` (no offset) is parsed as
+// local time *of whatever machine runs this code* -- on Vercel that's UTC,
+// not Malaysia time, so every remind_at was silently computed 8 hours later
+// than the user's actual local intention. Appending the explicit offset
+// makes the parse unambiguous regardless of the server's own timezone.
+const MY_OFFSET = "+08:00";
+
 // `time` is "HH:MM" when it comes fresh from the booking flow's own presets,
 // but "HH:MM:SS" once it's round-tripped through Postgres's `time` column
 // (appointments.appointment_time) — normalize before building a Date string
@@ -38,10 +49,10 @@ export function computeRemindAt(
 ): string {
   if (leadTime === "morning") {
     return new Date(
-      `${date}T${String(MORNING_OF_HOUR).padStart(2, "0")}:00:00`,
+      `${date}T${String(MORNING_OF_HOUR).padStart(2, "0")}:00:00${MY_OFFSET}`,
     ).toISOString();
   }
-  const appointmentDateTime = new Date(`${date}T${toHHMM(time)}:00`);
+  const appointmentDateTime = new Date(`${date}T${toHHMM(time)}:00${MY_OFFSET}`);
   return new Date(
     appointmentDateTime.getTime() - HOURS_BEFORE[leadTime] * 60 * 60 * 1000,
   ).toISOString();
@@ -72,8 +83,8 @@ export function preserveLeadTime(
   newDate: string,
   newTime: string,
 ): string {
-  const oldDateTime = new Date(`${oldDate}T${toHHMM(oldTime)}:00`).getTime();
+  const oldDateTime = new Date(`${oldDate}T${toHHMM(oldTime)}:00${MY_OFFSET}`).getTime();
   const delta = oldDateTime - new Date(oldRemindAt).getTime();
-  const newDateTime = new Date(`${newDate}T${toHHMM(newTime)}:00`).getTime();
+  const newDateTime = new Date(`${newDate}T${toHHMM(newTime)}:00${MY_OFFSET}`).getTime();
   return new Date(newDateTime - delta).toISOString();
 }
