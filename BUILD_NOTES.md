@@ -4,6 +4,124 @@ Written at the end of the build. Read the top section first — it's the one
 caveat that applies to every screen below and matters more than any of the
 individual guesses.
 
+**Post-build update 8, 2026-07-28:** a long session covering a full feature-vs-Proposal-Report
+audit, the reminder send job (the one genuinely missing promised feature), a real production
+incident, several small real features, and a handful of self-caused regressions caught and fixed
+in the same session. All of it is on branch `worktree-inherited-tinkering-quasar` (PR not yet
+opened — `gh` isn't available in this environment, open it manually from the compare link) except
+the `package-lock.json` fix, which TJ asked to go straight to `main`. Check whether the branch has
+been merged before assuming any of this is live.
+
+- **Feature audit against `CareHub_Proposal_Report.docx` §4 + the brief's baseline pages.**
+  Verified against real code and the live Supabase project, not impressions: registration/login
+  (Clerk, real), appointment create/view/edit/cancel (all four, including a reschedule path that
+  reuses the Date & Time + Confirm steps), multi-unit tracking (confirmed live — one row per
+  `units.type` value, not hospital-locked), document storage (confirmed against live
+  `storage.objects` RLS policies, not just that the bucket exists — genuinely scoped per-user via
+  `patient.user_id`), history/status tracker (all 5 real statuses wired end to end, not just the 3
+  the report names — `missed` turned out to already be reachable via an "Did not attend" button,
+  contradicting an older note in `types.ts`/this file claiming nothing sets it). Automated email
+  reminders confirmed as the one real gap — see below, now fixed. Out-of-scope check came back
+  clean: no hospital-staff/MySejahtera/EHR/native-mobile remnants, and the Ballpit/Aurora/Lightfall
+  cleanup from update 7 fully landed (no vendor folder, no stray deps). Found one real bug while in
+  there, not fixed (explicitly TJ's own to fix): `MobileTabBar`'s center "Add appointment" FAB
+  (`src/components/nav-links.tsx`) routes to `/upcoming`, not the booking flow.
+
+- **Reminder send job built and deployed live.** `supabase/functions/send-reminders` (Edge
+  Function) reads `reminders` where `status='pending'` and `remind_at <= now()`, sends via Resend,
+  updates status to `sent`/`failed`. Scheduled via `pg_cron` + `pg_net` every 15 minutes
+  (`supabase/migrations/20260728010000_reminder_send_job.sql`). Auth to the function is a shared
+  secret in Supabase Vault (`x-cron-secret` header), not the service-role key — deliberately, so no
+  sensitive key sits in cron SQL. Deployed and verified live: manually invoked the function,
+  confirmed it 401s and touches zero rows when unconfigured (fails closed by design), confirmed in
+  edge-function logs. Still needs three Edge Function secrets set via the Dashboard before it
+  actually sends anything — `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `CRON_SECRET` — no tool in this
+  environment can set Edge Function secrets, so that step is TJ's alone.
+
+- **Real incident: killed TJ's running dev server.** While checking whether ~280 historical
+  "Module not found: framer-motion" dev-log errors were reproducible, ran `rm -rf node_modules
+  package-lock.json` in the **main checkout** instead of the isolated worktree — killed the dev
+  server TJ already had running on port 3000 and modified a tracked file without authorization to
+  touch it. Disclosed immediately rather than silently fixing it. Restoring `package-lock.json` and
+  re-running `npm ci` against it surfaced a real, pre-existing issue unrelated to this mistake: the
+  committed lockfile was already out of sync with `package.json` (`Missing: @swc/helpers@0.5.23
+  from lock file`) — not something this session caused, just found. Fixed via `npm install`
+  (regenerates the lock correctly) and restarted TJ's dev server. The framer-motion errors
+  themselves: confirmed as a one-time artifact, not reproducible — a genuine clean install plus a
+  fresh dev-server log came back with zero errors and zero framer-motion mentions.
+
+- **Supabase advisor warning (`rls_auto_enable` SECURITY DEFINER exposed to anon/authenticated) —
+  actually fixed, took two attempts.** Confirmed first that the function is real Supabase project
+  scaffolding (an event trigger that auto-enables RLS on new `public` tables), not app code — zero
+  references anywhere in `src/`. First `revoke execute ... from anon, authenticated` silently did
+  nothing, because the actual grant was on the `PUBLIC` pseudo-role the whole time (both roles just
+  inherit from it) — caught by checking `information_schema.routine_privileges` rather than trusting
+  the revoke had worked, then fixed with `revoke execute ... from public`. Confirmed gone via a
+  fresh advisor scan afterward. Left the one remaining `pg_net`-in-`public`-schema warning alone —
+  it's a side effect of the reminder job's own migration, `pg_net` doesn't support `ALTER EXTENSION
+  ... SET SCHEMA` at all (errors outright), and Supabase's own docs install it the same way.
+
+- **Full navigation reachability audit, both viewports.** Every page in the app has a real click
+  path on both desktop (`SidebarNav`) and mobile (`MobileTabBar` + the Profile shortcuts page),
+  including History/Documents, which dropped out of the mobile tab bar in update 7's nav rebuild but
+  are reachable via Profile's "Manage care units"/History/Documents links. Found and fixed two real
+  label/target mismatches, same class of bug as the FAB above: the landing footer's About/Contact/
+  Privacy links pointed at `href="#"` (now real pages, see below), and the landing page logo
+  (`landing-nav.tsx`) wasn't wrapped in a link at all, unlike the signed-in app shell's version.
+
+- **Own regression caught and fixed in the same session:** adding the Deno edge function file
+  broke `npx tsc --noEmit` project-wide — the root `tsconfig.json`'s unscoped `**/*.ts` include was
+  sweeping `supabase/functions/*.ts` into the Next.js TS project and failing on `Deno`/`npm:`
+  globals it doesn't understand. Fixed by excluding `supabase/functions` in `tsconfig.json`. Caught
+  by actually running `tsc --noEmit` after the edit rather than assuming a passing build, per this
+  file's own repeated lesson about always running the real checks.
+
+- **About, Contact, Privacy Policy are now real pages**, not "Coming soon" placeholders —
+  `src/app/{about,contact,privacy}/page.tsx`. Privacy's content is grounded in the actual verified
+  RLS/storage behavior from the feature audit above, not generic boilerplate. Contact publishes a
+  `mailto:` link — asked TJ which address before publishing anything, used `kwebbelkop62@gmail.com`
+  per explicit confirmation, not assumed from the account email on file.
+
+- **Real phone field added to `users`** — `alter table users add column phone text`, wired through
+  `updateProfileAction` and the Profile edit form. This directly overrides this project's own
+  standing rule (schema finalized against the graded ERD, don't alter it) — stopped and asked via
+  an explicit question before touching Supabase, per that same rule's own instruction, and only
+  proceeded once TJ chose "override the rule." No RLS policy change was needed: the existing
+  row-level `users update own` policy already covers any column on the row, not just `full_name`.
+
+- **Data export, Scope A (TJ explicitly deferred the harder zip-bundling scope).**
+  `src/app/(app)/export/page.tsx` — a single printable, receipt-style page: every appointment
+  itemized (unit, date/time, patient, status) with a totals line, every uploaded document listed
+  with its existing signed-URL download link, "Print / Save as PDF" via the browser's native print
+  dialog (`src/components/print-button.tsx`, `window.print()` — no server-side PDF generation).
+  Added `print:hidden` to `AppShell`'s sidebar/mobile header and `MobileTabBar` so only the receipt
+  prints, not the app chrome, plus `print:text-black`/`print:border-black` overrides so it prints
+  legibly regardless of dark mode. No new dependencies. Explicitly does **not** convert uploaded
+  files to PDF on download — a document downloads as whatever format it was uploaded in (PDF stays
+  PDF, a photo stays a photo). Real format conversion would need a new dependency, which would have
+  silently broken the "no new deps" scope TJ approved, so it was flagged rather than guessed at.
+
+- **Notification preferences (Profile): Email flipped from greyed-out "Coming soon" to shown
+  enabled** — genuinely accurate now that the reminder send job exists and always emails
+  unconditionally. Push/SMS stay exactly as before. None of the three are real interactive
+  controls; there's still no per-user column to persist a preference either way, so this only
+  changed which visual state each renders as.
+
+- **Favicon**: `src/app/icon.svg` (Next.js's `icon` file convention) using the existing square
+  `icon-mark.svg`, not the wide navbar wordmark lockup which doesn't work at favicon size. Verified
+  live that Next.js emits a real `<link rel="icon" ... type="image/svg+xml">` tag. Left the default
+  Next.js `favicon.ico` in place as a fallback — no image-conversion tooling available in this
+  environment to generate a proper multi-resolution `.ico` from the real logo instead.
+
+- **Environment quirks worth knowing for next time:** a git worktree doesn't carry gitignored files
+  like `.env.local` — every Supabase-backed page 500'd on the worktree's own preview dev server
+  until it was copied over manually. Separately, a `next dev` restart mid-session hit a fatal
+  Turbopack panic (`0xc0000142`, a native `.node` binary — `lightningcss`/`@tailwindcss/oxide` —
+  failing to spawn as a subprocess) on every single route including static pages; `tsc`/`eslint`
+  were both clean at the time, and a `.next` cache clear + restart fixed it outright. Reads as
+  transient Windows-specific flakiness (very possibly antivirus scanning a freshly-rewritten native
+  binary after repeated forced process kills), not a real code defect.
+
 **Post-build update 7, 2026-07-22:** audited the repo against the approved Claude Design mockups
 (`carehub-design-system-setup/project/*.dc.html`) after `c4eb095` ("ui fix") visibly drifted from
 them. Findings, full detail in `IMPLEMENTATION_PLAN.md`: `globals.css` tokens are a third,
