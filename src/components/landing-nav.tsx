@@ -25,7 +25,9 @@ export function LandingNav({
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-background/90 backdrop-blur-md">
       <div className="flex items-center justify-between px-6 py-3 sm:px-10 sm:py-3.5 lg:px-14">
-        <NavLogo className="h-8" />
+        <Link href="/" aria-label="CareHub home">
+          <NavLogo className="h-8" />
+        </Link>
 
         {/* Desktop nav — hidden below md, everything crammed into one row
             below that width is exactly the bug this component fixes. */}
