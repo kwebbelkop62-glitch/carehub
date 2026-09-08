@@ -5,10 +5,9 @@ export type ViewMode = "self" | "caregiver";
 export const VIEW_MODE_COOKIE = "carehub-view-mode";
 
 // No `users` column for this — CLAUDE.md's schema is finalized and not to
-// be altered — so the choice lives in a cookie, same pattern as
-// src/i18n/actions.ts's locale. Defaults to caregiver once a second patient
-// exists (matches the behavior before this was a real toggle) until the
-// user explicitly picks one.
+// be altered — so the choice lives in a cookie. Defaults to caregiver once
+// a second patient exists (matches the behavior before this was a real
+// toggle) until the user explicitly picks one.
 //
 // Caregiver mode requires a dependant to manage — with 0 or 1 patients this
 // always resolves to "self" regardless of what's stored, so a stale cookie

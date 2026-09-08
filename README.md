@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CareHub
 
-## Getting Started
+A full-stack, role-based web application that helps Penang-based patients and caregivers track medical appointments across multiple healthcare providers in one place.
 
-First, run the development server:
+**Live app:** https://carehub-theta.vercel.app
+
+## The problem
+
+Patients and caregivers managing appointments across multiple clinics/providers have no single place to track them — CareHub centralizes that, with per-user access control so each account only ever sees its own data.
+
+## Screenshots
+
+| Landing page | Upcoming appointments | Appointment detail |
+|---|---|---|
+| ![Landing page](docs/screenshots/landing.jpg) | ![Upcoming appointments](docs/screenshots/upcoming.jpg) | ![Appointment detail](docs/screenshots/appointment-detail.jpg) |
+
+## Features
+
+- Role-based accounts (patient / caregiver) via Clerk authentication
+- Appointment tracking across multiple providers
+- Automated email reminders — a scheduled Supabase Edge Function (triggered via `pg_cron`/`pg_net`) sends reminders through Resend
+- Document upload support via Supabase Storage
+- Per-user data isolation enforced at the database level with Postgres Row-Level Security policies on every table
+- Custom design system (clay & moss color tokens, Figtree for UI text, Lora for headings)
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 16, TypeScript, Tailwind CSS v4 |
+| Auth | Clerk |
+| Database | Supabase (PostgreSQL), Row-Level Security |
+| Storage | Supabase Storage |
+| Background jobs | Supabase Edge Functions, `pg_cron`, `pg_net` |
+| Email | Resend |
+| Hosting | Vercel (`sin1` region, matched to Supabase `ap-southeast-1`) |
+
+## What I built end-to-end
+
+Solo capstone project (WOU Web Development Capstone) — data model, UI/UX, auth flow, RLS policy design, the scheduled reminder pipeline, and production deployment, all done independently.
+
+## Running locally
 
 ```bash
+git clone https://github.com/kwebbelkop62-glitch/carehub.git
+cd carehub
+npm install
+cp .env.example .env.local
+# fill in .env.local with your own Supabase and Clerk values
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The `send-reminders` Supabase Edge Function is deployed and configured separately (its own secrets, set via `supabase secrets set` — see `.env.example` for details) and isn't required to run the app locally.

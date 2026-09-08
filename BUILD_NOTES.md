@@ -196,19 +196,13 @@ cards, i18n structure:**
   tab order even when the card isn't visually flipped — `backface-hidden`
   only affects rendering, not focusability. Matches the reference
   mechanism exactly; fixing it properly would go beyond that.
-- **i18n**: next-intl, cookie-based (no `[locale]` URL routing) — avoids
-  restructuring every existing route under a locale segment for an app
-  whose URLs don't need it. `messages/en.json` and `messages/ms.json` are
-  byte-identical English placeholders, per your explicit instruction — no
-  translation was attempted. Only the landing page's copy is wired through
-  `getTranslations()` so far (the one page with a visible toggle); the
-  toggle itself calls a real `setLocale()` server action (cookie +
-  `revalidatePath`), not just local state. Found and fixed a real bug
-  while verifying: the language toggle (a Client Component) imported
-  constants from `src/i18n/request.ts`, which also imports `next/headers`
-  — that drags a server-only module into the client bundle and Next.js
-  correctly refused to compile it. Split the plain constants into
-  `src/i18n/locales.ts` so client and server code can share them safely.
+- **i18n**: an earlier pass wired up `next-intl` (cookie-based, no
+  `[locale]` URL routing) with a language toggle, but `messages/en.json`
+  and `messages/ms.json` were always byte-identical English placeholders —
+  no real translation was ever shipped, and the toggle was never linked
+  into the nav. Removed entirely (config, provider, per-page translation
+  calls, the unused toggle component, `src/i18n/`, `messages/`) in favor
+  of plain hardcoded English copy.
 - **Badge colors** (judgment call): most statuses now share the purple
   tint treatment (matches the mockup's own badge styling, and the token
   spec explicitly calls `tint` a badge background) — but `missed`/`failed`

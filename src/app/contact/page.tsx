@@ -1,4 +1,3 @@
-import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { LandingNav } from "@/components/landing-nav";
 
@@ -7,15 +6,13 @@ export const metadata = {
 };
 
 export default async function ContactPage() {
-  const t = await getTranslations("Landing");
-
   return (
     <div className="flex min-h-full flex-1 flex-col bg-background text-foreground">
       <LandingNav
-        howLabel={t("nav.how")}
-        whoLabel={t("nav.who")}
-        signInLabel={t("nav.signIn")}
-        ctaLabel={t("nav.cta")}
+        howLabel="How it works"
+        whoLabel="Who it's for"
+        signInLabel="Sign in"
+        ctaLabel="Get started free"
       />
       <div className="mx-auto w-full max-w-[720px] flex-1 px-6 py-16 sm:px-10 lg:px-14">
         <h1 className="mb-6 font-serif text-3xl font-semibold sm:text-4xl">Contact</h1>

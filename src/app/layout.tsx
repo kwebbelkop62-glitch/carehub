@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Figtree, Lora } from "next/font/google";
 import Script from "next/script";
 import { ClerkProvider } from "@clerk/nextjs";
-import { NextIntlClientProvider } from "next-intl";
-import { getLocale } from "next-intl/server";
 import "./globals.css";
 
 // Runs before hydration so the correct theme applies on first paint —
@@ -35,17 +33,15 @@ export const metadata: Metadata = {
   description: "Manage appointments across hospitals, clinics, and labs.",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getLocale();
-
   return (
     <ClerkProvider>
       <html
-        lang={locale}
+        lang="en"
         className={`${figtree.variable} ${lora.variable} h-full scroll-smooth antialiased`}
         suppressHydrationWarning
       >
@@ -53,7 +49,7 @@ export default async function RootLayout({
           <Script id="theme-init" strategy="beforeInteractive">
             {THEME_INIT_SCRIPT}
           </Script>
-          <NextIntlClientProvider>{children}</NextIntlClientProvider>
+          {children}
         </body>
       </html>
     </ClerkProvider>
